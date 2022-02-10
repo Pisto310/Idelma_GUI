@@ -1,11 +1,12 @@
 import numpy as np
-from SerialCmds import *
 
 
 class BoardInfos:
-    """This class will contains all the board
+    """
+    This class will contains all the board
     infos as attributes and all associated methods.
-    to get, set and more"""
+    to get, set and more
+    """
 
     def __init__(self):
 
@@ -21,11 +22,6 @@ class BoardInfos:
             "assigned": 0,
             "remaining": 0
         }
-        self.commands = SerialCmds()
-
-    # Method to return the data to send over serial to the arduino to get the board infos
-    def getBoardInfos(self):
-        return self.commands.getBoardInfosCmd
 
     @property
     def serialNum(self):
@@ -38,7 +34,7 @@ class BoardInfos:
     # @property
     # def sctsInfo(self):
     #     return self.sctsInfo
-
+    #
     # @sctsInfo.setter
     # def sctsInfo(self, scts_infos_update):
     #     # Let's first check if argument passed is iterable

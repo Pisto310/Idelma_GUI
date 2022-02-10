@@ -1,19 +1,17 @@
 
 
 class SerialCmds:
-    """All serial commands related to the
+    """
+    All serial commands related to the
     Arduino board are contained in this
-    class"""
+    class
+    """
 
     def __init__(self):
-        self._getBoardInfosCmd = "0"    # Will replace by BRD
-        self._createSctCmd = "1"        # Will replace by NEW
+        self._rqstBoardInfos = {"cmd": "0", "resp_bytes": 9}  # cmd will be replaced by BRD
+        self._createSctCmd = "1"        # Will be replace by NEW
 
     @property
-    def getBoardInfosCmd(self):
-        return self._getBoardInfosCmd
-
-    @property
-    def getCreateSctCmd(self):
-        return self._getBoardInfosCmd
+    def rqstBoardInfos(self):
+        return self._rqstBoardInfos
 

@@ -1,19 +1,16 @@
-from UsrSerial import *
-from BoardInfos import *
+from SerialHandler import *
 
 
 if __name__ == '__main__':
 
     # Set-up section
-    idelma = UsrSerial()
-    mega2560 = BoardInfos()
-
-    idelma.writeToPort(mega2560.getBoardInfos())
+    test = SerialHandler()
+    test.boardInfosRqst()
 
     # Loop section
     while True:
-        idelma.readPort()
 
+        test.checkRqstStatus()
 
 
 
