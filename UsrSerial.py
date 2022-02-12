@@ -27,7 +27,12 @@ class UsrSerial(Serial):
     def readPort(self, expected_size):
         if self.in_waiting == expected_size:
             self.rxBuffer = list(self.read_until(expected=LF, size=expected_size))
-            print(self.rxBuffer)
+
+    def concatenateData(self, **kwargs):
+        new_data = ""
+        for arg in kwargs.values():
+            new_data += arg
+        return new_data
 
     """
     This section for attributes' getters, setters and delete

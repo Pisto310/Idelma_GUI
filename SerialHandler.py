@@ -14,17 +14,30 @@ class SerialHandler:
         self._replySize = 0
 
         # Below are all commands and the MCU number of bytes to respond
-        self._rqstBoardInfos = {"cmd": "0", "reply_bytes": 9}  # cmd will be replaced by BRD
-        self._createSctCmd = "1"        # Will be replace by NEW
+        self._rqstBoardInfos = {"cmd": "0", "reply_bytes": 9}
+        self._setupSct = {"cmd": "1", "reply_bytes": 0}                # 6 bytes of reply would pertain to scts and pxls mgmt?
 
-    def boardInfosRqst(self):
+    # Method to request necessary board infos from MCU. Takes a BoardInfos instance as argument
+    def boardInfosRqst(self, board_info_instance):
         self.sendRqst(self.rqstBoardInfos)
+        while self.awaitingReply:                       # Maybe add timeout?
+            if self.checkRqstStatus():
+                self.rqstComplete()
+        print(self.serial.rxBuffer)
+        board_info_instance.allAttrUpdate(self.serial.rxBuffer)
 
-    def sendRqst(self, command_dict):
+    def setupSctRqst(self, led_count):
+        #led_dict = {"No. of LEDs": str(led_count)}
+        self.sendRqst(self.setupSct, numLED=str(led_count))
+
+    def sendRqst(self, command_dict, **kwargs):
         if not self.awaitingReply:
             for i, key in enumerate(command_dict):
                 if i == 0:
-                    self.serial.writeToPort(command_dict.get(key))
+                    if not kwargs:
+                        self.serial.writeToPort(command_dict.get(key))
+                    else:
+                        self.serial.writeToPort(self.serial.concatenateData(**kwargs))
                 elif i == 1:
                     if command_dict.get(key):
                         self.replySize = command_dict.get(key)
@@ -36,7 +49,9 @@ class SerialHandler:
         if self.awaitingReply:
             self.serial.readPort(self.replySize)
         if len(self.serial.rxBuffer):
-            self.rqstComplete()
+            return True
+        else:
+            return False
 
     def rqstComplete(self):
         self.awaitingReply = False
@@ -70,3 +85,7 @@ class SerialHandler:
     @property
     def rqstBoardInfos(self):
         return self._rqstBoardInfos
+
+    @property
+    def setupSct(self):
+        return self._setupSct

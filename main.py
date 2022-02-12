@@ -1,16 +1,19 @@
 from SerialHandler import *
+from BoardInfos import *
 
 
 if __name__ == '__main__':
 
     # Set-up section
+    board = BoardInfos()
     test = SerialHandler()
-    test.boardInfosRqst()
+    test.boardInfosRqst(board)
+    test.setupSctRqst(5)
 
     # Loop section
     while True:
-
-        test.checkRqstStatus()
+        pass
+        #test.checkRqstStatus()
 
 
 

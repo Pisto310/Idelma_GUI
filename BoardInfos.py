@@ -10,26 +10,53 @@ class BoardInfos:
 
     def __init__(self):
 
-        self._serialNum = ""
-        self._fwVersion = ""
+        self._serialNum = 0
+        self._fwVersion = 0
         self.sctsInfo = {
             "capacity": 0,
-            "assigned": 0,
-            "remaining": 0
+            "remaining": 0,
+            "assigned": 0
         }
         self.pxlsInfo = {
             "capacity": 0,
-            "assigned": 0,
-            "remaining": 0
+            "remaining": 0,
+            "assigned": 0
         }
+
+    def allAttrUpdate(self, updated_infos_list):
+        self.serialNum = updated_infos_list[0]
+        self.fwVersion = updated_infos_list[1] + (updated_infos_list[2]/10)
+        for i, key in enumerate(self.sctsInfo):
+            if i == 0:
+                self.sctsInfo[key] = updated_infos_list[3]
+            if i == 1:
+                self.sctsInfo[key] = updated_infos_list[4]
+            if i == 2:
+                self.sctsInfo[key] = updated_infos_list[5]
+
+        for i, key in enumerate(self.pxlsInfo):
+            if i == 0:
+                self.pxlsInfo[key] = updated_infos_list[6]
+            if i == 1:
+                self.pxlsInfo[key] = updated_infos_list[7]
+            if i == 2:
+                self.pxlsInfo[key] = updated_infos_list[8]
 
     @property
     def serialNum(self):
         return self._serialNum
 
+    @serialNum.setter
+    def serialNum(self, new_serial):
+        self._serialNum = new_serial
+
     @property
     def fwVersion(self):
         return self._fwVersion
+
+    @fwVersion.setter
+    def fwVersion(self, new_version):
+        self._fwVersion = new_version
 
     # @property
     # def sctsInfo(self):
