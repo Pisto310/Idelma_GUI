@@ -14,21 +14,24 @@ class SerialHandler:
         self._replySize = 0
 
         # Below are all commands and the MCU number of bytes to respond
-        self._rqstBoardInfos = {"cmd": "0", "reply_bytes": 9}
-        self._setupSct = {"cmd": "1", "reply_bytes": 0}                # 6 bytes of reply would pertain to scts and pxls mgmt?
+        self._rqstBoardInfos = {"cmd": "1", "reply_bytes": 9}
+        self._setupSct = {"cmd": "2", "reply_bytes": 1}                # 6 bytes of reply would pertain to scts and pxls mgmt?
 
     # Method to request necessary board infos from MCU. Takes a BoardInfos instance as argument
     def boardInfosRqst(self, board_info_instance):
         self.sendRqst(self.rqstBoardInfos)
         while self.awaitingReply:                       # Maybe add timeout?
             if self.checkRqstStatus():
+                board_info_instance.allAttrUpdate(self.serial.rxBuffer)
                 self.rqstComplete()
-        print(self.serial.rxBuffer)
-        board_info_instance.allAttrUpdate(self.serial.rxBuffer)
 
+    # Method to create/setup a new section by passing the desired number of LEDs to be contained in it
     def setupSctRqst(self, led_count):
-        #led_dict = {"No. of LEDs": str(led_count)}
         self.sendRqst(self.setupSct, numLED=str(led_count))
+        while self.awaitingReply:
+            if self.checkRqstStatus():
+
+                self.rqstComplete()
 
     def sendRqst(self, command_dict, **kwargs):
         if not self.awaitingReply:
@@ -37,7 +40,7 @@ class SerialHandler:
                     if not kwargs:
                         self.serial.writeToPort(command_dict.get(key))
                     else:
-                        self.serial.writeToPort(self.serial.concatenateData(**kwargs))
+                        self.serial.writeToPort(self.serial.concatenateData(command_dict.get(key), **kwargs))
                 elif i == 1:
                     if command_dict.get(key):
                         self.replySize = command_dict.get(key)
@@ -56,6 +59,7 @@ class SerialHandler:
     def rqstComplete(self):
         self.awaitingReply = False
         self.replySize = 0
+        self.serial.clearBuffer()
 
     """
     This section for attributes' getters, setters and delete

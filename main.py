@@ -1,5 +1,8 @@
+import time
+
 from SerialHandler import *
 from BoardInfos import *
+from time import sleep
 
 
 if __name__ == '__main__':
@@ -7,13 +10,17 @@ if __name__ == '__main__':
     # Set-up section
     board = BoardInfos()
     test = SerialHandler()
-    test.boardInfosRqst(board)
-    test.setupSctRqst(5)
+    #test.boardInfosRqst(board)
+    test.setupSctRqst(9)
+    # time.sleep(1)
+    # test.setupSctRqst(10)
+    # time.sleep(1)
+    # test.boardInfosRqst(board)
 
     # Loop section
     while True:
         pass
-        #test.checkRqstStatus()
+        #test.serial.readPortDebug()
 
 
 
