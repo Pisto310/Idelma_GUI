@@ -23,24 +23,29 @@ class BoardInfos:
             "assigned": 0
         }
 
+    def updtSctsInfo(self, iterable):
+        for i, key in enumerate(self.sctsInfo):
+            if i == 0:
+                self.sctsInfo[key] = iterable[0]
+            if i == 1:
+                self.sctsInfo[key] = iterable[1]
+            if i == 2:
+                self.sctsInfo[key] = iterable[2]
+
+    def updtPxlsInfo(self, iterable):
+        for i, key in enumerate(self.pxlsInfo):
+            if i == 0:
+                self.pxlsInfo[key] = iterable[0]
+            if i == 1:
+                self.pxlsInfo[key] = iterable[1]
+            if i == 2:
+                self.pxlsInfo[key] = iterable[2]
+
     def allAttrUpdate(self, updated_infos_list):
         self.serialNum = updated_infos_list[0]
         self.fwVersion = updated_infos_list[1] + (updated_infos_list[2]/10)
-        for i, key in enumerate(self.sctsInfo):
-            if i == 0:
-                self.sctsInfo[key] = updated_infos_list[3]
-            if i == 1:
-                self.sctsInfo[key] = updated_infos_list[4]
-            if i == 2:
-                self.sctsInfo[key] = updated_infos_list[5]
-
-        for i, key in enumerate(self.pxlsInfo):
-            if i == 0:
-                self.pxlsInfo[key] = updated_infos_list[6]
-            if i == 1:
-                self.pxlsInfo[key] = updated_infos_list[7]
-            if i == 2:
-                self.pxlsInfo[key] = updated_infos_list[8]
+        self.updtSctsInfo(updated_infos_list[3:6])
+        self.updtPxlsInfo(updated_infos_list[6:])
 
     @property
     def serialNum(self):
@@ -57,6 +62,21 @@ class BoardInfos:
     @fwVersion.setter
     def fwVersion(self, new_version):
         self._fwVersion = new_version
+
+    @property
+    def sctsConfigSaved(self):
+        return self._sctsConfigSaved
+
+    @sctsConfigSaved.setter
+    def sctsConfigSaved(self, toggle_bool):
+        if toggle_bool != self._sctsConfigSaved:
+            if toggle_bool is False or toggle_bool is True:
+                self._sctsConfigSaved = toggle_bool
+            else:
+                raise ValueError("Attribute is a boolean, no other value accepted")
+        else:
+            raise AttributeError("Value passed is not different than actual one")
+
 
     # @property
     # def sctsInfo(self):

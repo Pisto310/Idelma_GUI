@@ -11,7 +11,7 @@ class UsrSerial(Serial):
     be added to the convenience of the dev
     """
 
-    def __init__(self, port='/dev/cu.usbmodem14101', baudrate=9600, timeout=0.1, serial_wait=1.2):
+    def __init__(self, port='/dev/cu.usbmodem14101', baudrate=115200, timeout=0.1, serial_wait=1.2):
         super().__init__(port=port, baudrate=baudrate, bytesize=EIGHTBITS, parity=PARITY_NONE,
                          stopbits=STOPBITS_ONE, timeout=timeout, xonxoff=False, rtscts=False,
                          write_timeout=None, dsrdtr=False, inter_byte_timeout=None, exclusive=None)
@@ -21,13 +21,13 @@ class UsrSerial(Serial):
 
     # Method to call to write on serial port
     def writeToPort(self, serial_data):
+        print(list(bytes(serial_data, 'utf-8')))
         self.write(bytes(serial_data, 'utf-8'))
         time.sleep(0.05)
 
-    def readPort(self, expected_size):
-        if self.in_waiting == expected_size:
-            self.rxBuffer = list(self.read(size=expected_size))
-            print(self.rxBuffer)
+    # reading Rx buffer is based on the fact that there is always a 'line feed' (\n) char in a serial transmission
+    def readPort(self):
+        self.rxBuffer = list(self.readline())
 
     def clearBuffer(self):
         self.rxBuffer = []

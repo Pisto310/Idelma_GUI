@@ -2,25 +2,38 @@ import time
 
 from SerialHandler import *
 from BoardInfos import *
+from IdelmaApp import *
 from time import sleep
 
 
+# This all might just go in a ProgInit() func or something later
+# Make it so the func takes board and serial obj as input?
+# def savedConfigCheck():
+#     test.boardInfosRqst(idelma)
+#     if idelma.sctsInfo.get("assigned") and idelma.pxlsInfo.get("assigned"):
+#         idelma.sctsConfigSaved = not idelma.sctsConfigSaved
+
 if __name__ == '__main__':
 
+    guiTutorial()
+
     # Set-up section
-    board = BoardInfos()
-    test = SerialHandler()
-    #test.boardInfosRqst(board)
-    test.setupSctRqst(9)
+    # idelma = BoardInfos()
+    # test = SerialHandler()
+
+    # Check board info to see if there is already a saved configuration
+    # savedConfigCheck()
+
+    # test.setupSctRqst(9, board)
     # time.sleep(1)
-    # test.setupSctRqst(10)
+    # test.setupSctRqst(10, board)
     # time.sleep(1)
     # test.boardInfosRqst(board)
+    # test.saveSctsConfigRqst(idelma)
 
     # Loop section
     while True:
         pass
-        #test.serial.readPortDebug()
 
 
 

@@ -1,4 +1,5 @@
 from UsrSerial import *
+from BoardInfos import BoardInfos
 
 
 class SerialHandler:
@@ -11,46 +12,61 @@ class SerialHandler:
         self.serial = UsrSerial()
 
         self._awaitingReply = False
-        self._replySize = 0
 
-        # Below are all commands and the MCU number of bytes to respond
-        self._rqstBoardInfos = {"cmd": "1", "reply_bytes": 9}
-        self._setupSct = {"cmd": "2", "reply_bytes": 1}                # 6 bytes of reply would pertain to scts and pxls mgmt?
+        # Below are all commands
+        self._rqstBoardInfos = {"cmd": "1", "reply_expected": True}
+        self._setupSct =       {"cmd": "2", "reply_expected": True}                # 6 bytes of reply would pertain to scts and pxls mgmt?
+        self._saveSctsConfig = {"cmd": "3", "reply_expected": True}
+        self._ledColorChange = {"cmd": "4", "reply_expected": False}           # No reply bytes for the time being, visual indicator is sufficient
+                                                                        # Command number might change in future
 
     # Method to request necessary board infos from MCU. Takes a BoardInfos instance as argument
-    def boardInfosRqst(self, board_info_instance):
+    def boardInfosRqst(self, board: BoardInfos):
         self.sendRqst(self.rqstBoardInfos)
         while self.awaitingReply:                       # Maybe add timeout?
             if self.checkRqstStatus():
-                board_info_instance.allAttrUpdate(self.serial.rxBuffer)
+                board.allAttrUpdate(self.serial.rxBuffer)
                 self.rqstComplete()
 
     # Method to create/setup a new section by passing the desired number of LEDs to be contained in it
-    def setupSctRqst(self, led_count):
+    def setupSctRqst(self, led_count, board: BoardInfos):
         self.sendRqst(self.setupSct, numLED=str(led_count))
         while self.awaitingReply:
             if self.checkRqstStatus():
-
+                board.updtSctsInfo(self.serial.rxBuffer[:3])
+                board.updtPxlsInfo(self.serial.rxBuffer[3:])
                 self.rqstComplete()
+
+    # Method used to save sections configurations
+    def saveSctsConfigRqst(self, board: BoardInfos):
+        self.sendRqst(self.saveSctsConfig)
+        while self.awaitingReply:
+            if self.checkRqstStatus():
+                print("Sections configuration successfully saved")
+                board.sctsConfigSaved = not board.sctsConfigSaved
+                self.rqstComplete()
+
+    def ledColorChangeRqst(self, section, pixel, rgb_color, white_val):
+        self.sendRqst(self.ledColorChange, sctNbr=section, pxlNbr=pixel, rgbCastColor=rgb_color, whiteCastVal=white_val)
+
+
+
+
 
     def sendRqst(self, command_dict, **kwargs):
         if not self.awaitingReply:
-            for i, key in enumerate(command_dict):
-                if i == 0:
-                    if not kwargs:
-                        self.serial.writeToPort(command_dict.get(key))
-                    else:
-                        self.serial.writeToPort(self.serial.concatenateData(command_dict.get(key), **kwargs))
-                elif i == 1:
-                    if command_dict.get(key):
-                        self.replySize = command_dict.get(key)
-                        self.awaitingReply = True
+            if not kwargs:
+                self.serial.writeToPort(command_dict.get("cmd"))
+            else:
+                self.serial.writeToPort(self.serial.concatenateData(command_dict.get("cmd"), **kwargs))
+            if command_dict.get("reply_expected"):
+                self.awaitingReply = True
         else:
             print("Serial port already busy with pending request")
 
     def checkRqstStatus(self):
         if self.awaitingReply:
-            self.serial.readPort(self.replySize)
+            self.serial.readPort()
         if len(self.serial.rxBuffer):
             return True
         else:
@@ -58,7 +74,6 @@ class SerialHandler:
 
     def rqstComplete(self):
         self.awaitingReply = False
-        self.replySize = 0
         self.serial.clearBuffer()
 
     """
@@ -70,21 +85,10 @@ class SerialHandler:
 
     @awaitingReply.setter
     def awaitingReply(self, toggle_bool):
-        if toggle_bool == False or toggle_bool == True:
+        if toggle_bool is False or toggle_bool is True:
             self._awaitingReply = toggle_bool
         else:
             raise ValueError("Attribute is a boolean, no other value accepted")
-
-    @property
-    def replySize(self):
-        return self._replySize
-
-    @replySize.setter
-    def replySize(self, new_size):
-        if new_size < 0:
-            raise ValueError("Cannot expect negative bytes on serial bus")
-        else:
-            self._replySize = new_size
 
     @property
     def rqstBoardInfos(self):
@@ -93,3 +97,11 @@ class SerialHandler:
     @property
     def setupSct(self):
         return self._setupSct
+
+    @property
+    def saveSctsConfig(self):
+        return self._saveSctsConfig
+
+    @property
+    def ledColorChange(self):
+        return self._ledColorChange

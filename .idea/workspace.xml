@@ -1,8 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="3153b060-3ee7-475e-91c1-ba171824b147" name="Changes" comment="Started work on create section command">
+    <list default="true" id="3153b060-3ee7-475e-91c1-ba171824b147" name="Changes" comment="Set-up section command implemented, but still not clear if board should send response">
+      <change afterPath="$PROJECT_DIR$/ColorDebugWin.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/IdelmaApp.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/SectionSetupWin.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/BoardInfos.py" beforeDir="false" afterPath="$PROJECT_DIR$/BoardInfos.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/SerialHandler.py" beforeDir="false" afterPath="$PROJECT_DIR$/SerialHandler.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/UsrSerial.py" beforeDir="false" afterPath="$PROJECT_DIR$/UsrSerial.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/main.py" afterDir="false" />
@@ -99,7 +103,14 @@
       <option name="project" value="LOCAL" />
       <updated>1646080015415</updated>
     </task>
-    <option name="localTasksCounter" value="4" />
+    <task id="LOCAL-00004" summary="Set-up section command implemented, but still not clear if board should send response">
+      <created>1646141096826</created>
+      <option name="number" value="00004" />
+      <option name="presentableId" value="LOCAL-00004" />
+      <option name="project" value="LOCAL" />
+      <updated>1646141096827</updated>
+    </task>
+    <option name="localTasksCounter" value="5" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -117,7 +128,8 @@
   <component name="VcsManagerConfiguration">
     <MESSAGE value="- Removed SerialCmds file and moved commands to newly created SerialHandler&#10;- Moved reply_size attribute from UsrSerial to SerialHandler&#10;- Implemented 3 methods in SerialHandler that takes care of sending cmds and receiving MCU reply" />
     <MESSAGE value="Started work on create section command" />
-    <option name="LAST_COMMIT_MESSAGE" value="Started work on create section command" />
+    <MESSAGE value="Set-up section command implemented, but still not clear if board should send response" />
+    <option name="LAST_COMMIT_MESSAGE" value="Set-up section command implemented, but still not clear if board should send response" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -129,11 +141,5 @@
         </breakpoint>
       </default-breakpoints>
     </breakpoint-manager>
-    <watches-manager>
-      <configuration name="PythonConfigurationType">
-        <watch expression="self.in_waiting" language="Python" />
-        <watch expression="self.rxBuffer" language="Python" />
-      </configuration>
-    </watches-manager>
   </component>
 </project>
