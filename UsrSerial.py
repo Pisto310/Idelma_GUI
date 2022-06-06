@@ -11,13 +11,14 @@ class UsrSerial(Serial):
     be added to the convenience of the dev
     """
 
-    def __init__(self, port='/dev/cu.usbmodem14101', baudrate=115200, timeout=0.1, serial_wait=1.2):
+    def __init__(self, port='/dev/cu.usbmodem14101', baudrate=9600, timeout=0.075, serial_wait=1.2):
         super().__init__(port=port, baudrate=baudrate, bytesize=EIGHTBITS, parity=PARITY_NONE,
                          stopbits=STOPBITS_ONE, timeout=timeout, xonxoff=False, rtscts=False,
                          write_timeout=None, dsrdtr=False, inter_byte_timeout=None, exclusive=None)
         time.sleep(serial_wait)     # To allow Arduino to RST
 
         self._rxBuffer = []
+        self.parsedMssg = []
 
     # Method to call to write on serial port
     def writeToPort(self, serial_data):
@@ -31,6 +32,27 @@ class UsrSerial(Serial):
 
     def clearBuffer(self):
         self.rxBuffer = []
+
+    # Method for parsing the bytes received through serial. Since all digits are separated, it is useful to know they
+    # are organized in a "little endian" manner. This means that the unit number has a lower index in the list than the
+    # tens and hundreds. Easier to process that way
+    def messageParsing(self):
+        spaceChar = 32
+        lineFeed = 10
+        unitsTracker = 0
+        recomposedNbr = 0
+        msg_container = []
+        for index, val in enumerate(self.rxBuffer):
+            if val == spaceChar:
+                msg_container.append(recomposedNbr)
+                unitsTracker = 0
+                recomposedNbr = 0
+            elif val == lineFeed:
+                break
+            else:
+                recomposedNbr += val * (10 ** unitsTracker)
+                unitsTracker += 1
+        return msg_container
 
     @staticmethod
     def concatenateData(initial_data, **kwargs):

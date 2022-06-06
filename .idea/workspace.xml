@@ -1,15 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="3153b060-3ee7-475e-91c1-ba171824b147" name="Changes" comment="Set-up section command implemented, but still not clear if board should send response">
-      <change afterPath="$PROJECT_DIR$/ColorDebugWin.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/IdelmaApp.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/SectionSetupWin.py" afterDir="false" />
+    <list default="true" id="3153b060-3ee7-475e-91c1-ba171824b147" name="Changes" comment="Added a good chunk of GUI for basic serial functions already coded">
+      <change afterPath="$PROJECT_DIR$/AddSectionWin.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/MutableBrdInfo.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/BoardInfos.py" beforeDir="false" afterPath="$PROJECT_DIR$/BoardInfos.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/IdelmaApp.py" beforeDir="false" afterPath="$PROJECT_DIR$/IdelmaApp.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/SectionSetupWin.py" beforeDir="false" afterPath="$PROJECT_DIR$/SectionEditWin.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/SerialHandler.py" beforeDir="false" afterPath="$PROJECT_DIR$/SerialHandler.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/UsrSerial.py" beforeDir="false" afterPath="$PROJECT_DIR$/UsrSerial.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/main.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -110,7 +110,14 @@
       <option name="project" value="LOCAL" />
       <updated>1646141096827</updated>
     </task>
-    <option name="localTasksCounter" value="5" />
+    <task id="LOCAL-00005" summary="Added a good chunk of GUI for basic serial functions already coded">
+      <created>1652842905926</created>
+      <option name="number" value="00005" />
+      <option name="presentableId" value="LOCAL-00005" />
+      <option name="project" value="LOCAL" />
+      <updated>1652842905926</updated>
+    </task>
+    <option name="localTasksCounter" value="6" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -129,7 +136,8 @@
     <MESSAGE value="- Removed SerialCmds file and moved commands to newly created SerialHandler&#10;- Moved reply_size attribute from UsrSerial to SerialHandler&#10;- Implemented 3 methods in SerialHandler that takes care of sending cmds and receiving MCU reply" />
     <MESSAGE value="Started work on create section command" />
     <MESSAGE value="Set-up section command implemented, but still not clear if board should send response" />
-    <option name="LAST_COMMIT_MESSAGE" value="Set-up section command implemented, but still not clear if board should send response" />
+    <MESSAGE value="Added a good chunk of GUI for basic serial functions already coded" />
+    <option name="LAST_COMMIT_MESSAGE" value="Added a good chunk of GUI for basic serial functions already coded" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
