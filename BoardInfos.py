@@ -1,17 +1,16 @@
-import numpy as np
 from MutableBrdInfo import MutableBrdInfo
 
 
 class BoardInfos:
     """
     This class contains all the board info
-    as attributes and all associated methods.
+    as attributes and all associated methods
     to get, set and more
     """
     def __init__(self):
 
-        self._serialNum = None
-        self._fwVersion = None
+        self._serialNum   = None
+        self._fwVersion   = None
         self._sctsBrdMgmt = None
         self._pxlsBrdMgmt = None
 
@@ -37,6 +36,13 @@ class BoardInfos:
     def pxlsBrdMgmtSet(self, parsed_ser_mssg: list):
         self.pxlsBrdMgmt = MutableBrdInfo(*parsed_ser_mssg)
 
+    def sctSetupUpdt(self, parsed_ser_mssg, led_count: int):
+        if parsed_ser_mssg:
+            self.sctsBrdMgmt.blockDecrement(1)
+            self.pxlsBrdMgmt.blockDecrement(led_count)
+        else:
+            print("section assignation failed")
+
     @property
     def serialNum(self):
         return self._serialNum
@@ -54,7 +60,7 @@ class BoardInfos:
         self._fwVersion = new_version
 
     @property
-    def sctsBrdMgmt(self):
+    def sctsBrdMgmt(self) -> MutableBrdInfo:
         return self._sctsBrdMgmt
 
     @sctsBrdMgmt.setter
@@ -62,9 +68,22 @@ class BoardInfos:
         self._sctsBrdMgmt = new_inst
 
     @property
-    def pxlsBrdMgmt(self):
+    def pxlsBrdMgmt(self) -> MutableBrdInfo:
         return self._pxlsBrdMgmt
 
     @pxlsBrdMgmt.setter
     def pxlsBrdMgmt(self, new_inst: MutableBrdInfo):
         self._pxlsBrdMgmt = new_inst
+
+
+    # @property
+    # def sctSymID(self):
+    #     return self._sctSymID
+    #
+    # @property
+    # def pxlSymID(self):
+    #     return self._pxlSymID
+    #
+    # @property
+    # def ledCountSymID(self):
+    #     return self._ledCountSymID

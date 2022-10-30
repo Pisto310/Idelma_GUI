@@ -18,19 +18,13 @@ class SerialHandler:
         self._fwVersion   = {"cmd": "2", "reply_expected": True}
         self._sctsBrdMgmt = {"cmd": "3", "reply_expected": True}
         self._pxlsBrdMgmt = {"cmd": "4", "reply_expected": True}
+        self._sctSetup    = {"cmd": "5", "reply_expected": False}
 
         # self._boardInfos     = {"cmd": "1", "reply_expected": True}
         # self._sectionInfoArr = {"cmd": "2", "reply_expected": True}
         # self._setupSct       = {"cmd": "3", "reply_expected": True}
         # self._saveSctsConfig = {"cmd": "4", "reply_expected": True}
         # self._ledColorChange = {"cmd": "5", "reply_expected": False}
-
-    def serRqst(self, serial_command, board_inst_func_cb):
-        self.sendRqst(serial_command)
-        while self.awaitingReply:
-            if self.checkRqstStatus():
-                board_inst_func_cb(self.serial.messageParsing())
-                self.rqstComplete()
 
     def serialNumRqst(self, board_inst: BoardInfos):
         self.serRqst(self.serialNum, board_inst.serialNumSet)
@@ -45,53 +39,41 @@ class SerialHandler:
         self.serRqst(self.pxlsBrdMgmt, board_inst.pxlsBrdMgmtSet)
 
     def getAllBrdInfos(self, board_inst: BoardInfos):
+
+        """-----     debug    -----"""
+        # self.serial.writeToPort(self.serial.concatenateData("1"))
+        # self.awaitingReply = True
+        #
+        # while self.awaitingReply:
+        #     if self.checkRqstStatus():
+        #         self.serial.messageParsing()
+        #         pass
+        """-----     debug    -----"""
+
         self.serialNumRqst(board_inst)
         self.fwVersionRqst(board_inst)
         self.sctsBrdMgmtRqst(board_inst)
         self.pxlsBrdMgmtRqst(board_inst)
 
-    # # Method to request necessary board infos from MCU
-    # def boardInfosRqst(self, board):
-    #     self.sendRqst(self.boardInfos)
-    #     while self.awaitingReply:                       # Maybe add timeout?
-    #         if self.checkRqstStatus():
-    #             board = BoardInfos(*self.serial.messageParsing())
-    #             self.rqstComplete()
-    #     return board
-    #
-    # def sctInfoArrRqst(self):
-    #     self.sendRqst(self.sectionInfoArr)
-    #     while self.awaitingReply:                       # Maybe add timeout?
-    #         if self.checkRqstStatus():
-    #             print(self.serial.rxBuffer)
-    #             self.rqstComplete()
-    #
-    # # Method to create/setup a new section by passing the desired number of LEDs to be contained in it
-    # def setupSctRqst(self, led_count, board: BoardInfos):
-    #     self.sendRqst(self.setupSct, numLED=str(led_count))
-    #     while self.awaitingReply:
-    #         if self.checkRqstStatus():
-    #             board.updtSctsInfo(self.serial.rxBuffer[:3])
-    #             board.updtPxlsInfo(self.serial.rxBuffer[3:])
-    #             self.rqstComplete()
-    #
-    # # Method used to save sections configurations
-    # def saveSctsConfigRqst(self):
-    #     self.sendRqst(self.saveSctsConfig)
-    #     while self.awaitingReply:
-    #         if self.checkRqstStatus():
-    #             print("Sections configuration successfully saved")
-    #             self.rqstComplete()
-    #
-    # def ledColorChangeRqst(self, section, pixel, rgb_color, white_val):
-    #     self.sendRqst(self.ledColorChange, sctNbr=section, pxlNbr=pixel, rgbCastColor=rgb_color, whiteCastVal=white_val)
+    # For this method, each device (arduino and PC) will update the board infos on their own. To signal that everything
+    # was done right in the MCU, it will respond with an ACK (defined as 6 in the ascii table). From there, the PC will
+    # update the board info back in the SectionEditWin class
+    def sctSetupRqst(self, board_inst: BoardInfos, led_count: int, single_pixel: bool):
+        self.serRqst(self.sctSetup, board_inst.sctSetupUpdt, led_count, single_pixel)
 
-    def sendRqst(self, command_dict, **kwargs):
+    def serRqst(self, serial_command, board_inst_func_cb, *args):
+        self.sendRqst(serial_command, *args)
+        while self.awaitingReply:
+            if self.checkRqstStatus():
+                board_inst_func_cb(self.serial.messageParsing(), *args)
+                self.rqstComplete()
+
+    def sendRqst(self, command_dict, *args):
         if not self.awaitingReply:
-            if not kwargs:
+            if not args:
                 self.serial.writeToPort(command_dict.get("cmd"))
             else:
-                self.serial.writeToPort(self.serial.concatenateData(command_dict.get("cmd"), **kwargs))
+                self.serial.writeToPort(self.serial.txDataEncoding(command_dict.get("cmd"), *args))
             if command_dict.get("reply_expected"):
                 self.awaitingReply = True
         else:
@@ -139,22 +121,6 @@ class SerialHandler:
     def pxlsBrdMgmt(self):
         return self._pxlsBrdMgmt
 
-    # @property
-    # def boardInfos(self):
-    #     return self._boardInfos
-    #
-    # @property
-    # def sectionInfoArr(self):
-    #     return self._sectionInfoArr
-    #
-    # @property
-    # def setupSct(self):
-    #     return self._setupSct
-    #
-    # @property
-    # def saveSctsConfig(self):
-    #     return self._saveSctsConfig
-    #
-    # @property
-    # def ledColorChange(self):
-    #     return self._ledColorChange
+    @property
+    def sctSetup(self):
+        return self._sctSetup

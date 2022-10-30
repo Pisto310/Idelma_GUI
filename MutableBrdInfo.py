@@ -10,13 +10,13 @@ class MutableBrdInfo:
         self._remaining = args[1]
         self._assigned = args[2]
 
+    def blockDecrement(self, used_blocks):
+        self._remaining -= used_blocks
+        self._assigned += used_blocks
+
     @property
     def capacity(self):
         return self._capacity
-
-    @capacity.setter
-    def capacity(self, updt_cap: int):
-        self._capacity = updt_cap
 
     @property
     def assigned(self):
