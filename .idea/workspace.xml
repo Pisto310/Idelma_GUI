@@ -1,16 +1,19 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="3153b060-3ee7-475e-91c1-ba171824b147" name="Changes" comment="Changed the logic of how the board infos are fetched to make it more modular. Created a basic class fore storing the sections and pixels info values instead of a dict">
-      <change afterPath="$PROJECT_DIR$/PxlInfo.py" afterDir="false" />
+    <list default="true" id="3153b060-3ee7-475e-91c1-ba171824b147" name="Changes" comment="Revamped the whole Idelma window with QtDesigner. No functionalities done yet. Will add an action handler">
+      <change afterPath="$PROJECT_DIR$/BoardInfosQObject.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/IdelmaGui.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/QBrdInfoLabel.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/UserEvents.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/AddSectionWin.py" beforeDir="false" afterPath="$PROJECT_DIR$/AddSectionWin.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/AddSectionWin.py" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/BoardInfos.py" beforeDir="false" afterPath="$PROJECT_DIR$/BoardInfos.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ColorDebugWin.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/ColorPickerWin.py" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/IdelmaApp.py" beforeDir="false" afterPath="$PROJECT_DIR$/IdelmaApp.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/MutableBrdInfo.py" beforeDir="false" afterPath="$PROJECT_DIR$/MutableBrdInfo.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/SectionEditWin.py" beforeDir="false" afterPath="$PROJECT_DIR$/SectionEditWin.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/SerialHandler.py" beforeDir="false" afterPath="$PROJECT_DIR$/SerialHandler.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/UsrSerial.py" beforeDir="false" afterPath="$PROJECT_DIR$/UsrSerial.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/PxlInfo.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/main.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -52,8 +55,8 @@
       <recent name="$PROJECT_DIR$" />
     </key>
   </component>
-  <component name="RunManager" selected="Python.main">
-    <configuration name="IdelmaApp" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+  <component name="RunManager" selected="Python.standarddialogs">
+    <configuration name="IdelmaGui" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="colorPicker" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
@@ -65,7 +68,7 @@
       <option name="IS_MODULE_SDK" value="true" />
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/IdelmaApp.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/IdelmaGui.py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
@@ -87,27 +90,6 @@
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
       <option name="SCRIPT_NAME" value="$PROJECT_DIR$/SectionEditWin.py" />
-      <option name="PARAMETERS" value="" />
-      <option name="SHOW_COMMAND_LINE" value="false" />
-      <option name="EMULATE_TERMINAL" value="false" />
-      <option name="MODULE_MODE" value="false" />
-      <option name="REDIRECT_INPUT" value="false" />
-      <option name="INPUT_FILE" value="" />
-      <method v="2" />
-    </configuration>
-    <configuration name="calc_test" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
-      <module name="colorPicker" />
-      <option name="INTERPRETER_OPTIONS" value="" />
-      <option name="PARENT_ENVS" value="true" />
-      <envs>
-        <env name="PYTHONUNBUFFERED" value="1" />
-      </envs>
-      <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
-      <option name="IS_MODULE_SDK" value="true" />
-      <option name="ADD_CONTENT_ROOTS" value="true" />
-      <option name="ADD_SOURCE_ROOTS" value="true" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/calc_test.py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
@@ -158,13 +140,34 @@
       <option name="INPUT_FILE" value="" />
       <method v="2" />
     </configuration>
+    <configuration name="standarddialogs" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+      <module name="colorPicker" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/standarddialogs.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
     <recent_temporary>
       <list>
+        <item itemvalue="Python.standarddialogs" />
         <item itemvalue="Python.main" />
         <item itemvalue="Python.mainWinIdelma" />
         <item itemvalue="Python.SectionEditWin" />
-        <item itemvalue="Python.IdelmaApp" />
-        <item itemvalue="Python.calc_test" />
+        <item itemvalue="Python.IdelmaGui" />
       </list>
     </recent_temporary>
   </component>
@@ -219,7 +222,14 @@
       <option name="project" value="LOCAL" />
       <updated>1654481156116</updated>
     </task>
-    <option name="localTasksCounter" value="7" />
+    <task id="LOCAL-00007" summary="Revamped the whole Idelma window with QtDesigner. No functionalities done yet. Will add an action handler">
+      <created>1667155970732</created>
+      <option name="number" value="00007" />
+      <option name="presentableId" value="LOCAL-00007" />
+      <option name="project" value="LOCAL" />
+      <updated>1667155970732</updated>
+    </task>
+    <option name="localTasksCounter" value="8" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -240,7 +250,8 @@
     <MESSAGE value="Set-up section command implemented, but still not clear if board should send response" />
     <MESSAGE value="Added a good chunk of GUI for basic serial functions already coded" />
     <MESSAGE value="Changed the logic of how the board infos are fetched to make it more modular. Created a basic class fore storing the sections and pixels info values instead of a dict" />
-    <option name="LAST_COMMIT_MESSAGE" value="Changed the logic of how the board infos are fetched to make it more modular. Created a basic class fore storing the sections and pixels info values instead of a dict" />
+    <MESSAGE value="Revamped the whole Idelma window with QtDesigner. No functionalities done yet. Will add an action handler" />
+    <option name="LAST_COMMIT_MESSAGE" value="Revamped the whole Idelma window with QtDesigner. No functionalities done yet. Will add an action handler" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>

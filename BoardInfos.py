@@ -1,4 +1,5 @@
 from MutableBrdInfo import MutableBrdInfo
+from enum import Enum
 
 
 class BoardInfos:
@@ -36,12 +37,24 @@ class BoardInfos:
     def pxlsBrdMgmtSet(self, parsed_ser_mssg: list):
         self.pxlsBrdMgmt = MutableBrdInfo(*parsed_ser_mssg)
 
-    def sctSetupUpdt(self, parsed_ser_mssg, led_count: int):
-        if parsed_ser_mssg:
-            self.sctsBrdMgmt.blockDecrement(1)
-            self.pxlsBrdMgmt.blockDecrement(led_count)
-        else:
-            print("section assignation failed")
+    # def sctSetupUpdt(self, parsed_ser_mssg, led_count: int):
+    #     if parsed_ser_mssg:
+    #         self.sctsBrdMgmt.blockDecrement(1)
+    #         self.pxlsBrdMgmt.blockDecrement(led_count)
+    #     else:
+    #         print("section assignation failed")
+
+    def snUpdtedEmit(self, *args):
+        pass
+
+    def fwVerUpdtedEmit(self, *args):
+        pass
+
+    def sctsUpdtedEmit(self, *args):
+        pass
+
+    def pxlsUpdtedEmit(self, *args):
+        pass
 
     @property
     def serialNum(self):
@@ -50,6 +63,7 @@ class BoardInfos:
     @serialNum.setter
     def serialNum(self, new_serial: int):
         self._serialNum = hex(new_serial)
+        self.snUpdtedEmit(self.serialNum)
 
     @property
     def fwVersion(self):
@@ -58,6 +72,7 @@ class BoardInfos:
     @fwVersion.setter
     def fwVersion(self, new_version: str):
         self._fwVersion = new_version
+        self.fwVerUpdtedEmit(self.fwVersion)
 
     @property
     def sctsBrdMgmt(self) -> MutableBrdInfo:
@@ -66,6 +81,7 @@ class BoardInfos:
     @sctsBrdMgmt.setter
     def sctsBrdMgmt(self, new_inst: MutableBrdInfo):
         self._sctsBrdMgmt = new_inst
+        self.sctsUpdtedEmit(self.sctsBrdMgmt)
 
     @property
     def pxlsBrdMgmt(self) -> MutableBrdInfo:
@@ -74,16 +90,52 @@ class BoardInfos:
     @pxlsBrdMgmt.setter
     def pxlsBrdMgmt(self, new_inst: MutableBrdInfo):
         self._pxlsBrdMgmt = new_inst
-
+        self.pxlsUpdtedEmit(self.pxlsBrdMgmt)
 
     # @property
-    # def sctSymID(self):
-    #     return self._sctSymID
+    # def snUpdtFlag(self) -> bool:
+    #     return self._snUpdtFlag
+    #
+    # @snUpdtFlag.setter
+    # def snUpdtFlag(self, new_state: bool):
+    #     self.booleanUpdt(self._snUpdtFlag, new_state)
     #
     # @property
-    # def pxlSymID(self):
-    #     return self._pxlSymID
+    # def fwUpdtFlag(self) -> bool:
+    #     return self._fwUpdtFlag
+    #
+    # @fwUpdtFlag.setter
+    # def fwUpdtFlag(self, new_state: bool):
+    #     self.booleanUpdt(self._fwUpdtFlag, new_state)
     #
     # @property
-    # def ledCountSymID(self):
-    #     return self._ledCountSymID
+    # def sctUpdtFlag(self) -> bool:
+    #     return self._sctUpdtFlag
+    #
+    # @sctUpdtFlag.setter
+    # def sctUpdtFlag(self, new_state: bool):
+    #     self.booleanUpdt(self._sctUpdtFlag, new_state)
+    #
+    # @property
+    # def pxlUpdtFlag(self) -> bool:
+    #     return self._pxlUpdtFlag
+    #
+    # @pxlUpdtFlag.setter
+    # def pxlUpdtFlag(self, new_state: bool):
+    #     self.booleanUpdt(self._pxlUpdtFlag, new_state)
+    #
+    # @property
+    # def flagsTuple(self) -> tuple:
+    #     return self._flagsTuple
+
+    @staticmethod
+    def booleanUpdt(actual_state: bool, new_state: bool):
+        try:
+            if type(new_state) != bool:
+                raise ValueError
+            if new_state == actual_state:
+                pass
+            else:
+                actual_state = new_state
+        except ValueError:
+            print("New value should be a boolean")
