@@ -27,16 +27,16 @@ class SerialHandler:
         # self._ledColorChange = {"cmd": "5", "reply_expected": False}
 
     def serialNumRqst(self, board_inst: BoardInfos):
-        self.serRqst(self.serialNum, board_inst.serialNumSet)
+        self.serRqst(self.serialNum, board_inst.serialNumMssgDecode)
 
     def fwVersionRqst(self, board_inst: BoardInfos):
-        self.serRqst(self.fwVersion, board_inst.fwVersionSet)
+        self.serRqst(self.fwVersion, board_inst.fwVersionMssgDecode)
 
     def sctsBrdMgmtRqst(self, board_inst: BoardInfos):
-        self.serRqst(self.sctsBrdMgmt, board_inst.sctsBrdMgmtSet)
+        self.serRqst(self.sctsBrdMgmt, board_inst.sctsBrdMgmtMssgDecode)
 
     def pxlsBrdMgmtRqst(self, board_inst: BoardInfos):
-        self.serRqst(self.pxlsBrdMgmt, board_inst.pxlsBrdMgmtSet)
+        self.serRqst(self.pxlsBrdMgmt, board_inst.pxlsBrdMgmtMssgDecode)
 
     def getAllBrdInfos(self, board_inst: BoardInfos):
 

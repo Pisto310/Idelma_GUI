@@ -6,19 +6,6 @@ from PyQt5.QtWidgets import (QWidget)
 from PyQt5.QtCore import (QObject, pyqtSignal)
 
 
-# class UserSignals(QObject):
-#
-#     boardInfoSignal = pyqtSignal([str], ['MutableBrdInfo'], name="test")
-#
-#     def connect_and_emit(self, *args):
-#         self.snUpdted.connect(self.doThings)
-#
-#         self.snUpdted.emit(*args)
-#
-#     def doThings(self):
-#         print("thing done")
-
-
 class BoardInfosQObject(QObject, BoardInfos):
     """
     TBD
@@ -29,7 +16,6 @@ class BoardInfosQObject(QObject, BoardInfos):
     pxlsUpdted = pyqtSignal(MutableBrdInfo, name='pixels_info_updated')
 
     def __init__(self):
-
         super().__init__()
 
     def connectSnSignal(self, callback):

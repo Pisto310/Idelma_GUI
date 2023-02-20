@@ -16,14 +16,14 @@ class BoardInfos:
         self._pxlsBrdMgmt = None
 
     # Method used to set the serial number of the board using the parsed message received in the serial buffer
-    def serialNumSet(self, parsed_ser_mssg: list):
+    def serialNumMssgDecode(self, parsed_ser_mssg: list):
         hex_container = 0
         for index, val in enumerate(parsed_ser_mssg):
             hex_container += val << (8 * index)
-        self.serialNum = hex_container
+        self.serialNum = hex(hex_container)
 
     # Method to set the FW version with the parsed message of the serial buffer
-    def fwVersionSet(self, parsed_ser_mssg: list):
+    def fwVersionMssgDecode(self, parsed_ser_mssg: list):
         str_container = ""
         for index, val in enumerate(parsed_ser_mssg):
             str_container += str(val)
@@ -31,10 +31,10 @@ class BoardInfos:
                 str_container += "."
         self.fwVersion = str_container
 
-    def sctsBrdMgmtSet(self, parsed_ser_mssg: list):
+    def sctsBrdMgmtMssgDecode(self, parsed_ser_mssg: list):
         self.sctsBrdMgmt = MutableBrdInfo(*parsed_ser_mssg)
 
-    def pxlsBrdMgmtSet(self, parsed_ser_mssg: list):
+    def pxlsBrdMgmtMssgDecode(self, parsed_ser_mssg: list):
         self.pxlsBrdMgmt = MutableBrdInfo(*parsed_ser_mssg)
 
     # def sctSetupUpdt(self, parsed_ser_mssg, led_count: int):
@@ -62,8 +62,9 @@ class BoardInfos:
 
     @serialNum.setter
     def serialNum(self, new_serial: int):
-        self._serialNum = hex(new_serial)
-        self.snUpdtedEmit(self.serialNum)
+        if not self.valCompare(new_serial, self.serialNum):
+            self._serialNum = new_serial
+            self.snUpdtedEmit(self.serialNum)
 
     @property
     def fwVersion(self):
@@ -71,8 +72,9 @@ class BoardInfos:
 
     @fwVersion.setter
     def fwVersion(self, new_version: str):
-        self._fwVersion = new_version
-        self.fwVerUpdtedEmit(self.fwVersion)
+        if not self.valCompare(new_version, self.fwVersion):
+            self._fwVersion = new_version
+            self.fwVerUpdtedEmit(self.fwVersion)
 
     @property
     def sctsBrdMgmt(self) -> MutableBrdInfo:
@@ -80,8 +82,9 @@ class BoardInfos:
 
     @sctsBrdMgmt.setter
     def sctsBrdMgmt(self, new_inst: MutableBrdInfo):
-        self._sctsBrdMgmt = new_inst
-        self.sctsUpdtedEmit(self.sctsBrdMgmt)
+        if not self.valCompare(new_inst, self.sctsBrdMgmt):
+            self._sctsBrdMgmt = new_inst
+            self.sctsUpdtedEmit(self.sctsBrdMgmt)
 
     @property
     def pxlsBrdMgmt(self) -> MutableBrdInfo:
@@ -89,8 +92,21 @@ class BoardInfos:
 
     @pxlsBrdMgmt.setter
     def pxlsBrdMgmt(self, new_inst: MutableBrdInfo):
-        self._pxlsBrdMgmt = new_inst
-        self.pxlsUpdtedEmit(self.pxlsBrdMgmt)
+        if not self.valCompare(new_inst, self.pxlsBrdMgmt):
+            self._pxlsBrdMgmt = new_inst
+            self.pxlsUpdtedEmit(self.pxlsBrdMgmt)
+
+    @staticmethod
+    def valCompare(new_val, old_val):
+        """
+        Static method to compare two variable and
+        check if their value is the same. Returns
+        True if equal and False otherwise
+        """
+        if new_val == old_val:
+            return True
+        else:
+            return False
 
     # @property
     # def snUpdtFlag(self) -> bool:

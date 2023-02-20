@@ -122,8 +122,8 @@ if __name__ == '__main__':
     ser = SerialHandler()
     board = BoardInfos()
 
-    board.pxlsBrdMgmtSet([100, 100, 0])
-    board.sctsBrdMgmtSet([12, 12, 0])
+    board.pxlsBrdMgmtMssgDecode([100, 100, 0])
+    board.sctsBrdMgmtMssgDecode([12, 12, 0])
 
     app = QApplication(sys.argv)
     window = SectionEditWin(board, ser)

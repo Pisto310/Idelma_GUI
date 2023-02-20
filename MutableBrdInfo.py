@@ -3,14 +3,22 @@
 class MutableBrdInfo:
     """Basic class to create obj of which
     the attributes are the mutable infos
-    of the IDELMA board"""
+    of the IDELMA board
+    """
 
     def __init__(self, *args):
         self._capacity = args[0]
         self._remaining = args[1]
         self._assigned = args[2]
 
-    def blockDecrement(self, used_blocks):
+    def __eq__(self, other):
+        if not isinstance(other, MutableBrdInfo):
+            return NotImplemented
+        return (self.capacity == other.capacity and
+                self.remaining == other.remaining and
+                self.assigned == other.assigned)
+
+    def blockAssignation(self, used_blocks):
         self._remaining -= used_blocks
         self._assigned += used_blocks
 
@@ -24,7 +32,11 @@ class MutableBrdInfo:
 
     @assigned.setter
     def assigned(self, updt_assigned: int):
-        self._assigned = updt_assigned
+        try:
+            if self.valueBoundCheck(updt_assigned, 0, self.capacity):
+                self._assigned = updt_assigned
+        except ValueError as error:
+            print(error)
 
     @property
     def remaining(self):
@@ -32,4 +44,15 @@ class MutableBrdInfo:
 
     @remaining.setter
     def remaining(self, updt_remaining: int):
-        self._remaining = updt_remaining
+        try:
+            if self.valueBoundCheck(updt_remaining, 0, self.capacity):
+                self._remaining = updt_remaining
+        except ValueError as error:
+            print(error)
+
+    @staticmethod
+    def valueBoundCheck(val, low_bound, up_bound):
+        if low_bound <= val <= up_bound:
+            return True
+        else:
+            raise ValueError("Value is out of bound. Must be in [{}, {}] interval".format(low_bound, up_bound))
