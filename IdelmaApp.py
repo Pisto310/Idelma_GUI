@@ -1,10 +1,11 @@
 from PyQt5.QtWidgets import (QApplication, QListWidgetItem)
 
 from IdelmaGui import IdelmaGui
-from IdelmaNewSct import IdelmaNewSct
+from IdelmaSctDialog import IdelmaSctDialog
+from IdelmaSctDelDialog import IdelmaSctDelDialog
 
-from BoardInfos import BoardInfos
 from BoardInfosQObject import BoardInfosQObject
+from MutableBrdInfo import MutableBrdInfo
 from SctPropQListWidgetItem import SctPropQListWidgetItem
 
 from ListWidgetItemUserTypes import ListWidgetItemUserType
@@ -50,11 +51,10 @@ class IdelmaApp(QApplication):
         # Fetch board infos button
         self.ui.fetchInfosButton.clicked.connect(self.fetchBrdInfos)
 
-        # Add/create section
+        # ListWidget signals and buttons
         self.ui.sctAddButton.clicked.connect(self.newSectionDialog)
-
-        # ListWidget signals
-        self.ui.sectionsList.itemClicked.connect(self.enableListWidgetBttns)
+        self.ui.sctDeleteButton.clicked.connect(self.sectionDeletion)
+        self.ui.sectionsList.itemClicked.connect(self.ui.enableListWidgetBttns)
 
     def fetchBrdInfos(self):
         """
@@ -70,42 +70,127 @@ class IdelmaApp(QApplication):
 
         self.instantiateVrtlBrd()
 
-    def enableListWidgetBttns(self, item: QListWidgetItem):
-        self.ui.sctDeleteButton.setEnabled(True)
-        self.ui.sctEditButton.setEnabled(True)
+        self.fillingSctPropList()
 
     def instantiateVrtlBrd(self):
         """
-        Instantiates a BoardInfos object and fills
+        Instantiates a BoardInfosQObject object and fills
         all its attr with the ones recently fetched
-        from the actual MCU
+        from the actual MCU, thus creating a virtual brd
         """
-        self.virtualBoard = BoardInfos()
+        self.virtualBoard = BoardInfosQObject()
         self.virtualBoard.serialNum = self.arduino.serialNum
         self.virtualBoard.fwVersion = self.arduino.fwVersion
-        self.virtualBoard.sctsBrdMgmt = self.arduino.sctsBrdMgmt
-        self.virtualBoard.pxlsBrdMgmt = self.arduino.pxlsBrdMgmt
+        self.virtualBoard.sctsBrdMgmt = MutableBrdInfo(self.arduino.sctsBrdMgmt.capacity,
+                                                       self.arduino.sctsBrdMgmt.remaining,
+                                                       self.arduino.sctsBrdMgmt.assigned)
+        self.virtualBoard.pxlsBrdMgmt = MutableBrdInfo(self.arduino.pxlsBrdMgmt.capacity,
+                                                       self.arduino.pxlsBrdMgmt.remaining,
+                                                       self.arduino.pxlsBrdMgmt.assigned)
+
+    def fillingSctPropList(self):
+        """
+        Fills the sctPropList with as much 'None type obj'
+        as the section capacity of fetched board
+        """
+        counter = 0
+        while counter < self.arduino.sctsBrdMgmt.capacity:
+            self.sctPropList.append(None)
+            counter += 1
+
+    def ressourcesAvailable(self):
+        """
+        Checks if there are remaining resources (sections
+        & pixels) left for user assignation
+        Returns 'True' if there are sections AND pixels left
+        Returns 'False' otherwise
+        """
+        if self.virtualBoard.sctsBrdMgmt.remaining and self.virtualBoard.pxlsBrdMgmt.remaining:
+            return True
+        else:
+            return False
+
+    def configBrdBttnStateTrig(self):
+        """
+        Compares virtual board with arduino. If they are
+        equal, the 'config. board' bttn isn't enabled. If
+        they aren't, the button is enabled
+        """
+        if self.virtualBoard != self.arduino and not self.ui.configButton.isEnabled():
+            self.ui.configButton.setEnabled(True)
+        elif self.virtualBoard == self.arduino and self.ui.configButton.isEnabled():
+            self.ui.configButton.setEnabled(False)
 
     def newSectionDialog(self):
         """
-        1. User enters the new section info (name & pixel count)
-        2. Once he presses 'OK', the info is available to use
-        3. Create a 'SectionProperties object' to be stored in a list'
-        4. Show the newly created section in the List Widget (named sectionList of the ui object)
-        5. Update the infos of the virtual board
+        Pop-up a dialog in which user has to enter the required
+        info to create a new section. Once accepted by the user,
+        there is a check on remaining board resources that decides
+        if necessary to trigger the state of the 'Add sct' bttn
         """
-        addSctDialog = IdelmaNewSct(self.virtualBoard.sctsBrdMgmt.assigned,
-                                    self.virtualBoard.pxlsBrdMgmt.remaining)
+        addSctDialog = IdelmaSctDialog(self.virtualBoard.sctsBrdMgmt.assigned,
+                                       self.virtualBoard.pxlsBrdMgmt.remaining)
         addSctDialog.connectAccepted(self.sectionCreation)
         addSctDialog.exec_()
 
-    def sectionCreation(self, section_name, pixel_count):
-        # Creating new Section Properties object with user input in dialog
-        sctPropObj = SctPropQListWidgetItem(section_name, pixel_count, self.ui.sectionsList, self.sctPropItemType)
-        self.sctPropList.append(sctPropObj)
+        if not self.ressourcesAvailable():
+            self.ui.sctAddButton.setEnabled(False)
+
+    def sectionCreation(self, section_name: str, pixel_count: int, set_default_name: bool):
+        """
+        Method used to create a new section by first creating a ListWidgetItem
+        and adding it to the UI ListWidget, and then updating the virtual brd
+        """
+        sctPropObj = SctPropQListWidgetItem(section_name, pixel_count, set_default_name,
+                                            self.ui.sectionsList, self.sctPropItemType)
+        self.sctPropList[self.virtualBoard.sctsBrdMgmt.assigned] = sctPropObj
         self.virtualBoard.sctsBrdMgmt.blockAssignation(1)
         self.virtualBoard.pxlsBrdMgmt.blockAssignation(pixel_count)
 
-        # Enabling the 'config board' button
-        if not self.ui.configButton.isEnabled():
-            self.ui.configButton.setEnabled(True)
+        # Calling method to see if necessary to trig state of 'config. board' bttn
+        self.configBrdBttnStateTrig()
+
+    def sectionDeletion(self):
+        """
+        Method called when wanting to delete a created section.
+        User is prompted with a wraning pop-up to either accept
+        or cancel action. Then, section is deleted and default
+        named section are renamed according to their index in
+        the sectionPropList which changes because of the del.
+        Existing scts are shifted accordingly, so no blank spaces
+        """
+        if self.sctDelPopUp():
+            sct_index = self.ui.sectionsList.currentRow()
+            pixels = self.sctPropList[sct_index].pxlCount
+            self.ui.sectionsList.takeItem(sct_index)
+
+            while sct_index < self.virtualBoard.sctsBrdMgmt.assigned:
+                self.sctPropList[sct_index] = self.sctPropList[sct_index + 1]
+                if not self.sctPropList[sct_index] is None and self.sctPropList[sct_index].setDefaultName:
+                    self.sctPropList[sct_index].decrDefaultName()
+                    self.sctPropList[sct_index].setText()
+                sct_index += 1
+
+            self.virtualBoard.sctsBrdMgmt.blockReallocation(1)
+            self.virtualBoard.pxlsBrdMgmt.blockReallocation(pixels)
+
+        # Check if necessary to switch state of buttons
+        if self.ressourcesAvailable() and not self.ui.sctAddButton.isEnabled():
+            self.ui.sctAddButton.setEnabled(True)
+        if not self.ui.sectionsList.count():
+            self.ui.disableListWidgetBttns()
+        self.configBrdBttnStateTrig()
+
+    def sectionEdit(self):
+        """
+        Idea would be to use the same dialog as in section creation,
+        but fill line edit and spinbox with actual info of section.
+
+        """
+        pass
+
+    @staticmethod
+    def sctDelPopUp():
+        dialog = IdelmaSctDelDialog()
+        dialog.exec_()
+        return dialog.result()

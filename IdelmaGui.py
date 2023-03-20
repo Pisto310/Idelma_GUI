@@ -184,6 +184,14 @@ class IdelmaGui(QMainWindow):
         self.configButton.setText(_translate("MainWindow", "Config. Board"))
         self.saveButton.setText(_translate("MainWindow", "Save Settings"))
 
+    def enableListWidgetBttns(self):
+        self.sctDeleteButton.setEnabled(True)
+        self.sctEditButton.setEnabled(True)
+
+    def disableListWidgetBttns(self):
+        self.sctDeleteButton.setEnabled(False)
+        self.sctEditButton.setEnabled(False)
+
     def updtSnNumLabel(self, text: str):
         self.snNumberLabel.setText(text)
 
@@ -204,62 +212,3 @@ class IdelmaGui(QMainWindow):
         font.setWeight(font_weight)
         font.setKerning(True)
         button.setFont(font)
-
-    # def fetchBrdInfos(self):
-    #     self.ser.getAllBrdInfos(self.board)
-    #
-    # def setWelcomeMssg(self):
-    #     welcome = QLabel("Welcome to the app!", self._centralWidget)
-    #     welcome.setAlignment(Qt.AlignHCenter)
-    #
-    #     self.generalLayout.addWidget(welcome)
-    #
-    # def setBrdInfosLabels(self):
-    #     labelLayout = QGridLayout()
-    #     labelLayout.setAlignment(Qt.AlignCenter)
-    #
-    #     serialNum = QLabel("Board Serial Number : " + self.board.serialNum, self._centralWidget)
-    #     serialNum.setAlignment(Qt.AlignHCenter)
-    #     fwVersion = QLabel("FW Version : " + self.board.fwVersion, self._centralWidget)
-    #     fwVersion.setAlignment(Qt.AlignHCenter)
-    #
-    #     labelLayout.addWidget(serialNum)
-    #     labelLayout.addWidget(fwVersion)
-    #
-    #     self.generalLayout.addLayout(labelLayout)
-    #
-    # def placingBtns(self):
-    #     buttonLayout = QGridLayout()
-    #
-    #     self.sectionEditBtn = QPushButton("Sections Editor")
-    #     self.sectionEditBtn.clicked.connect(self.openSectionEditWin)
-    #
-    #     buttonLayout.addWidget(self.sectionEditBtn, 0, 0)
-    #     buttonLayout.setAlignment(Qt.AlignHCenter)
-    #
-    #     self.generalLayout.addLayout(buttonLayout)
-    #
-    # def openSectionEditWin(self):
-    #     self._sectionEditWin = SectionEditWin(self.board, self.ser)
-    #     self._sectionEditWin.show()
-    #     # self.serHandlerObj.setupSctRqst()
-
-    # def openColorDebugWin(self):
-    #     self._colorDebugWin = ColorDebugWin(self.ser)
-    #     self._colorDebugWin.show()
-    #
-
-
-    # def _createMenu(self):
-    #     self.menu = self.menuBar().addMenu("&Menu")
-    #     self.menu.addAction('&Exit', self.close)
-    #
-    # def _createToolBar(self):
-    #     tools = QToolBar()
-    #     self.addToolBar(tools)
-    #     tools.addAction('Exit', self.close)
-    #
-    # def _createStatusBar(self):
-    #     status = QStatusBar()
-    #     status.showMessage("I'm the Status Bar")
-    #     self.setStatusBar(status)

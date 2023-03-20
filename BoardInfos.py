@@ -15,6 +15,17 @@ class BoardInfos:
         self._sctsBrdMgmt = None
         self._pxlsBrdMgmt = None
 
+    def __eq__(self, other):
+        if not isinstance(other, BoardInfos):
+            return NotImplemented
+        return (self.serialNum == other.serialNum and
+                self.fwVersion == other.fwVersion and
+                self.sctsBrdMgmt == other.sctsBrdMgmt and
+                self.pxlsBrdMgmt == other.pxlsBrdMgmt)
+
+    def __ne__(self, other):
+        return not self == other
+
     # Method used to set the serial number of the board using the parsed message received in the serial buffer
     def serialNumMssgDecode(self, parsed_ser_mssg: list):
         hex_container = 0

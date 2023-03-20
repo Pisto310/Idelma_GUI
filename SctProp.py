@@ -5,10 +5,24 @@ class SctProp:
     Contains all properties relating to user-
     created section
     """
-    def __init__(self, name: str, pixel_count: int):
+    def __init__(self, name: str, pixel_count: int, set_default_name: bool):
 
         self._sctName = name
         self._pxlCount = pixel_count
+        self._setDefaultName = set_default_name
+
+    def decrDefaultName(self):
+        if self.setDefaultName:
+            self.sctName = "Section " + str(self.extractNameInt() - 1)
+
+    def extractNameInt(self):
+        container = ""
+        for index, val in enumerate(self.sctName[::-1]):
+            if val == " ":
+                break
+            else:
+                container += val
+        return int(container[::-1])
 
     @property
     def sctName(self):
@@ -32,6 +46,17 @@ class SctProp:
             if self.typeCheck(new_val, int) and self.valueBoundCheck(new_val, 0, 0):
                 self._pxlCount = new_val
         except (TypeError, ValueError) as error:
+            print(error)
+
+    @property
+    def setDefaultName(self):
+        return self._setDefaultName
+
+    @setDefaultName.setter
+    def setDefaultName(self, bool_state):
+        try:
+            self.typeCheck(bool_state, bool)
+        except TypeError as error:
             print(error)
 
     @staticmethod

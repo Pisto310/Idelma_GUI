@@ -4,9 +4,10 @@ from PyQt5.QtWidgets import (QVBoxLayout, QFormLayout, QLayout, QLabel, QLineEdi
 from PyQt5.QtCore import (Qt, QRect, QSize, QCoreApplication, pyqtSignal, QMetaObject)
 
 
-class IdelmaNewSct(QDialog):
+class IdelmaSctDialog(QDialog):
     """
-    Dialog that pops-up when user asks to create a new section.
+    Dialog that pops-up when user asks to create a new section
+    or edit an existing one
     Inputs:
         - scts_assigned: sections actually assigned
         - pxls_remaining: remaining available pixel to map
@@ -17,13 +18,13 @@ class IdelmaNewSct(QDialog):
             - int: number of pixels in section
     """
 
-    accepted = pyqtSignal(str, int, name='Returning user inputs')
+    accepted = pyqtSignal(str, int, bool, name='Returning user inputs')
 
-    def __init__(self, scts_assigned: int, pxls_remaining: int):
+    def __init__(self, sct_index: int, pxls_remaining: int):
         super().__init__()
 
-        self.sectionTracker = scts_assigned
         self.maxPxls = pxls_remaining
+        self.defaultName = "Section " + str(sct_index)
 
         self.setupUi()
         self.retranslateUi()
@@ -42,7 +43,7 @@ class IdelmaNewSct(QDialog):
         self.sctNameLabel = QLabel(self)
         self.sctNameLabel.setObjectName("sctNameLabel")
         self.sctNameLineEdit = QLineEdit(self)
-        self.sctNameLineEdit.setPlaceholderText("Section " + str(self.sectionTracker))
+        self.sctNameLineEdit.setPlaceholderText(self.defaultName)
         self.sctNameLineEdit.setText("")
         self.sctNameLineEdit.setObjectName("lineEdit")
 
@@ -107,7 +108,11 @@ class IdelmaNewSct(QDialog):
 
     def accept(self):
         super().accept()
-        self.accepted.emit(self.sctNameLineEdit.text(), self.pxlsSpinBox.value())
+        setDefaultName = False
+        if len(self.sctNameLineEdit.text()) == 0:
+            self.sctNameLineEdit.setText(self.defaultName)
+            setDefaultName = True
+        self.accepted.emit(self.sctNameLineEdit.text(), self.pxlsSpinBox.value(), setDefaultName)
 
     def connectAccepted(self, callback):
         self.accepted.connect(callback)
@@ -116,6 +121,6 @@ class IdelmaNewSct(QDialog):
 if __name__ == "__main__":
     import sys
     app = QApplication(sys.argv)
-    ui = IdelmaNewSct(0, 100)
+    ui = IdelmaSctDialog(0, 100)
     ui.show()
     sys.exit(app.exec_())

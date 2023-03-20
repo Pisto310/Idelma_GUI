@@ -5,7 +5,6 @@ class MutableBrdInfo:
     the attributes are the mutable infos
     of the IDELMA board
     """
-
     def __init__(self, *args):
         self._capacity = args[0]
         self._remaining = args[1]
@@ -18,9 +17,16 @@ class MutableBrdInfo:
                 self.remaining == other.remaining and
                 self.assigned == other.assigned)
 
+    def __ne__(self, other):
+        return not self == other
+
     def blockAssignation(self, used_blocks):
         self._remaining -= used_blocks
         self._assigned += used_blocks
+
+    def blockReallocation(self, restored_blocks):
+        self._remaining += restored_blocks
+        self._assigned -= restored_blocks
 
     @property
     def capacity(self):
