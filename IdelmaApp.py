@@ -3,6 +3,7 @@ from PyQt5.QtWidgets import (QApplication, QListWidgetItem)
 from IdelmaGui import IdelmaGui
 from IdelmaSctDialog import IdelmaSctDialog
 from IdelmaSctDelDialog import IdelmaSctDelDialog
+from IdelmaSctEditDialog import IdelmaSctEditDialog
 
 from BoardInfosQObject import BoardInfosQObject
 from MutableBrdInfo import MutableBrdInfo
@@ -54,6 +55,7 @@ class IdelmaApp(QApplication):
         # ListWidget signals and buttons
         self.ui.sctAddButton.clicked.connect(self.newSectionDialog)
         self.ui.sctDeleteButton.clicked.connect(self.sectionDeletion)
+        self.ui.sctEditButton.clicked.connect(self.editSectionDialog)
         self.ui.sectionsList.itemClicked.connect(self.ui.enableListWidgetBttns)
 
     def fetchBrdInfos(self):
@@ -113,7 +115,7 @@ class IdelmaApp(QApplication):
     def configBrdBttnStateTrig(self):
         """
         Compares virtual board with arduino. If they are
-        equal, the 'config. board' bttn isn't enabled. If
+        equal, the 'config. board' bttn isn't disabled. If
         they aren't, the button is enabled
         """
         if self.virtualBoard != self.arduino and not self.ui.configButton.isEnabled():
@@ -128,11 +130,48 @@ class IdelmaApp(QApplication):
         there is a check on remaining board resources that decides
         if necessary to trigger the state of the 'Add sct' bttn
         """
-        addSctDialog = IdelmaSctDialog(self.virtualBoard.sctsBrdMgmt.assigned,
-                                       self.virtualBoard.pxlsBrdMgmt.remaining)
+        addSctDialog = IdelmaSctDialog(self.virtualBoard.sctsBrdMgmt.assigned, self.virtualBoard.pxlsBrdMgmt.remaining)
         addSctDialog.connectAccepted(self.sectionCreation)
         addSctDialog.exec_()
 
+        # Calling method to see if necessary to trig state of 'config. board' bttn
+        self.configBrdBttnStateTrig()
+
+        # Buttons check
+        if not self.ressourcesAvailable():
+            self.ui.sctAddButton.setEnabled(False)
+
+    def deleteSectionDialog(self):
+        """
+        Pop-up a warning dialog of the involvement of deleting
+        a section and prompts the user to decline or accept
+        """
+        deleteSctDialog = IdelmaSctDelDialog()
+        deleteSctDialog.connectAccepted(self.sectionDeletion)
+        deleteSctDialog.exec_()
+
+        # Buttons check
+        if self.ressourcesAvailable() and not self.ui.sctAddButton.isEnabled():
+            self.ui.sctAddButton.setEnabled(True)
+        if not self.ui.sectionsList.count():
+            self.ui.disableListWidgetBttns()
+        self.configBrdBttnStateTrig()
+
+    def editSectionDialog(self):
+        """
+        TBD
+        """
+        sct_index = self.ui.sectionsList.currentRow()
+        sct_name = self.sctPropList[sct_index].sctName
+        pxl_count = self.sctPropList[sct_index].pxlCount
+        editSctDialog = IdelmaSctDialog(sct_index, self.virtualBoard.pxlsBrdMgmt.remaining,
+                                        sct_name, pxl_count)
+        editSctDialog.connectAccepted(self.sectionEdit)
+        editSctDialog.exec_()
+
+        # Buttons check
+        if self.ressourcesAvailable() and not self.ui.sctAddButton.isEnabled():
+            self.ui.sctAddButton.setEnabled(True)
         if not self.ressourcesAvailable():
             self.ui.sctAddButton.setEnabled(False)
 
@@ -147,50 +186,44 @@ class IdelmaApp(QApplication):
         self.virtualBoard.sctsBrdMgmt.blockAssignation(1)
         self.virtualBoard.pxlsBrdMgmt.blockAssignation(pixel_count)
 
-        # Calling method to see if necessary to trig state of 'config. board' bttn
-        self.configBrdBttnStateTrig()
-
     def sectionDeletion(self):
         """
+
+        MAKE DESCRITPION SHORTER
+
         Method called when wanting to delete a created section.
-        User is prompted with a wraning pop-up to either accept
+        User is prompted with a warning pop-up to either accept
         or cancel action. Then, section is deleted and default
         named section are renamed according to their index in
         the sectionPropList which changes because of the del.
         Existing scts are shifted accordingly, so no blank spaces
         """
-        if self.sctDelPopUp():
-            sct_index = self.ui.sectionsList.currentRow()
-            pixels = self.sctPropList[sct_index].pxlCount
-            self.ui.sectionsList.takeItem(sct_index)
+        sct_index = self.ui.sectionsList.currentRow()
+        pixels = self.sctPropList[sct_index].pxlCount
+        self.ui.sectionsList.takeItem(sct_index)
 
-            while sct_index < self.virtualBoard.sctsBrdMgmt.assigned:
-                self.sctPropList[sct_index] = self.sctPropList[sct_index + 1]
-                if not self.sctPropList[sct_index] is None and self.sctPropList[sct_index].setDefaultName:
-                    self.sctPropList[sct_index].decrDefaultName()
-                    self.sctPropList[sct_index].setText()
-                sct_index += 1
+        while sct_index < self.virtualBoard.sctsBrdMgmt.assigned:
+            self.sctPropList[sct_index] = self.sctPropList[sct_index + 1]
+            if not self.sctPropList[sct_index] is None and self.sctPropList[sct_index].setDefaultName:
+                self.sctPropList[sct_index].decrDefaultName()
+                self.sctPropList[sct_index].setText()
+            sct_index += 1
 
-            self.virtualBoard.sctsBrdMgmt.blockReallocation(1)
-            self.virtualBoard.pxlsBrdMgmt.blockReallocation(pixels)
+        self.virtualBoard.sctsBrdMgmt.blockReallocation(1)
+        self.virtualBoard.pxlsBrdMgmt.blockReallocation(pixels)
 
-        # Check if necessary to switch state of buttons
-        if self.ressourcesAvailable() and not self.ui.sctAddButton.isEnabled():
-            self.ui.sctAddButton.setEnabled(True)
-        if not self.ui.sectionsList.count():
-            self.ui.disableListWidgetBttns()
-        self.configBrdBttnStateTrig()
-
-    def sectionEdit(self):
+    def sectionEdit(self, new_section_name: str, new_pixel_count: int, new_set_default_name: bool):
         """
-        Idea would be to use the same dialog as in section creation,
-        but fill line edit and spinbox with actual info of section.
-
+        Method description here
         """
-        pass
+        sct_index = self.ui.sectionsList.currentRow()
 
-    @staticmethod
-    def sctDelPopUp():
-        dialog = IdelmaSctDelDialog()
-        dialog.exec_()
-        return dialog.result()
+        # Allocating or deallocating pixel ressources
+        edited_sct = self.ui.sectionsList.takeItem(sct_index)
+        self.virtualBoard.pxlsBrdMgmt.blockAssignation(new_pixel_count - edited_sct.pxlCount)
+
+        # Creating a new sctPropObj with updated attr and adding it to the ListWidget and the sctPropList
+        new_sctPropObj = SctPropQListWidgetItem(new_section_name, new_pixel_count, new_set_default_name,
+                                                None, self.sctPropItemType)
+        self.ui.sectionsList.insertItem(sct_index, new_sctPropObj)
+        self.sctPropList[sct_index] = new_sctPropObj

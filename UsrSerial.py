@@ -11,7 +11,7 @@ class UsrSerial(Serial):
     be added to the convenience of the dev
     """
 
-    def __init__(self, port='/dev/cu.usbmodem14101', baudrate=9600, timeout=0.075, serial_wait=1.2):
+    def __init__(self, port, baudrate=9600, timeout=0.075, serial_wait=1.2):
         super().__init__(port=port, baudrate=baudrate, bytesize=EIGHTBITS, parity=PARITY_NONE,
                          stopbits=STOPBITS_ONE, timeout=timeout, xonxoff=False, rtscts=False,
                          write_timeout=None, dsrdtr=False, inter_byte_timeout=None, exclusive=None)

@@ -28,11 +28,8 @@ class IdelmaSctDelDialog(IdelmaWarningDialog):
         self.warningTitle.setText(_translate("Dialog", "Are you sure you want to {}?".format(self.confirmAction)))
         self.warningMssg.setText(_translate("Dialog", self.furtherInfo))
 
-    # def test(self):
-    #     self.resize(240, 200)
-    #     self.centralWidget.setGeometry(10, 0, 230, 190)
-    #     widj = QLabel("This is a test")
-    #     self.verticalLayout.insertWidget(len(self.verticalLayout)-1, widj)
+    def connectAccepted(self, callback):
+        self.accepted.connect(callback)
 
 
 if __name__ == "__main__":

@@ -1,3 +1,6 @@
+import serial.serialutil
+from serial.tools.list_ports_osx import comports
+
 from UsrSerial import *
 from BoardInfos import BoardInfos
 
@@ -9,7 +12,8 @@ class SerialHandler:
 
     def __init__(self):
 
-        self.serial = UsrSerial()
+        self.serial = None
+        # self.serial = UsrSerial()
 
         self._awaitingReply = False
 
@@ -20,11 +24,22 @@ class SerialHandler:
         self._pxlsBrdMgmt = {"cmd": "4", "reply_expected": True}
         self._sctSetup    = {"cmd": "5", "reply_expected": False}
 
+        self.openSerialPort()
+
         # self._boardInfos     = {"cmd": "1", "reply_expected": True}
         # self._sectionInfoArr = {"cmd": "2", "reply_expected": True}
         # self._setupSct       = {"cmd": "3", "reply_expected": True}
         # self._saveSctsConfig = {"cmd": "4", "reply_expected": True}
         # self._ledColorChange = {"cmd": "5", "reply_expected": False}
+
+    def openSerialPort(self):
+        try:
+            # Might be useful to list all available serial ports and choose which one to open
+            #   for ports in comports():
+            #       print(ports)
+            self.serial = UsrSerial(port='/dev/cu.usbmodem14101')
+        except serial.serialutil.SerialException:
+            self.serial = UsrSerial(port=None)
 
     def serialNumRqst(self, board_inst: BoardInfos):
         self.serRqst(self.serialNum, board_inst.serialNumMssgDecode)

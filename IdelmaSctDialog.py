@@ -7,24 +7,25 @@ from PyQt5.QtCore import (Qt, QRect, QSize, QCoreApplication, pyqtSignal, QMetaO
 class IdelmaSctDialog(QDialog):
     """
     Dialog that pops-up when user asks to create a new section
-    or edit an existing one
     Inputs:
-        - scts_assigned: sections actually assigned
+        - scts_assigned: sections actually assigned (Used as an index)
         - pxls_remaining: remaining available pixel to map
 
     Outputs (as an emitted signal to connect to a slot):
-        A tuple:
-            - str: section name given by the user
-            - int: number of pixels in section
+        - str: section name given by the user
+        - int: number of pixels in section
     """
 
     accepted = pyqtSignal(str, int, bool, name='Returning user inputs')
 
-    def __init__(self, sct_index: int, pxls_remaining: int):
+    def __init__(self, sct_index: int, pxls_remaining: int, sct_name: str = "", pxl_count: int = 0):
         super().__init__()
 
         self.maxPxls = pxls_remaining
         self.defaultName = "Section " + str(sct_index)
+        self.setDefault = False
+        self.sctName = sct_name
+        self.pxlCount = pxl_count
 
         self.setupUi()
         self.retranslateUi()
@@ -44,7 +45,7 @@ class IdelmaSctDialog(QDialog):
         self.sctNameLabel.setObjectName("sctNameLabel")
         self.sctNameLineEdit = QLineEdit(self)
         self.sctNameLineEdit.setPlaceholderText(self.defaultName)
-        self.sctNameLineEdit.setText("")
+        self.sctNameLineEdit.setText(self.sctName)
         self.sctNameLineEdit.setObjectName("lineEdit")
 
         # Pixel Number Label and associated SpinBox widget
@@ -66,8 +67,8 @@ class IdelmaSctDialog(QDialog):
         self.pxlsSpinBox.setLayoutDirection(Qt.LeftToRight)
         self.pxlsSpinBox.setAlignment(Qt.AlignLeft|Qt.AlignTrailing|Qt.AlignVCenter)
         self.pxlsSpinBox.setMinimum(1)
-        self.pxlsSpinBox.setMaximum(self.maxPxls)
-        self.pxlsSpinBox.setProperty("value", 1)
+        self.pxlsSpinBox.setMaximum(self.pxlCount + self.maxPxls)
+        self.pxlsSpinBox.setValue(self.pxlCount)
         self.pxlsSpinBox.setObjectName("pxlsSpinBox")
 
         # Arranging previously created widgets in a FormLayout
@@ -97,7 +98,7 @@ class IdelmaSctDialog(QDialog):
 
     def retranslateUi(self):
         _translate = QCoreApplication.translate
-        self.setWindowTitle(_translate("Dialog", "Section setup"))
+        self.setWindowTitle(_translate("Dialog", "Section Config"))
         self.sctNameLabel.setText(_translate("Dialog", "Section name:"))
         self.pxlsNbrLabel.setText(_translate("Dialog", "Pixels number:"))
 
@@ -108,11 +109,13 @@ class IdelmaSctDialog(QDialog):
 
     def accept(self):
         super().accept()
-        setDefaultName = False
-        if len(self.sctNameLineEdit.text()) == 0:
-            self.sctNameLineEdit.setText(self.defaultName)
-            setDefaultName = True
-        self.accepted.emit(self.sctNameLineEdit.text(), self.pxlsSpinBox.value(), setDefaultName)
+        if self.sctNameLineEdit.text() == "":
+            self.sctName = self.defaultName
+            self.setDefault = True
+        else:
+            self.sctName = self.sctNameLineEdit.text()
+        self.pxlCount = self.pxlsSpinBox.value()
+        self.accepted.emit(self.sctName, self.pxlCount, self.setDefault)
 
     def connectAccepted(self, callback):
         self.accepted.connect(callback)
@@ -121,6 +124,6 @@ class IdelmaSctDialog(QDialog):
 if __name__ == "__main__":
     import sys
     app = QApplication(sys.argv)
-    ui = IdelmaSctDialog(0, 100)
+    ui = IdelmaSctDialog(0, 100, "Soleil", 24)
     ui.show()
     sys.exit(app.exec_())
