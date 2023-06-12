@@ -37,10 +37,11 @@ class UsrSerial(Serial):
     def clearBuffer(self):
         self.rxBuffer = []
 
-    # Method for parsing the bytes received through serial. Since all digits are separated, it is useful to know they
-    # are organized in a "little endian" manner. This means that the unit number has a lower index in the list than the
-    # tens and hundreds. Easier to process that way
     def messageParsing(self):
+        """
+        Method to parse bytes received through serial. Bytes ar broken into single digits,
+        separated by space char (0x06) and arranged in a little endian format
+        """
         unitsTracker = 0
         recomposedNbr = 0
         msg_container = []

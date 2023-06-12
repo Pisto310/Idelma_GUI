@@ -2,8 +2,7 @@
 
 class SctProp:
     """
-    Contains all properties relating to user-
-    created section
+    Contains all properties relating to user-created section
     """
     def __init__(self, name: str, pixel_count: int, set_default_name: bool):
 

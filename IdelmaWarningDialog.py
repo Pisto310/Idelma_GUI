@@ -1,11 +1,14 @@
 from PyQt5.QtGui import (QFont)
 from PyQt5.QtWidgets import (QVBoxLayout, QFormLayout, QLayout, QLabel, QLineEdit, QSpinBox, QDialogButtonBox,
-                             QApplication, QDialog, QWidget, QSizePolicy)
+                             QApplication, QDialog, QWidget, QSizePolicy, QCheckBox)
 from PyQt5.QtCore import (Qt, QRect, QSize, QCoreApplication, pyqtSignal, QMetaObject, QLocale)
 
 
 class IdelmaWarningDialog(QDialog):
-
+    """
+    Template class for when creating warning dialogs in the
+    project
+    """
     def __init__(self):
         super().__init__()
 
@@ -17,6 +20,7 @@ class IdelmaWarningDialog(QDialog):
         self.centralWidget = None
         self.warningTitle = None
         self.warningMssg = None
+        self.hideMssgCheckBox = None
         self.buttonBox = None
         self.verticalLayout = None
 
@@ -51,7 +55,7 @@ class IdelmaWarningDialog(QDialog):
         # Warning title as a QLabel widget
         self.warningTitle = QLabel(self)
         font = QFont()
-        font.setPointSize(16)
+        font.setPointSize(18)
         font.setBold(True)
         font.setItalic(True)
         # font.setWeight(60)
@@ -64,22 +68,29 @@ class IdelmaWarningDialog(QDialog):
         # Warning message as a QLabel widget
         self.warningMssg = QLabel(self)
         font = QFont()
-        font.setPointSize(13)
-        font.setBold(False)
-        font.setItalic(True)
+        font.setPointSize(14)
         # font.setWeight(60)
         # font.setKerning(True)
         self.warningMssg.setFont(font)
         self.warningMssg.setAlignment(Qt.AlignJustify)
-        self.warningMssg.setContentsMargins(7, 0, 7, 0)
+        self.warningMssg.setContentsMargins(7, 0, 7, 10)
         self.warningMssg.setWordWrap(True)
         self.warningMssg.setObjectName("warningMssg")
+
+        # Checkbox for 'Don't show this message again'
+        self.hideMssgCheckBox = QCheckBox(self)
+        self.hideMssgCheckBox.setText('Don\'t show this message again'),
+        font = QFont()
+        font.setPointSize(14)
+        font.setFamily('Marion')
+        self.hideMssgCheckBox.setFont(font)
 
         # Dialog button box
         self.buttonBox = QDialogButtonBox(self)
         self.buttonBox.setLocale(QLocale(QLocale.English, QLocale.Canada))
         self.buttonBox.setOrientation(Qt.Horizontal)
         self.buttonBox.setStandardButtons(QDialogButtonBox.No | QDialogButtonBox.Yes)
+        self.buttonBox.button(QDialogButtonBox.Yes).setDefault(True)
         self.buttonBox.setObjectName("buttonBox")
 
         # Arranging all widgets in a vertical layout
@@ -88,6 +99,7 @@ class IdelmaWarningDialog(QDialog):
         self.verticalLayout.setObjectName("verticalLayout")
         self.verticalLayout.addWidget(self.warningTitle)
         self.verticalLayout.addWidget(self.warningMssg)
+        self.verticalLayout.addWidget(self.hideMssgCheckBox)
         self.verticalLayout.addWidget(self.buttonBox)
 
     def retranslateUi(self):

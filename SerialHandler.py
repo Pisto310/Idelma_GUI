@@ -1,6 +1,3 @@
-import serial.serialutil
-from serial.tools.list_ports_osx import comports
-
 from UsrSerial import *
 from BoardInfos import BoardInfos
 
@@ -10,10 +7,9 @@ class SerialHandler:
     all things serial with the MCU
     """
 
-    def __init__(self):
+    def __init__(self, serial_port):
 
-        self.serial = None
-        # self.serial = UsrSerial()
+        self.serial = UsrSerial(port=serial_port)
 
         self._awaitingReply = False
 
@@ -24,22 +20,13 @@ class SerialHandler:
         self._pxlsBrdMgmt = {"cmd": "4", "reply_expected": True}
         self._sctSetup    = {"cmd": "5", "reply_expected": False}
 
-        self.openSerialPort()
+        # self.openSerialPort()
 
         # self._boardInfos     = {"cmd": "1", "reply_expected": True}
         # self._sectionInfoArr = {"cmd": "2", "reply_expected": True}
         # self._setupSct       = {"cmd": "3", "reply_expected": True}
         # self._saveSctsConfig = {"cmd": "4", "reply_expected": True}
         # self._ledColorChange = {"cmd": "5", "reply_expected": False}
-
-    def openSerialPort(self):
-        try:
-            # Might be useful to list all available serial ports and choose which one to open
-            #   for ports in comports():
-            #       print(ports)
-            self.serial = UsrSerial(port='/dev/cu.usbmodem14101')
-        except serial.serialutil.SerialException:
-            self.serial = UsrSerial(port=None)
 
     def serialNumRqst(self, board_inst: BoardInfos):
         self.serRqst(self.serialNum, board_inst.serialNumMssgDecode)
@@ -91,6 +78,7 @@ class SerialHandler:
                 self.serial.writeToPort(self.serial.txDataEncoding(command_dict.get("cmd"), *args))
             if command_dict.get("reply_expected"):
                 self.awaitingReply = True
+                self.notifyRxerEmit()
         else:
             print("Serial port already busy with pending request")
 
@@ -105,6 +93,12 @@ class SerialHandler:
     def rqstComplete(self):
         self.awaitingReply = False
         self.serial.clearBuffer()
+
+    def notifyRxer(self):
+        """
+        To be implemented in children classes
+        """
+        pass
 
     """
     This section for attributes' getters, setters and delete

@@ -4,13 +4,15 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="3153b060-3ee7-475e-91c1-ba171824b147" name="Changes" comment="Section deletion implemented">
-      <change afterPath="$PROJECT_DIR$/IdelmaSctEditDialog.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/colorPicker.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/colorPicker.iml" afterDir="false" />
+    <list default="true" id="3153b060-3ee7-475e-91c1-ba171824b147" name="Changes" comment="Section edit implemented but not tested. Started working on virtual serial comm">
+      <change afterPath="$PROJECT_DIR$/ArduinoEmulator.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/IdelmaDuplicateNameDialog.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/SerialHandlerQObject.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/IdelmaApp.py" beforeDir="false" afterPath="$PROJECT_DIR$/IdelmaApp.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/IdelmaSctDelDialog.py" beforeDir="false" afterPath="$PROJECT_DIR$/IdelmaSctDelDialog.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/IdelmaSctDialog.py" beforeDir="false" afterPath="$PROJECT_DIR$/IdelmaSctDialog.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/IdelmaWarningDialog.py" beforeDir="false" afterPath="$PROJECT_DIR$/IdelmaWarningDialog.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/SctProp.py" beforeDir="false" afterPath="$PROJECT_DIR$/SctProp.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/SerialHandler.py" beforeDir="false" afterPath="$PROJECT_DIR$/SerialHandler.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/UsrSerial.py" beforeDir="false" afterPath="$PROJECT_DIR$/UsrSerial.py" afterDir="false" />
     </list>
@@ -163,9 +165,9 @@
     <recent_temporary>
       <list>
         <item itemvalue="Python.main" />
+        <item itemvalue="Python.IdelmaSctDelDialog" />
         <item itemvalue="Python.IdelmaSctDialog" />
         <item itemvalue="Python.IdelmaSctEditDialog" />
-        <item itemvalue="Python.IdelmaSctDelDialog" />
         <item itemvalue="Python.IdelmaWarningDialog" />
       </list>
     </recent_temporary>
@@ -256,7 +258,14 @@
       <option name="project" value="LOCAL" />
       <updated>1679275993622</updated>
     </task>
-    <option name="localTasksCounter" value="12" />
+    <task id="LOCAL-00012" summary="Section edit implemented but not tested. Started working on virtual serial comm">
+      <created>1681071166522</created>
+      <option name="number" value="00012" />
+      <option name="presentableId" value="LOCAL-00012" />
+      <option name="project" value="LOCAL" />
+      <updated>1681071166522</updated>
+    </task>
+    <option name="localTasksCounter" value="13" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -282,7 +291,8 @@
     <MESSAGE value="UI can fetch board infos and update respective labels. Created some classes related to event handling, but not in use yet" />
     <MESSAGE value="Section creation now implemented" />
     <MESSAGE value="Section deletion implemented" />
-    <option name="LAST_COMMIT_MESSAGE" value="Section deletion implemented" />
+    <MESSAGE value="Section edit implemented but not tested. Started working on virtual serial comm" />
+    <option name="LAST_COMMIT_MESSAGE" value="Section edit implemented but not tested. Started working on virtual serial comm" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -294,8 +304,8 @@
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/IdelmaApp.py</url>
-          <line>153</line>
-          <option name="timeStamp" value="71" />
+          <line>272</line>
+          <option name="timeStamp" value="136" />
         </line-breakpoint>
       </breakpoints>
       <default-breakpoints>
