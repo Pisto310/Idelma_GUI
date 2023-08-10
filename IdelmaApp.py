@@ -227,7 +227,7 @@ class IdelmaApp(QApplication):
         """
         Called after user has dealt with warning dialog. Signal slot
         for section delete button is changed to this method directly
-        if check box was checked
+        if checkbox was checked
         """
         if len(args):
             if args[0]:
@@ -236,22 +236,19 @@ class IdelmaApp(QApplication):
 
         sct_index = self.ui.sectionsList.currentRow()
         pixels = self.sctPropList[sct_index].pxlCount
-        self.ui.sectionsList.takeItem(sct_index)
 
-        while sct_index < (self.virtualBoard.sctsBrdMgmt.assigned - 1):
+        while sct_index <= (self.virtualBoard.sctsBrdMgmt.assigned - 1):
             if self.sctPropList[sct_index + 1] is None:
+                self.ui.sectionsList.takeItem(sct_index)
                 del self.sctPropList[sct_index]
                 self.sctPropList[sct_index] = None
             else:
                 if not self.sctPropList[sct_index].setDefaultName:
                     if self.sctPropList[sct_index + 1].setDefaultName:
-                        self.sctPropList[sct_index + 1].decrDefaultName()
                         self.sctPropList[sct_index].setDefaultName = self.sctPropList[sct_index + 1].setDefaultName
                     self.sctPropList[sct_index].sctName = self.sctPropList[sct_index + 1].sctName
+                    self.sctPropList[sct_index].decrDefaultName()
                 self.sctPropList[sct_index].pxlCount = self.sctPropList[sct_index + 1].pxlCount
-                # if self.sctPropList[sct_index].setDefaultName:
-                #     self.sctPropList[sct_index].decrDefaultName()
-                #     self.sctPropList[sct_index].setText()
             sct_index += 1
 
         self.blockUsageUpdt(pixels, False)

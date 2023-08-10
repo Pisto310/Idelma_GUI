@@ -4,14 +4,9 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="3153b060-3ee7-475e-91c1-ba171824b147" name="Changes" comment="Virtual serial comm is now working. Added a checkbox to hide warning message when section delete and implemented the impossibility for section name duplicate">
+    <list default="true" id="3153b060-3ee7-475e-91c1-ba171824b147" name="Changes" comment="Added a class attribute to SctProp that follows remaining pixels. Used as pxl count setter ceiling for verification. Working on section deletion to copy attributes and not whole object">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/IdelmaApp.py" beforeDir="false" afterPath="$PROJECT_DIR$/IdelmaApp.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/IdelmaDuplicateNameDialog.py" beforeDir="false" afterPath="$PROJECT_DIR$/IdelmaDuplicateNameDialog.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/IdelmaSctDelDialog.py" beforeDir="false" afterPath="$PROJECT_DIR$/IdelmaSctDelDialog.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/IdelmaWarningDialog.py" beforeDir="false" afterPath="$PROJECT_DIR$/IdelmaWarningDialog.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/SctProp.py" beforeDir="false" afterPath="$PROJECT_DIR$/SctProp.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/SctPropQListWidgetItem.py" beforeDir="false" afterPath="$PROJECT_DIR$/SctPropQListWidgetItem.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -290,7 +285,14 @@
       <option name="project" value="LOCAL" />
       <updated>1686593689020</updated>
     </task>
-    <option name="localTasksCounter" value="14" />
+    <task id="LOCAL-00014" summary="Added a class attribute to SctProp that follows remaining pixels. Used as pxl count setter ceiling for verification. Working on section deletion to copy attributes and not whole object">
+      <created>1691626428442</created>
+      <option name="number" value="00014" />
+      <option name="presentableId" value="LOCAL-00014" />
+      <option name="project" value="LOCAL" />
+      <updated>1691626428443</updated>
+    </task>
+    <option name="localTasksCounter" value="15" />
     <servers>
       <YouTrack url="https://idelma.youtrack.cloud">
         <option name="defaultSearch" value="" />
@@ -323,7 +325,8 @@
     <MESSAGE value="Section deletion implemented" />
     <MESSAGE value="Section edit implemented but not tested. Started working on virtual serial comm" />
     <MESSAGE value="Virtual serial comm is now working. Added a checkbox to hide warning message when section delete and implemented the impossibility for section name duplicate" />
-    <option name="LAST_COMMIT_MESSAGE" value="Virtual serial comm is now working. Added a checkbox to hide warning message when section delete and implemented the impossibility for section name duplicate" />
+    <MESSAGE value="Added a class attribute to SctProp that follows remaining pixels. Used as pxl count setter ceiling for verification. Working on section deletion to copy attributes and not whole object" />
+    <option name="LAST_COMMIT_MESSAGE" value="Added a class attribute to SctProp that follows remaining pixels. Used as pxl count setter ceiling for verification. Working on section deletion to copy attributes and not whole object" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -335,12 +338,12 @@
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/IdelmaApp.py</url>
-          <line>292</line>
+          <line>289</line>
           <option name="timeStamp" value="148" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/IdelmaApp.py</url>
-          <line>240</line>
+          <line>239</line>
           <option name="timeStamp" value="150" />
         </line-breakpoint>
       </breakpoints>
@@ -352,5 +355,11 @@
         </breakpoint>
       </default-breakpoints>
     </breakpoint-manager>
+    <watches-manager>
+      <configuration name="PythonConfigurationType">
+        <watch expression="self.sctPropList[sct_index].setDefaultName" language="Python" />
+        <watch expression="self.sctPropList[sct_index + 1].setDefaultName" language="Python" />
+      </configuration>
+    </watches-manager>
   </component>
 </project>
