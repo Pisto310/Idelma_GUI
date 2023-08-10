@@ -19,6 +19,9 @@ class SctPropQListWidgetItem(SctProp, QListWidgetItem):
         self.sctPropItemType = item_type
         self.modFont()
 
+    def updtRemainingPxls(self, pxls_remaining):
+        self.remainingPxls = pxls_remaining
+
     def modFont(self):
         font = QFont()
         font.setPointSize(14)

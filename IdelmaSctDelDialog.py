@@ -1,6 +1,6 @@
 from IdelmaWarningDialog import IdelmaWarningDialog
 
-from PyQt5.QtWidgets import QApplication
+from PyQt5.QtWidgets import (QApplication, QDialogButtonBox)
 from PyQt5.QtCore import (QCoreApplication, pyqtSignal)
 
 
@@ -28,6 +28,15 @@ class IdelmaSctDelDialog(IdelmaWarningDialog):
         self.setWindowTitle(_translate("Dialog", "Warning"))
         self.warningTitle.setText(_translate("Dialog", "Are you sure you want to {}?".format(self.confirmAction)))
         self.warningMssg.setText(_translate("Dialog", self.furtherInfo))
+
+    def settingBttns(self):
+        self.buttonBox.setStandardButtons(QDialogButtonBox.No | QDialogButtonBox.Yes)
+        self.buttonBox.button(QDialogButtonBox.Yes).setDefault(True)
+
+    def assigningSlots(self):
+        self.buttonBox.accepted.connect(self.accept)
+        self.buttonBox.rejected.connect(self.reject)
+        # QMetaObject.connectSlotsByName(Dialog)
 
     def accept(self):
         super().accept()

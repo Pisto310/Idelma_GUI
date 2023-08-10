@@ -8,7 +8,7 @@ import pty
 from IdelmaGui import IdelmaGui
 from IdelmaSctDialog import IdelmaSctDialog
 from IdelmaSctDelDialog import IdelmaSctDelDialog
-from IdelmaSctEditDialog import IdelmaSctEditDialog
+from IdelmaDuplicateNameDialog import IdelmaDuplicateNameDialog
 
 from BoardInfosQObject import BoardInfosQObject
 from MutableBrdInfo import MutableBrdInfo
@@ -134,6 +134,19 @@ class IdelmaApp(QApplication):
             self.sctPropList.append(None)
             counter += 1
 
+    def blockUsageUpdt(self, pixel_count, assignation: bool):
+        """
+        Method to be called when assigning or reallocating
+        pixels and sections blocks.
+        """
+        if assignation:
+            self.virtualBoard.sctsBrdMgmt.blockAssignation(1)
+            self.virtualBoard.pxlsBrdMgmt.blockAssignation(pixel_count)
+        else:
+            self.virtualBoard.sctsBrdMgmt.blockReallocation(1)
+            self.virtualBoard.pxlsBrdMgmt.blockReallocation(pixel_count)
+        SctPropQListWidgetItem.updtRemainingPxls(SctPropQListWidgetItem, self.virtualBoard.pxlsBrdMgmt.remaining)
+
     def resourcesAvailable(self):
         """
         Checks if there are remaining resources (sections & pixels)
@@ -205,12 +218,10 @@ class IdelmaApp(QApplication):
         and adding it to the UI ListWidget, and then updating the virtual brd
         """
         self.nameDuplicateCheck(section_name)
-
         sctPropObj = SctPropQListWidgetItem(section_name, pixel_count, set_default_name,
                                             self.ui.sectionsList, self.sctPropItemType)
         self.sctPropList[self.virtualBoard.sctsBrdMgmt.assigned] = sctPropObj
-        self.virtualBoard.sctsBrdMgmt.blockAssignation(1)
-        self.virtualBoard.pxlsBrdMgmt.blockAssignation(pixel_count)
+        self.blockUsageUpdt(pixel_count, True)
 
     def sectionDeletion(self, *args):
         """
@@ -218,23 +229,32 @@ class IdelmaApp(QApplication):
         for section delete button is changed to this method directly
         if check box was checked
         """
-        if args[0]:
-            self.ui.sctDeleteButton.clicked.disconnect()
-            self.ui.sctDeleteButton.clicked.connect(self.sectionDeletion)
+        if len(args):
+            if args[0]:
+                self.ui.sctDeleteButton.clicked.disconnect()
+                self.ui.sctDeleteButton.clicked.connect(self.sectionDeletion)
 
         sct_index = self.ui.sectionsList.currentRow()
         pixels = self.sctPropList[sct_index].pxlCount
         self.ui.sectionsList.takeItem(sct_index)
 
         while sct_index < (self.virtualBoard.sctsBrdMgmt.assigned - 1):
-            self.sctPropList[sct_index] = self.sctPropList[sct_index + 1]
-            if not self.sctPropList[sct_index] is None and self.sctPropList[sct_index].setDefaultName:
-                self.sctPropList[sct_index].decrDefaultName()
-                self.sctPropList[sct_index].setText()
+            if self.sctPropList[sct_index + 1] is None:
+                del self.sctPropList[sct_index]
+                self.sctPropList[sct_index] = None
+            else:
+                if not self.sctPropList[sct_index].setDefaultName:
+                    if self.sctPropList[sct_index + 1].setDefaultName:
+                        self.sctPropList[sct_index + 1].decrDefaultName()
+                        self.sctPropList[sct_index].setDefaultName = self.sctPropList[sct_index + 1].setDefaultName
+                    self.sctPropList[sct_index].sctName = self.sctPropList[sct_index + 1].sctName
+                self.sctPropList[sct_index].pxlCount = self.sctPropList[sct_index + 1].pxlCount
+                # if self.sctPropList[sct_index].setDefaultName:
+                #     self.sctPropList[sct_index].decrDefaultName()
+                #     self.sctPropList[sct_index].setText()
             sct_index += 1
 
-        self.virtualBoard.sctsBrdMgmt.blockReallocation(1)
-        self.virtualBoard.pxlsBrdMgmt.blockReallocation(pixels)
+        self.blockUsageUpdt(pixels, False)
 
         # Buttons check
         if self.resourcesAvailable() and not self.ui.sctAddButton.isEnabled():
@@ -267,8 +287,13 @@ class IdelmaApp(QApplication):
         """
         for index, section in enumerate(self.sctPropList):
             if section is not None and section.sctName == input_name:
+                self.ui.sectionsList.setCurrentRow(index)
+                nameDuplicateDialog = IdelmaDuplicateNameDialog(section.sctName)
+                # nameDuplicateDialog.accepted.connect(self.sectionDeletion)
+                nameDuplicateDialog.exec_()
                 # Pop-up warning dialog
                 # If 'Cancel', call the 'newSectionDialog' again
-                # If 'Accept', quit function and resume where left of
+                # If 'Replace', delete existing one for new one
+                # If 'Keep both', arrange naming of new one to add '(1)' at the end of its full name
                 pass
         pass

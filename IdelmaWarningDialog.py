@@ -27,8 +27,8 @@ class IdelmaWarningDialog(QDialog):
         self.winSize()
         self.rectSize()
         self.setupUi()
+        self.assigningSlots()
         self.retranslateUi()
-        self.slotconnect()
 
     def winSize(self):
         x_default = 240
@@ -89,26 +89,31 @@ class IdelmaWarningDialog(QDialog):
         self.buttonBox = QDialogButtonBox(self)
         self.buttonBox.setLocale(QLocale(QLocale.English, QLocale.Canada))
         self.buttonBox.setOrientation(Qt.Horizontal)
-        self.buttonBox.setStandardButtons(QDialogButtonBox.No | QDialogButtonBox.Yes)
-        self.buttonBox.button(QDialogButtonBox.Yes).setDefault(True)
         self.buttonBox.setObjectName("buttonBox")
+        self.settingBttns()
 
         # Arranging all widgets in a vertical layout
         self.verticalLayout = QVBoxLayout(self.centralWidget)
-        self.verticalLayout.setContentsMargins(0, 0, 0, 0)
         self.verticalLayout.setObjectName("verticalLayout")
         self.verticalLayout.addWidget(self.warningTitle)
         self.verticalLayout.addWidget(self.warningMssg)
         self.verticalLayout.addWidget(self.hideMssgCheckBox)
         self.verticalLayout.addWidget(self.buttonBox)
 
-    def retranslateUi(self):
+    def settingBttns(self):
         """
         To be implemented by children classes
         """
         pass
 
-    def slotconnect(self):
-        self.buttonBox.accepted.connect(self.accept)
-        self.buttonBox.rejected.connect(self.reject)
-        # QMetaObject.connectSlotsByName(Dialog)
+    def assigningSlots(self):
+        """
+        To be implemented by children classes
+        """
+        pass
+
+    def retranslateUi(self):
+        """
+        To be implemented by children classes
+        """
+        pass

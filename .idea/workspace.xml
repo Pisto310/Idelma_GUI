@@ -4,17 +4,14 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="3153b060-3ee7-475e-91c1-ba171824b147" name="Changes" comment="Section edit implemented but not tested. Started working on virtual serial comm">
-      <change afterPath="$PROJECT_DIR$/ArduinoEmulator.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/IdelmaDuplicateNameDialog.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/SerialHandlerQObject.py" afterDir="false" />
+    <list default="true" id="3153b060-3ee7-475e-91c1-ba171824b147" name="Changes" comment="Virtual serial comm is now working. Added a checkbox to hide warning message when section delete and implemented the impossibility for section name duplicate">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/IdelmaApp.py" beforeDir="false" afterPath="$PROJECT_DIR$/IdelmaApp.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/IdelmaDuplicateNameDialog.py" beforeDir="false" afterPath="$PROJECT_DIR$/IdelmaDuplicateNameDialog.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/IdelmaSctDelDialog.py" beforeDir="false" afterPath="$PROJECT_DIR$/IdelmaSctDelDialog.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/IdelmaWarningDialog.py" beforeDir="false" afterPath="$PROJECT_DIR$/IdelmaWarningDialog.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/SctProp.py" beforeDir="false" afterPath="$PROJECT_DIR$/SctProp.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/SerialHandler.py" beforeDir="false" afterPath="$PROJECT_DIR$/SerialHandler.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/UsrSerial.py" beforeDir="false" afterPath="$PROJECT_DIR$/UsrSerial.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/SctPropQListWidgetItem.py" beforeDir="false" afterPath="$PROJECT_DIR$/SctPropQListWidgetItem.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -49,7 +46,28 @@
     <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
     <property name="SHARE_PROJECT_CONFIGURATION_FILES" value="true" />
     <property name="last_opened_file_path" value="$PROJECT_DIR$" />
-    <property name="settings.editor.selected.configurable" value="com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable" />
+    <property name="settings.editor.selected.configurable" value="preferences.pluginManager" />
+    <property name="timeTracker.activityTracker" value="null" />
+    <property name="timeTracker.comment" value="" />
+    <property name="timeTracker.inactivityPeriodInMills" value="600000" />
+    <property name="timeTracker.isAutoTrackingEnable" value="false" />
+    <property name="timeTracker.isAutoTrackingTemporaryDisabled" value="false" />
+    <property name="timeTracker.isManualTrackingEnable" value="false" />
+    <property name="timeTracker.isPaused" value="true" />
+    <property name="timeTracker.isPostAfterCommitEnabled" value="false" />
+    <property name="timeTracker.isPostedScheduled" value="true" />
+    <property name="timeTracker.isRunning" value="false" />
+    <property name="timeTracker.isScheduledEnabled" value="false" />
+    <property name="timeTracker.isWhenProjectClosedEnabled" value="false" />
+    <property name="timeTracker.issueId" value="Default" />
+    <property name="timeTracker.issueIdReadable" value="Default" />
+    <property name="timeTracker.pausedTime" value="0" />
+    <property name="timeTracker.query" value="" />
+    <property name="timeTracker.recordedTime" value="0" />
+    <property name="timeTracker.scheduledPeriod" value="19:00:0" />
+    <property name="timeTracker.startTime" value="0" />
+    <property name="timeTracker.timeInMills" value="0" />
+    <property name="timeTracker.type" value="Development" />
   </component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
@@ -57,6 +75,27 @@
     </key>
   </component>
   <component name="RunManager" selected="Python.main">
+    <configuration name="IdelmaDuplicateNameDialog" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+      <module name="colorPicker" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/IdelmaDuplicateNameDialog.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
     <configuration name="IdelmaSctDelDialog" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="colorPicker" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -120,27 +159,6 @@
       <option name="INPUT_FILE" value="" />
       <method v="2" />
     </configuration>
-    <configuration name="IdelmaWarningDialog" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
-      <module name="colorPicker" />
-      <option name="INTERPRETER_OPTIONS" value="" />
-      <option name="PARENT_ENVS" value="true" />
-      <envs>
-        <env name="PYTHONUNBUFFERED" value="1" />
-      </envs>
-      <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
-      <option name="IS_MODULE_SDK" value="true" />
-      <option name="ADD_CONTENT_ROOTS" value="true" />
-      <option name="ADD_SOURCE_ROOTS" value="true" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/IdelmaWarningDialog.py" />
-      <option name="PARAMETERS" value="" />
-      <option name="SHOW_COMMAND_LINE" value="false" />
-      <option name="EMULATE_TERMINAL" value="false" />
-      <option name="MODULE_MODE" value="false" />
-      <option name="REDIRECT_INPUT" value="false" />
-      <option name="INPUT_FILE" value="" />
-      <method v="2" />
-    </configuration>
     <configuration name="main" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="colorPicker" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -165,10 +183,10 @@
     <recent_temporary>
       <list>
         <item itemvalue="Python.main" />
+        <item itemvalue="Python.IdelmaDuplicateNameDialog" />
         <item itemvalue="Python.IdelmaSctDelDialog" />
         <item itemvalue="Python.IdelmaSctDialog" />
         <item itemvalue="Python.IdelmaSctEditDialog" />
-        <item itemvalue="Python.IdelmaWarningDialog" />
       </list>
     </recent_temporary>
   </component>
@@ -265,8 +283,20 @@
       <option name="project" value="LOCAL" />
       <updated>1681071166522</updated>
     </task>
-    <option name="localTasksCounter" value="13" />
-    <servers />
+    <task id="LOCAL-00013" summary="Virtual serial comm is now working. Added a checkbox to hide warning message when section delete and implemented the impossibility for section name duplicate">
+      <created>1686593689020</created>
+      <option name="number" value="00013" />
+      <option name="presentableId" value="LOCAL-00013" />
+      <option name="project" value="LOCAL" />
+      <updated>1686593689020</updated>
+    </task>
+    <option name="localTasksCounter" value="14" />
+    <servers>
+      <YouTrack url="https://idelma.youtrack.cloud">
+        <option name="defaultSearch" value="" />
+        <username>random</username>
+      </YouTrack>
+    </servers>
   </component>
   <component name="Vcs.Log.Tabs.Properties">
     <option name="TAB_STATES">
@@ -292,7 +322,8 @@
     <MESSAGE value="Section creation now implemented" />
     <MESSAGE value="Section deletion implemented" />
     <MESSAGE value="Section edit implemented but not tested. Started working on virtual serial comm" />
-    <option name="LAST_COMMIT_MESSAGE" value="Section edit implemented but not tested. Started working on virtual serial comm" />
+    <MESSAGE value="Virtual serial comm is now working. Added a checkbox to hide warning message when section delete and implemented the impossibility for section name duplicate" />
+    <option name="LAST_COMMIT_MESSAGE" value="Virtual serial comm is now working. Added a checkbox to hide warning message when section delete and implemented the impossibility for section name duplicate" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -304,8 +335,13 @@
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/IdelmaApp.py</url>
-          <line>272</line>
-          <option name="timeStamp" value="136" />
+          <line>292</line>
+          <option name="timeStamp" value="148" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/IdelmaApp.py</url>
+          <line>240</line>
+          <option name="timeStamp" value="150" />
         </line-breakpoint>
       </breakpoints>
       <default-breakpoints>
