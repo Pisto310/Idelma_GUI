@@ -56,7 +56,8 @@ class SctProp:
     @setDefaultName.setter
     def setDefaultName(self, bool_state):
         try:
-            self.typeCheck(bool_state, bool)
+            if self.typeCheck(bool_state, bool):
+                self._setDefaultName = bool_state
         except TypeError as error:
             print(error)
 

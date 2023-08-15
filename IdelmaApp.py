@@ -241,13 +241,15 @@ class IdelmaApp(QApplication):
             if self.sctPropList[sct_index + 1] is None:
                 self.ui.sectionsList.takeItem(sct_index)
                 del self.sctPropList[sct_index]
-                self.sctPropList[sct_index] = None
             else:
-                if not self.sctPropList[sct_index].setDefaultName:
-                    if self.sctPropList[sct_index + 1].setDefaultName:
-                        self.sctPropList[sct_index].setDefaultName = self.sctPropList[sct_index + 1].setDefaultName
+                if not (self.sctPropList[sct_index].setDefaultName and self.sctPropList[sct_index + 1].setDefaultName):
                     self.sctPropList[sct_index].sctName = self.sctPropList[sct_index + 1].sctName
-                    self.sctPropList[sct_index].decrDefaultName()
+                    if self.sctPropList[sct_index + 1].setDefaultName:
+                        self.sctPropList[sct_index].setDefaultName = True
+                        self.sctPropList[sct_index].decrDefaultName()
+                    else:
+                        self.sctPropList[sct_index].setDefaultName = False
+                    self.sctPropList[sct_index].setText()
                 self.sctPropList[sct_index].pxlCount = self.sctPropList[sct_index + 1].pxlCount
             sct_index += 1
 

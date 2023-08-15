@@ -4,9 +4,10 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="3153b060-3ee7-475e-91c1-ba171824b147" name="Changes" comment="Added a class attribute to SctProp that follows remaining pixels. Used as pxl count setter ceiling for verification. Working on section deletion to copy attributes and not whole object">
+    <list default="true" id="3153b060-3ee7-475e-91c1-ba171824b147" name="Changes" comment="Tried to implement object deletion and attributes copy for section deletion method. Still buggy, will have to thoroughly test">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/IdelmaApp.py" beforeDir="false" afterPath="$PROJECT_DIR$/IdelmaApp.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/SctProp.py" beforeDir="false" afterPath="$PROJECT_DIR$/SctProp.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -292,7 +293,14 @@
       <option name="project" value="LOCAL" />
       <updated>1691626428443</updated>
     </task>
-    <option name="localTasksCounter" value="15" />
+    <task id="LOCAL-00015" summary="Tried to implement object deletion and attributes copy for section deletion method. Still buggy, will have to thoroughly test">
+      <created>1691630962258</created>
+      <option name="number" value="00015" />
+      <option name="presentableId" value="LOCAL-00015" />
+      <option name="project" value="LOCAL" />
+      <updated>1691630962258</updated>
+    </task>
+    <option name="localTasksCounter" value="16" />
     <servers>
       <YouTrack url="https://idelma.youtrack.cloud">
         <option name="defaultSearch" value="" />
@@ -326,7 +334,8 @@
     <MESSAGE value="Section edit implemented but not tested. Started working on virtual serial comm" />
     <MESSAGE value="Virtual serial comm is now working. Added a checkbox to hide warning message when section delete and implemented the impossibility for section name duplicate" />
     <MESSAGE value="Added a class attribute to SctProp that follows remaining pixels. Used as pxl count setter ceiling for verification. Working on section deletion to copy attributes and not whole object" />
-    <option name="LAST_COMMIT_MESSAGE" value="Added a class attribute to SctProp that follows remaining pixels. Used as pxl count setter ceiling for verification. Working on section deletion to copy attributes and not whole object" />
+    <MESSAGE value="Tried to implement object deletion and attributes copy for section deletion method. Still buggy, will have to thoroughly test" />
+    <option name="LAST_COMMIT_MESSAGE" value="Tried to implement object deletion and attributes copy for section deletion method. Still buggy, will have to thoroughly test" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -338,13 +347,13 @@
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/IdelmaApp.py</url>
-          <line>289</line>
-          <option name="timeStamp" value="148" />
+          <line>291</line>
+          <option name="timeStamp" value="153" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/IdelmaApp.py</url>
-          <line>239</line>
-          <option name="timeStamp" value="150" />
+          <line>200</line>
+          <option name="timeStamp" value="156" />
         </line-breakpoint>
       </breakpoints>
       <default-breakpoints>
@@ -359,6 +368,7 @@
       <configuration name="PythonConfigurationType">
         <watch expression="self.sctPropList[sct_index].setDefaultName" language="Python" />
         <watch expression="self.sctPropList[sct_index + 1].setDefaultName" language="Python" />
+        <watch expression="self.virtualBoard.sctsBrdMgmt.assigned - 1" language="Python" />
       </configuration>
     </watches-manager>
   </component>
