@@ -145,7 +145,7 @@ class IdelmaApp(QApplication):
         else:
             self.virtualBoard.sctsBrdMgmt.blockReallocation(1)
             self.virtualBoard.pxlsBrdMgmt.blockReallocation(pixel_count)
-        SctPropQListWidgetItem.updtRemainingPxls(SctPropQListWidgetItem, self.virtualBoard.pxlsBrdMgmt.remaining)
+        # SctPropQListWidgetItem.updtRemainingPxls(SctPropQListWidgetItem, self.virtualBoard.pxlsBrdMgmt.remaining)
 
     def resourcesAvailable(self):
         """
@@ -281,11 +281,11 @@ class IdelmaApp(QApplication):
 
     def nameDuplicateCheck(self, input_name):
         """
-        Check if the name input by the user already exists.
+        Check if the name input by the user already exists./
         If so, warning pop-up appears asking to proceed or cancel
         """
-        for index, section in enumerate(self.sctPropList):
-            if section is not None and section.sctName == input_name:
+        for index, section in enumerate(self.sctPropList[-1 * (self.virtualBoard.sctsBrdMgmt.remaining + 1)::-1]):
+            if section.sctName == input_name:
                 self.ui.sectionsList.setCurrentRow(index)
                 nameDuplicateDialog = IdelmaDuplicateNameDialog(section.sctName)
                 # nameDuplicateDialog.accepted.connect(self.sectionDeletion)

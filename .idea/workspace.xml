@@ -4,10 +4,11 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="3153b060-3ee7-475e-91c1-ba171824b147" name="Changes" comment="Tried to implement object deletion and attributes copy for section deletion method. Still buggy, will have to thoroughly test">
+    <list default="true" id="3153b060-3ee7-475e-91c1-ba171824b147" name="Changes" comment="Section deletion now works by copying attributes and not copying whole objects">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/IdelmaApp.py" beforeDir="false" afterPath="$PROJECT_DIR$/IdelmaApp.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/SctProp.py" beforeDir="false" afterPath="$PROJECT_DIR$/SctProp.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/SctPropQListWidgetItem.py" beforeDir="false" afterPath="$PROJECT_DIR$/SctPropQListWidgetItem.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -22,6 +23,31 @@
     </option>
   </component>
   <component name="Git.Settings">
+    <excluded-from-favorite>
+      <branch-storage>
+        <map>
+          <entry type="LOCAL">
+            <value>
+              <list>
+                <branch-info repo="$PROJECT_DIR$" source="master" />
+              </list>
+            </value>
+          </entry>
+          <entry type="REMOTE">
+            <value>
+              <list>
+                <branch-info repo="$PROJECT_DIR$" source="origin/master" />
+              </list>
+            </value>
+          </entry>
+        </map>
+      </branch-storage>
+    </excluded-from-favorite>
+    <option name="RECENT_BRANCH_BY_REPOSITORY">
+      <map>
+        <entry key="$PROJECT_DIR$" value="master" />
+      </map>
+    </option>
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
   <component name="GitSEFilterConfiguration">
@@ -300,7 +326,14 @@
       <option name="project" value="LOCAL" />
       <updated>1691630962258</updated>
     </task>
-    <option name="localTasksCounter" value="16" />
+    <task id="LOCAL-00016" summary="Section deletion now works by copying attributes and not copying whole objects">
+      <created>1692115651446</created>
+      <option name="number" value="00016" />
+      <option name="presentableId" value="LOCAL-00016" />
+      <option name="project" value="LOCAL" />
+      <updated>1692115651446</updated>
+    </task>
+    <option name="localTasksCounter" value="17" />
     <servers>
       <YouTrack url="https://idelma.youtrack.cloud">
         <option name="defaultSearch" value="" />
@@ -313,7 +346,79 @@
       <map>
         <entry key="MAIN">
           <value>
-            <State />
+            <State>
+              <option name="FILTERS">
+                <map>
+                  <entry key="branch">
+                    <value>
+                      <list>
+                        <option value="HEAD" />
+                      </list>
+                    </value>
+                  </entry>
+                </map>
+              </option>
+            </State>
+          </value>
+        </entry>
+        <entry key="a7a04d7c-8bf9-4e42-8362-47021bc70a47">
+          <value>
+            <State>
+              <option name="CUSTOM_BOOLEAN_PROPERTIES">
+                <map>
+                  <entry key="Show.Git.Branches" value="true" />
+                </map>
+              </option>
+              <option name="SHOW_ONLY_AFFECTED_CHANGES" value="true" />
+              <option name="FILTERS">
+                <map>
+                  <entry key="branch">
+                    <value>
+                      <list>
+                        <option value="HEAD" />
+                      </list>
+                    </value>
+                  </entry>
+                  <entry key="roots">
+                    <value>
+                      <list>
+                        <option value="$PROJECT_DIR$" />
+                      </list>
+                    </value>
+                  </entry>
+                </map>
+              </option>
+            </State>
+          </value>
+        </entry>
+      </map>
+    </option>
+    <option name="OPEN_GENERIC_TABS">
+      <map>
+        <entry key="a7a04d7c-8bf9-4e42-8362-47021bc70a47" value="TOOL_WINDOW" />
+      </map>
+    </option>
+    <option name="RECENT_FILTERS">
+      <map>
+        <entry key="Branch">
+          <value>
+            <list>
+              <RecentGroup>
+                <option name="FILTER_VALUES">
+                  <option value="HEAD" />
+                </option>
+              </RecentGroup>
+              <RecentGroup>
+                <option name="FILTER_VALUES">
+                  <option value="origin/master" />
+                </option>
+              </RecentGroup>
+              <RecentGroup>
+                <option name="FILTER_VALUES">
+                  <option value="AbsoluteDeletion" />
+                </option>
+              </RecentGroup>
+            </list>
           </value>
         </entry>
       </map>
@@ -335,7 +440,8 @@
     <MESSAGE value="Virtual serial comm is now working. Added a checkbox to hide warning message when section delete and implemented the impossibility for section name duplicate" />
     <MESSAGE value="Added a class attribute to SctProp that follows remaining pixels. Used as pxl count setter ceiling for verification. Working on section deletion to copy attributes and not whole object" />
     <MESSAGE value="Tried to implement object deletion and attributes copy for section deletion method. Still buggy, will have to thoroughly test" />
-    <option name="LAST_COMMIT_MESSAGE" value="Tried to implement object deletion and attributes copy for section deletion method. Still buggy, will have to thoroughly test" />
+    <MESSAGE value="Section deletion now works by copying attributes and not copying whole objects" />
+    <option name="LAST_COMMIT_MESSAGE" value="Section deletion now works by copying attributes and not copying whole objects" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -344,16 +450,6 @@
           <url>file://$PROJECT_DIR$/standarddialogs.py</url>
           <line>44</line>
           <option name="timeStamp" value="30" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/IdelmaApp.py</url>
-          <line>291</line>
-          <option name="timeStamp" value="153" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/IdelmaApp.py</url>
-          <line>200</line>
-          <option name="timeStamp" value="156" />
         </line-breakpoint>
       </breakpoints>
       <default-breakpoints>
@@ -364,12 +460,5 @@
         </breakpoint>
       </default-breakpoints>
     </breakpoint-manager>
-    <watches-manager>
-      <configuration name="PythonConfigurationType">
-        <watch expression="self.sctPropList[sct_index].setDefaultName" language="Python" />
-        <watch expression="self.sctPropList[sct_index + 1].setDefaultName" language="Python" />
-        <watch expression="self.virtualBoard.sctsBrdMgmt.assigned - 1" language="Python" />
-      </configuration>
-    </watches-manager>
   </component>
 </project>

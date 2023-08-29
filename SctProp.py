@@ -4,7 +4,7 @@ class SctProp:
     """
     Contains all properties relating to user-created section
     """
-    remainingPxls = 0
+    # remainingPxls = 0
 
     def __init__(self, name: str, pixel_count: int, set_default_name: bool):
 
@@ -44,7 +44,8 @@ class SctProp:
     @pxlCount.setter
     def pxlCount(self, new_val: int):
         try:
-            if self.typeCheck(new_val, int) and self.valueBoundCheck(new_val, 0, self.remainingPxls):
+            if self.typeCheck(new_val, int):
+                # and self.valueBoundCheck(new_val, 0, self.remainingPxls):
                 self._pxlCount = new_val
         except (TypeError, ValueError) as error:
             print(error)
