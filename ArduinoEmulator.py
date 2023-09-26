@@ -34,7 +34,7 @@ class ArduinoEmulator:
         self.pendingRqst = None
 
         self.lineFeedChar = 10
-        self.spaceChar = 32
+        self.unitSeparator = 31
 
         self.cmdsDict = {
             "1": self.serialNumSend,
@@ -60,7 +60,7 @@ class ArduinoEmulator:
         to and dispatch it to the appropriate function
         """
         self.rxBuffer.mssgLen = os.readv(self.master, [self.rxBuffer.buffer])
-        self.rxDataParsing()
+        self.rxBuffer.mssgLen = self.rxDataParsing()
         self.cmdsDict[str(self.pendingRqst)]()
 
     def serialWrite(self):
@@ -94,7 +94,7 @@ class ArduinoEmulator:
     def rxDataParsing(self):
         """
         Method to parse bytes received through serial. Bytes are broken into single digits,
-        separated by space char (0x06) and arranged in a little endian format. Message always
+        separated by space char (0x20) and arranged in a little endian format. Message always
         end with line feed character (0x10)
         """
         rqstCheck = False
@@ -102,7 +102,7 @@ class ArduinoEmulator:
         recomposedNbr = 0
         newMssgLen = 0
         for index, val in enumerate(self.rxBuffer.buffer):
-            if not val == self.spaceChar and not val == self.lineFeedChar:
+            if not val == self.unitSeparator and not val == self.lineFeedChar:
                 recomposedNbr += self.ascii2Hex(val) * (10 ** unitsTracker)
                 unitsTracker += 1
             elif unitsTracker:
@@ -131,7 +131,7 @@ class ArduinoEmulator:
             buffer[mssgLen] = byte
             mssgLen += 1
             if i != (len(output_data) - 1):
-                buffer[mssgLen] = self.spaceChar
+                buffer[mssgLen] = self.unitSeparator
                 mssgLen += 1
         return mssgLen
 

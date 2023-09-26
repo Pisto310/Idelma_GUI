@@ -11,10 +11,13 @@ class SctPropQListWidgetItem(SctProp, QListWidgetItem):
     environment by also subclassing the QListWidgetItem
     class to be use in a QListWidget
     """
-    def __init__(self, name: str, pixel_count: int, set_default_name: bool, item_parent: QListWidget, item_type: QListWidgetItem.ItemType):
+    def __init__(self, index: int, name: str, pixel_count: int, set_default_name: bool,
+                 item_parent: QListWidget, item_type: QListWidgetItem.ItemType):
         # Calling the superclass
         super().__init__(name=name, pixel_count=pixel_count, set_default_name=set_default_name)
         QListWidgetItem.__init__(self, name, parent=item_parent, type=item_type)
+
+        self.sctInfoTuple = (index, pixel_count)
 
         self.sctPropItemType = item_type
         self.modFont()

@@ -46,6 +46,7 @@ class IdelmaSctDialog(QDialog):
         self.sctNameLineEdit = QLineEdit(self)
         self.sctNameLineEdit.setPlaceholderText(self.defaultName)
         self.sctNameLineEdit.setText(self.sctName)
+        self.sctNameLineEdit.setMaxLength(20)
         self.sctNameLineEdit.setObjectName("lineEdit")
 
         # Pixel Number Label and associated SpinBox widget

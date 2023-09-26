@@ -3,7 +3,7 @@ from math import floor
 from IdelmaWarningDialog import IdelmaWarningDialog
 
 from PyQt5.QtWidgets import (QApplication, QPushButton, QDialogButtonBox)
-from PyQt5.QtCore import QCoreApplication
+from PyQt5.QtCore import (QCoreApplication)
 
 
 class IdelmaDuplicateNameDialog(IdelmaWarningDialog):
@@ -11,6 +11,7 @@ class IdelmaDuplicateNameDialog(IdelmaWarningDialog):
     Warning dialog that pop-up when user tries to create
     a section with an already existing name
     """
+
     def __init__(self, existing_name):
         # self.confirmAction = "delete section"
         self.name = existing_name
@@ -20,6 +21,8 @@ class IdelmaDuplicateNameDialog(IdelmaWarningDialog):
         super().__init__()
         self.removeWidgets()
         self.resizeMargins()
+
+        self.keepResult = 2     # Must be an int
 
     def computeWinSizeY(self):
         """
@@ -46,7 +49,8 @@ class IdelmaDuplicateNameDialog(IdelmaWarningDialog):
 
     def assigningSlots(self):
         self.buttonBox.accepted.connect(self.accept)
-    #     self.buttonBox.rejected.connect(self.reject)
+        self.buttonBox.rejected.connect(self.reject)
+        self.buttonBox.clicked.connect(self.keepBoth)
 
     def retranslateUi(self):
         _translate = QCoreApplication.translate
@@ -65,6 +69,9 @@ class IdelmaDuplicateNameDialog(IdelmaWarningDialog):
     def resizeMargins(self):
         self.verticalLayout.setContentsMargins(0, 20, 0, 0)
         self.warningMssg.setContentsMargins(7, 0, 7, 0)
+
+    def keepBoth(self):
+        self.done(self.keepResult)
 
 
 if __name__ == "__main__":

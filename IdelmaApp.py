@@ -84,7 +84,7 @@ class IdelmaApp(QApplication):
         self.board.connectPxlsSignal(self.ui.updtPxlsInfo)
 
         # Fetch board infos button
-        self.ui.fetchInfosButton.clicked.connect(self.fetchBrdInfos)
+        self.ui.fetchInfosButton.clicked.connect(self.fetchBrdInfosCmd)
 
         # ListWidget signals and buttons
         self.ui.sctAddButton.clicked.connect(self.newSectionDialog)
@@ -92,7 +92,10 @@ class IdelmaApp(QApplication):
         self.ui.sctEditButton.clicked.connect(self.editSectionDialog)
         self.ui.sectionsList.itemClicked.connect(self.ui.enableListWidgetBttns)
 
-    def fetchBrdInfos(self):
+        # Board config and save buttons
+        self.ui.configButton.clicked.connect(self.configBrdCmd)
+
+    def fetchBrdInfosCmd(self):
         """
         Runs the board infos fetch protocol which includes:
         1. Reading all the board infos from the arduino
@@ -107,6 +110,21 @@ class IdelmaApp(QApplication):
         self.instantiateVrtlBrd()
 
         self.fillingSctPropList()
+
+    def configBrdCmd(self):
+        """
+        1. Extract index of each section
+        3. Extract pxl number of each section
+        4. Assemble info in a list
+        5. Pass list to serial handler
+        """
+        sct_metadata = []
+        for index, val in enumerate(self.sctPropList):
+            if val is None:
+                break
+            else:
+                sct_metadata.append(val.sctInfoTuple)
+        self.ser.configBrdRqst(*sct_metadata)
 
     def instantiateVrtlBrd(self):
         """
@@ -167,6 +185,17 @@ class IdelmaApp(QApplication):
         elif self.virtualBoard == self.board and self.ui.configButton.isEnabled():
             self.ui.configButton.setEnabled(False)
 
+    def duplicateNameCheck(self, input_name):
+        """
+        Scans through all already created sections names and checks
+        if the sct pending its creation is a duplicate
+        """
+        for index, section in enumerate(self.sctPropList[-1 * (self.virtualBoard.sctsBrdMgmt.remaining + 1)::-1]):
+            if section.sctName == input_name:
+                self.ui.sectionsList.setCurrentItem(section)
+                return True
+        return False
+
     def newSectionDialog(self):
         """
         Pop-up a dialog in which user has to enter the required
@@ -212,14 +241,37 @@ class IdelmaApp(QApplication):
         if not self.resourcesAvailable():
             self.ui.sctAddButton.setEnabled(False)
 
+    def duplicateNameDialog(self):
+        """
+        Func that calls the duplicate name Dialog window.
+        Returns the dialog's results
+        0: No
+        1: Yes
+        2: Keep Both
+        """
+        nameDuplicateDialog = IdelmaDuplicateNameDialog(self.ui.sectionsList.currentItem().sctName)
+        nameDuplicateDialog.exec_()
+        return nameDuplicateDialog.result()
+
     def sectionCreation(self, section_name: str, pixel_count: int, set_default_name: bool):
         """
         Method used to create a new section by first creating a ListWidgetItem
         and adding it to the UI ListWidget, and then updating the virtual brd
+        Begins with a name duplicate check
         """
-        self.nameDuplicateCheck(section_name)
-        sctPropObj = SctPropQListWidgetItem(section_name, pixel_count, set_default_name,
-                                            self.ui.sectionsList, self.sctPropItemType)
+        if self.duplicateNameCheck(section_name):
+            duplicate_res = self.duplicateNameDialog()
+            if duplicate_res == 0:
+                return self.newSectionDialog()
+            elif duplicate_res == 1:
+                return self.sectionReplacement(pixel_count)
+            elif duplicate_res == 2:
+                new_name = section_name + ' (1)'
+                while self.duplicateNameCheck(new_name):
+                    new_name = section_name + ' (' + str(int(new_name[-2]) + 1) + ')'
+                section_name = new_name
+        sctPropObj = SctPropQListWidgetItem(self.virtualBoard.sctsBrdMgmt.assigned, section_name, pixel_count,
+                                            set_default_name, self.ui.sectionsList, self.sctPropItemType)
         self.sctPropList[self.virtualBoard.sctsBrdMgmt.assigned] = sctPropObj
         self.blockUsageUpdt(pixel_count, True)
 
@@ -279,20 +331,16 @@ class IdelmaApp(QApplication):
         self.ui.sectionsList.insertItem(sct_index, new_sctPropObj)
         self.sctPropList[sct_index] = new_sctPropObj
 
-    def nameDuplicateCheck(self, input_name):
+    def sectionReplacement(self, new_pixel_count: int):
         """
-        Check if the name input by the user already exists./
-        If so, warning pop-up appears asking to proceed or cancel
+        Only called when user has accepted to overwrite an already
+        existing section with another having the same name. So it's
+        only necessary to change the pxl_count attribute of existing sct
         """
-        for index, section in enumerate(self.sctPropList[-1 * (self.virtualBoard.sctsBrdMgmt.remaining + 1)::-1]):
-            if section.sctName == input_name:
-                self.ui.sectionsList.setCurrentRow(index)
-                nameDuplicateDialog = IdelmaDuplicateNameDialog(section.sctName)
-                # nameDuplicateDialog.accepted.connect(self.sectionDeletion)
-                nameDuplicateDialog.exec_()
-                # Pop-up warning dialog
-                # If 'Cancel', call the 'newSectionDialog' again
-                # If 'Replace', delete existing one for new one
-                # If 'Keep both', arrange naming of new one to add '(1)' at the end of its full name
-                pass
-        pass
+        pxl_updt = new_pixel_count - self.ui.sectionsList.currentItem().pxlCount
+        if pxl_updt:
+            self.sctPropList[self.ui.sectionsList.currentRow()].pxlCount = new_pixel_count
+            if pxl_updt > 0:
+                self.virtualBoard.pxlsBrdMgmt.blockAssignation(pxl_updt)
+            elif pxl_updt < 0:
+                self.virtualBoard.pxlsBrdMgmt.blockReallocation(pxl_updt)

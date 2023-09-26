@@ -13,20 +13,17 @@ class SerialHandler:
 
         self._awaitingReply = False
 
-        # Below are all commands
+        # Below are all commands for metadata (0-9 reserved)
         self._serialNum   = {"cmd": "1", "reply_expected": True}
         self._fwVersion   = {"cmd": "2", "reply_expected": True}
         self._sctsBrdMgmt = {"cmd": "3", "reply_expected": True}
         self._pxlsBrdMgmt = {"cmd": "4", "reply_expected": True}
-        self._sctSetup    = {"cmd": "5", "reply_expected": False}
+
+        # Commands necessitating the MCU to send an ACK
+        self._configBrdCmd = '10'
+        # self._configBrd = {"cmd": "10", "reply_expected": True}
 
         # self.openSerialPort()
-
-        # self._boardInfos     = {"cmd": "1", "reply_expected": True}
-        # self._sectionInfoArr = {"cmd": "2", "reply_expected": True}
-        # self._setupSct       = {"cmd": "3", "reply_expected": True}
-        # self._saveSctsConfig = {"cmd": "4", "reply_expected": True}
-        # self._ledColorChange = {"cmd": "5", "reply_expected": False}
 
     def serialNumRqst(self, board_inst: BoardInfos):
         self.serRqst(self.serialNum, board_inst.serialNumMssgDecode)
@@ -43,12 +40,12 @@ class SerialHandler:
     def getAllBrdInfos(self, board_inst: BoardInfos):
 
         """-----     debug    -----"""
-        # self.serial.writeToPort(self.serial.concatenateData("1"))
+        # self.serial.writeToPort(self.serial.txDataParsing("1"))
         # self.awaitingReply = True
         #
         # while self.awaitingReply:
         #     if self.checkRqstStatus():
-        #         self.serial.messageParsing()
+        #         self.serial.rxMessageParsing()
         #         pass
         """-----     debug    -----"""
 
@@ -57,25 +54,29 @@ class SerialHandler:
         self.sctsBrdMgmtRqst(board_inst)
         self.pxlsBrdMgmtRqst(board_inst)
 
-    # For this method, each device (arduino and PC) will update the board infos on their own. To signal that everything
-    # was done right in the MCU, it will respond with an ACK (defined as 6 in the ascii table). From there, the PC will
-    # update the board info back in the SectionEditWin class
-    def sctSetupRqst(self, board_inst: BoardInfos, led_count: int, single_pixel: bool):
-        self.serRqst(self.sctSetup, board_inst.sctSetupUpdt, led_count, single_pixel)
+    def configBrdRqst(self, *args):
+        """
+        Method to send all sections info through serial to config board
+        *Args is a list of the index and the nbr of pxl in each scts
+        """
+        self.serial.confirmCmd(self.configBrdCmd)
+        for index, val in enumerate(args):
+            self.serial.txDataParsing(*val)
+        self.serRqst(self.configBrd, lambda: print('Wow'), *args)
 
     def serRqst(self, serial_command, board_inst_func_cb, *args):
         self.sendRqst(serial_command, *args)
         while self.awaitingReply:
             if self.checkRqstStatus():
-                board_inst_func_cb(self.serial.messageParsing(), *args)
+                board_inst_func_cb(self.serial.rxMessageParsing(), *args)
                 self.rqstComplete()
 
     def sendRqst(self, command_dict, *args):
         if not self.awaitingReply:
             if not args:
-                self.serial.writeToPort(command_dict.get("cmd"))
+                self.serial.writeToPort(command_dict.get("cmd")[::-1])
             else:
-                self.serial.writeToPort(self.serial.txDataEncoding(command_dict.get("cmd"), *args))
+                self.serial.writeToPort(self.serial.txBuffer)
             if command_dict.get("reply_expected"):
                 self.awaitingReply = True
                 self.notifyRxerEmit()
@@ -131,5 +132,7 @@ class SerialHandler:
         return self._pxlsBrdMgmt
 
     @property
-    def sctSetup(self):
-        return self._sctSetup
+    def configBrdCmd(self):
+        return self._configBrdCmd
+    # def configBrd(self):
+    #     return self._configBrd

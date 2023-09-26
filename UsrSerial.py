@@ -17,36 +17,53 @@ class UsrSerial(Serial):
                          write_timeout=None, dsrdtr=False, inter_byte_timeout=None, exclusive=None)
         time.sleep(serial_wait)     # To allow Arduino to RST
 
+        self.bufferSizeLim = 64
+
         self._rxBuffer = []
-        self.parsedMssg = []
+        self.txBuffer = ''
 
-        self._lineFeed = 10
-        self._spaceChar = 32
+        self.lineFeed = 10
+        self.groupSeparator = 29
+        self.unitSeparator = 31
 
-    # Method to call to write on serial port
     def writeToPort(self, serial_data):
-        serial_data += chr(self._lineFeed)
+        """
+        Write a set of data to the serial port
+        Using python serial module separates each bytes for us
+        """
+        serial_data += chr(self.lineFeed)
         print(list(bytes(serial_data, 'utf-8')))
         self.write(bytes(serial_data, 'utf-8'))
         time.sleep(0.05)
+        # Erase tx buffer here
 
-    # reading Rx buffer is based on the fact that there is always a 'line feed' (\n) char in a serial transmission
     def readPort(self):
+        """
+        Reading serial port until a line feed char is met
+        """
         self.rxBuffer = list(self.readline())
 
     def clearBuffer(self):
         self.rxBuffer = []
 
-    def messageParsing(self):
+    def confirmCmd(self, str_cmd):
+        self.resetTxBuffer()
+        self.txBuffer += str_cmd[::-1]
+        pass
+
+    def resetTxBuffer(self):
+        self.txBuffer = ''
+
+    def rxMessageParsing(self):
         """
         Method to parse bytes received through serial. Bytes ar broken into single digits,
-        separated by space char (0x06) and arranged in a little endian format
+        separated by space char (0x20) and arranged in a little endian format
         """
         unitsTracker = 0
         recomposedNbr = 0
         msg_container = []
         for index, val in enumerate(self.rxBuffer):
-            if not val == self._spaceChar and not val == self._lineFeed:
+            if not val == self.unitSeparator and not val == self.lineFeed:
                 recomposedNbr += val * (10 ** unitsTracker)
                 unitsTracker += 1
             else:
@@ -54,20 +71,21 @@ class UsrSerial(Serial):
                     msg_container.append(recomposedNbr)
                     unitsTracker = 0
                     recomposedNbr = 0
-                if val == self._lineFeed:
+                if val == self.lineFeed:
                     break
         print(msg_container)
         return msg_container
 
-    # Used to add numbers to the serial command to send. Padding 0 bytes are added to numbers that aren't big enough to
-    # to respect the hundreds, tens and unit format for ease of processing and generality. This allows to not use
-    # separation characters like space since 3 bytes always represent a divided number
-    def txDataEncoding(self, initial_data, *args):
-        conc_data = initial_data
-        for i in args:
-            i_str = str(i)[::-1]
-            conc_data += (chr(self._spaceChar) + i_str)
-        return conc_data
+    def txDataParsing(self, *args):
+        """
+        """
+        self.txBuffer += chr(self.groupSeparator)
+        for index, val in enumerate(args):
+            if not isinstance(val, str):
+                val = str(val)
+            self.txBuffer += val[::-1]
+            if index != (len(args) - 1):
+                self.txBuffer += chr(self.unitSeparator)
 
     """
     This section for attributes' getters, setters and delete
@@ -82,7 +100,3 @@ class UsrSerial(Serial):
             raise TypeError("Should pass a list as argument")
         else:
             self._rxBuffer = new_list
-
-
-
-
