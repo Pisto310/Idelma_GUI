@@ -23,19 +23,13 @@ class UsrSerial(Serial):
         self.txBuffer = ''
 
         self.lineFeed = 10
-        self.groupSeparator = 29
-        self.unitSeparator = 31
+        self.spaceChar = 32
 
-    def writeToPort(self, serial_data):
-        """
-        Write a set of data to the serial port
-        Using python serial module separates each bytes for us
-        """
-        serial_data += chr(self.lineFeed)
-        print(list(bytes(serial_data, 'utf-8')))
-        self.write(bytes(serial_data, 'utf-8'))
+    def sendTxBuffer(self):
+        self.txBuffer += chr(self.lineFeed)
+        print(list(bytes(self.txBuffer, 'utf-8')))
+        self.write(bytes(self.txBuffer, 'utf-8'))
         time.sleep(0.05)
-        # Erase tx buffer here
 
     def readPort(self):
         """
@@ -47,11 +41,18 @@ class UsrSerial(Serial):
         self.rxBuffer = []
 
     def confirmCmd(self, str_cmd):
+        """
+        First method to be called when sending a serial packet from the PC
+        to the MCU. It ensures the txBuffer is reset and adds the cmd as
+        the first (few) byte(s) of the transmission
+        """
         self.resetTxBuffer()
         self.txBuffer += str_cmd[::-1]
-        pass
 
     def resetTxBuffer(self):
+        """
+        Simply resets the txBuffer by assigning an empty string to it
+        """
         self.txBuffer = ''
 
     def rxMessageParsing(self):
@@ -63,7 +64,7 @@ class UsrSerial(Serial):
         recomposedNbr = 0
         msg_container = []
         for index, val in enumerate(self.rxBuffer):
-            if not val == self.unitSeparator and not val == self.lineFeed:
+            if not val == self.spaceChar and not val == self.lineFeed:
                 recomposedNbr += val * (10 ** unitsTracker)
                 unitsTracker += 1
             else:
@@ -78,14 +79,22 @@ class UsrSerial(Serial):
 
     def txDataParsing(self, *args):
         """
+        If called, it is after confirmCmd or else an AssertionError is raised.
+        It will fill out the txBuffer with additional info necessary for the
+        MCU to process the command
         """
-        self.txBuffer += chr(self.groupSeparator)
-        for index, val in enumerate(args):
-            if not isinstance(val, str):
-                val = str(val)
-            self.txBuffer += val[::-1]
-            if index != (len(args) - 1):
-                self.txBuffer += chr(self.unitSeparator)
+        if len(self.txBuffer) != 0:
+            for index, val in enumerate(args):
+                if hasattr(val, '__iter__') and len(val) > 1:
+                    self.txDataParsing(*val)
+                else:
+                    if not isinstance(val, str):
+                        val = str(val)
+                    self.txBuffer += chr(self.spaceChar) + val[::-1]
+                # Condition to check for length of txBuffer == 63 && how much more bytes there are to write in buffer
+                # This is to ensure that each transmission doesn't overflow the 64 bytes limit on serial blocks
+        else:
+            raise AssertionError("Transmission buffer must contain a specific serial command")
 
     """
     This section for attributes' getters, setters and delete
@@ -100,3 +109,6 @@ class UsrSerial(Serial):
             raise TypeError("Should pass a list as argument")
         else:
             self._rxBuffer = new_list
+
+
+

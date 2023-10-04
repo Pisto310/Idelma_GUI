@@ -113,18 +113,16 @@ class IdelmaApp(QApplication):
 
     def configBrdCmd(self):
         """
-        1. Extract index of each section
-        3. Extract pxl number of each section
-        4. Assemble info in a list
-        5. Pass list to serial handler
+        Appending sctInfoTuple to an empty to then pass unpacked to
+        the appropriate method of the serialHandler obj
+        Basically, *sct_metadata is a tuple of tuples
         """
         sct_metadata = []
         for index, val in enumerate(self.sctPropList):
-            if val is None:
+            if index == self.virtualBoard.sctsBrdMgmt.assigned:
                 break
-            else:
-                sct_metadata.append(val.sctInfoTuple)
-        self.ser.configBrdRqst(*sct_metadata)
+            sct_metadata.append(val.sctInfoTuple)
+        self.ser.configBrdRqst(self.board, *sct_metadata)
 
     def instantiateVrtlBrd(self):
         """
@@ -206,12 +204,11 @@ class IdelmaApp(QApplication):
         addSctDialog.connectAccepted(self.sectionCreation)
         addSctDialog.exec_()
 
-        # Calling method to see if necessary to trig state of 'config. board' bttn
-        self.configBrdBttnStateTrig()
-
         # Buttons check
         if not self.resourcesAvailable():
             self.ui.sctAddButton.setEnabled(False)
+
+        self.configBrdBttnStateTrig()
 
     def deleteSectionDialog(self):
         """
@@ -240,6 +237,8 @@ class IdelmaApp(QApplication):
             self.ui.sctAddButton.setEnabled(True)
         if not self.resourcesAvailable():
             self.ui.sctAddButton.setEnabled(False)
+
+        self.configBrdBttnStateTrig()
 
     def duplicateNameDialog(self):
         """

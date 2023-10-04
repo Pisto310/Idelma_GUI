@@ -4,15 +4,16 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="3153b060-3ee7-475e-91c1-ba171824b147" name="Changes" comment="Removed the 'remaining_pixels' class variable of SctProp because pxl_count value_bound was removed. Slightly modified the for loop of the duplicate name warning method in IdelmaApp">
+    <list default="true" id="3153b060-3ee7-475e-91c1-ba171824b147" name="Changes" comment="Duplicate warning push buttons all assigned. Pushing because I want to rework the serial command methods">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/ArduinoEmulator.py" beforeDir="false" afterPath="$PROJECT_DIR$/ArduinoEmulator.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/BoardInfos.py" beforeDir="false" afterPath="$PROJECT_DIR$/BoardInfos.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/IdelmaApp.py" beforeDir="false" afterPath="$PROJECT_DIR$/IdelmaApp.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/IdelmaDuplicateNameDialog.py" beforeDir="false" afterPath="$PROJECT_DIR$/IdelmaDuplicateNameDialog.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/IdelmaSctDialog.py" beforeDir="false" afterPath="$PROJECT_DIR$/IdelmaSctDialog.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/SctPropQListWidgetItem.py" beforeDir="false" afterPath="$PROJECT_DIR$/SctPropQListWidgetItem.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/MutableBrdInfo.py" beforeDir="false" afterPath="$PROJECT_DIR$/MutableBrdInfo.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/SerialHandler.py" beforeDir="false" afterPath="$PROJECT_DIR$/SerialHandler.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/SerialHandlerQObject.py" beforeDir="false" afterPath="$PROJECT_DIR$/SerialHandlerQObject.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/UsrSerial.py" beforeDir="false" afterPath="$PROJECT_DIR$/UsrSerial.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/main.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -344,7 +345,14 @@
       <option name="project" value="LOCAL" />
       <updated>1693274729071</updated>
     </task>
-    <option name="localTasksCounter" value="18" />
+    <task id="LOCAL-00018" summary="Duplicate warning push buttons all assigned. Pushing because I want to rework the serial command methods">
+      <created>1695760993271</created>
+      <option name="number" value="00018" />
+      <option name="presentableId" value="LOCAL-00018" />
+      <option name="project" value="LOCAL" />
+      <updated>1695760993271</updated>
+    </task>
+    <option name="localTasksCounter" value="19" />
     <servers>
       <YouTrack url="https://idelma.youtrack.cloud">
         <option name="defaultSearch" value="" />
@@ -453,15 +461,16 @@
     <MESSAGE value="Tried to implement object deletion and attributes copy for section deletion method. Still buggy, will have to thoroughly test" />
     <MESSAGE value="Section deletion now works by copying attributes and not copying whole objects" />
     <MESSAGE value="Removed the 'remaining_pixels' class variable of SctProp because pxl_count value_bound was removed. Slightly modified the for loop of the duplicate name warning method in IdelmaApp" />
-    <option name="LAST_COMMIT_MESSAGE" value="Removed the 'remaining_pixels' class variable of SctProp because pxl_count value_bound was removed. Slightly modified the for loop of the duplicate name warning method in IdelmaApp" />
+    <MESSAGE value="Duplicate warning push buttons all assigned. Pushing because I want to rework the serial command methods" />
+    <option name="LAST_COMMIT_MESSAGE" value="Duplicate warning push buttons all assigned. Pushing because I want to rework the serial command methods" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
       <breakpoints>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/SerialHandler.py</url>
-          <line>62</line>
-          <option name="timeStamp" value="68" />
+          <url>file://$PROJECT_DIR$/BoardInfos.py</url>
+          <line>51</line>
+          <option name="timeStamp" value="107" />
         </line-breakpoint>
       </breakpoints>
       <default-breakpoints>

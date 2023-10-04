@@ -33,14 +33,17 @@ class ArduinoEmulator:
         self.txBuffer = SerialBufferType(self.serialBufferSize)
         self.pendingRqst = None
 
+        self.acknowledge = 6
         self.lineFeedChar = 10
-        self.unitSeparator = 31
+        self.spaceChar = 32
 
         self.cmdsDict = {
             "1": self.serialNumSend,
             "2": self.fwVersionSend,
             "3": self.sctsBrdMgmtSend,
-            "4": self.pxlsBrdMgmtSend
+            "4": self.pxlsBrdMgmtSend,
+
+            "10": self.configBrd
         }
 
         self.localVarDef()
@@ -91,6 +94,14 @@ class ArduinoEmulator:
                                                               self.pixelsInfo.assigned]))
         self.serialWrite()
 
+    def configBrd(self):
+        """
+        Updates board attributes with message content and sends an ACK (0x06) back to the PC
+        """
+        # Do the board attribute update here
+        self.txBuffer.mssgLen = self.txDataParsing(self.txBuffer.buffer, bytearray([6]))
+        self.serialWrite()
+
     def rxDataParsing(self):
         """
         Method to parse bytes received through serial. Bytes are broken into single digits,
@@ -102,7 +113,7 @@ class ArduinoEmulator:
         recomposedNbr = 0
         newMssgLen = 0
         for index, val in enumerate(self.rxBuffer.buffer):
-            if not val == self.unitSeparator and not val == self.lineFeedChar:
+            if not val == self.spaceChar and not val == self.lineFeedChar:
                 recomposedNbr += self.ascii2Hex(val) * (10 ** unitsTracker)
                 unitsTracker += 1
             elif unitsTracker:
@@ -131,7 +142,7 @@ class ArduinoEmulator:
             buffer[mssgLen] = byte
             mssgLen += 1
             if i != (len(output_data) - 1):
-                buffer[mssgLen] = self.unitSeparator
+                buffer[mssgLen] = self.spaceChar
                 mssgLen += 1
         return mssgLen
 

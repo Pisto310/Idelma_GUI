@@ -17,4 +17,3 @@ class SerialHandlerQObject(QObject, SerialHandler):
 
     def notifyRxerEmit(self):
         self.notifyRxer.emit()
-        pass

@@ -15,6 +15,12 @@ class BoardInfos:
         self._sctsBrdMgmt = None
         self._pxlsBrdMgmt = None
 
+        self.sctsList = []
+
+        self.configBrdByteToFunc = {0: self.pixelBlocksAssig}
+
+        self.ackChar = 6
+
     def __eq__(self, other):
         if not isinstance(other, BoardInfos):
             return NotImplemented
@@ -47,6 +53,43 @@ class BoardInfos:
 
     def pxlsBrdMgmtMssgDecode(self, parsed_ser_mssg: list):
         self.pxlsBrdMgmt = MutableBrdInfo(*parsed_ser_mssg)
+
+    # def blocksUsageUpdt(self, param):
+    #     # Compare with actual assigned count to check for allocation or reallocation?
+    #     self.sctsBrdMgmt.blockAssignation(1)
+    #     self.pxlsBrdMgmt.blockAssignation(param)
+
+    def configBrdUpdt(self, parsed_ser_mssg: list, *args):
+        """
+        Checks if ACK has been received and if so, updates board attributes
+
+        Parameters:
+            parsed_ser_mssg (list): received serial response, parsed (should be ack char 0x06)
+            *args (tuple of tuples): a tuple of sctInfoTuple
+        """
+        if self.ackConfirmed(parsed_ser_mssg):
+            for i, sctInfoTuple in enumerate(args):
+                for j, val in enumerate(sctInfoTuple[1::]):
+                    self.sctsBrdMgmt.blockAssignation(1)
+                    self.configBrdByteToFunc[j](val)
+
+    def pixelBlocksAssig(self, pixel_count):
+        self.pxlsBrdMgmt = self.pxlsBrdMgmt.blockAssignation(pixel_count)
+
+    def ackConfirmed(self, parsed_ser_mssg: list):
+        """
+        Reads parsed serial message to confirm that it is solely the expected ACK char
+
+        Parameters:
+            parsed_ser_mssg (list): Normally a list of len = 1 solely containing the ACK char
+        """
+        try:
+            if parsed_ser_mssg[0] == self.ackChar:
+                return True
+            else:
+                return False
+        except IndexError as error:
+            print(error)
 
     # def sctSetupUpdt(self, parsed_ser_mssg, led_count: int):
     #     if parsed_ser_mssg:
