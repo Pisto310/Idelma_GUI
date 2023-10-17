@@ -1,3 +1,4 @@
+from SctProp import SctProp
 from MutableBrdInfo import MutableBrdInfo
 from enum import Enum
 
@@ -15,9 +16,9 @@ class BoardInfos:
         self._sctsBrdMgmt = None
         self._pxlsBrdMgmt = None
 
-        self.sctsList = []
+        self.sctsMetaData = []
 
-        self.configBrdByteToFunc = {0: self.pixelBlocksAssig}
+        # self.configBrdByteToFunc = {SctProp.infoTupleIndexes.get('pixel_count_index'): self.pixelBlockAssig}
 
         self.ackChar = 6
 
@@ -56,10 +57,10 @@ class BoardInfos:
 
     # def blocksUsageUpdt(self, param):
     #     # Compare with actual assigned count to check for allocation or reallocation?
-    #     self.sctsBrdMgmt.blockAssignation(1)
-    #     self.pxlsBrdMgmt.blockAssignation(param)
+    #     self.sctsBrdMgmt.blockAssig(1)
+    #     self.pxlsBrdMgmt.blockAssig(param)
 
-    def configBrdUpdt(self, parsed_ser_mssg: list, *args):
+    def configBrdAttrUpdt(self, parsed_ser_mssg: list, *args):
         """
         Checks if ACK has been received and if so, updates board attributes
 
@@ -68,13 +69,35 @@ class BoardInfos:
             *args (tuple of tuples): a tuple of sctInfoTuple
         """
         if self.ackConfirmed(parsed_ser_mssg):
-            for i, sctInfoTuple in enumerate(args):
-                for j, val in enumerate(sctInfoTuple[1::]):
-                    self.sctsBrdMgmt.blockAssignation(1)
-                    self.configBrdByteToFunc[j](val)
-
-    def pixelBlocksAssig(self, pixel_count):
-        self.pxlsBrdMgmt = self.pxlsBrdMgmt.blockAssignation(pixel_count)
+            sct_total_blocks = 0
+            pxl_total_blocks = 0
+            sct_id_index = SctProp.infoTupleIndexes.get('sctID_index')
+            pxl_count_index = SctProp.infoTupleIndexes.get('pixelCount_index')
+            for sctInfoTuple in args:
+                try:
+                    sct_id = sctInfoTuple[sct_id_index]
+                    pxl_count_diff = sctInfoTuple[pxl_count_index] - self.sctsMetaData[sct_id][pxl_count_index]
+                    pxl_total_blocks += pxl_count_diff
+                    if abs(pxl_count_diff) == self.sctsMetaData[sct_id][pxl_count_index]:
+                        sct_total_blocks -= 1
+                        self.sctsMetaData.pop(sct_id)
+                        continue
+                    self.sctsMetaData[sct_id] = (sct_id, sctInfoTuple[pxl_count_index])
+                except IndexError:
+                    if sctInfoTuple[pxl_count_index]:
+                        sct_total_blocks += 1
+                        pxl_total_blocks += sctInfoTuple[pxl_count_index]
+                        self.sctsMetaData.append(sctInfoTuple)
+            if sct_total_blocks:
+                self.sctsBrdMgmt = MutableBrdInfo.blockUpdt(self.sctsBrdMgmt.capacity,
+                                                            self.sctsBrdMgmt.remaining,
+                                                            self.sctsBrdMgmt.assigned,
+                                                            sct_total_blocks)
+            if pxl_total_blocks:
+                self.pxlsBrdMgmt = MutableBrdInfo.blockUpdt(self.pxlsBrdMgmt.capacity,
+                                                            self.pxlsBrdMgmt.remaining,
+                                                            self.pxlsBrdMgmt.assigned,
+                                                            pxl_total_blocks)
 
     def ackConfirmed(self, parsed_ser_mssg: list):
         """
@@ -90,13 +113,6 @@ class BoardInfos:
                 return False
         except IndexError as error:
             print(error)
-
-    # def sctSetupUpdt(self, parsed_ser_mssg, led_count: int):
-    #     if parsed_ser_mssg:
-    #         self.sctsBrdMgmt.blockDecrement(1)
-    #         self.pxlsBrdMgmt.blockDecrement(led_count)
-    #     else:
-    #         print("section assignation failed")
 
     def snUpdtedEmit(self, *args):
         pass
@@ -161,42 +177,6 @@ class BoardInfos:
             return True
         else:
             return False
-
-    # @property
-    # def snUpdtFlag(self) -> bool:
-    #     return self._snUpdtFlag
-    #
-    # @snUpdtFlag.setter
-    # def snUpdtFlag(self, new_state: bool):
-    #     self.booleanUpdt(self._snUpdtFlag, new_state)
-    #
-    # @property
-    # def fwUpdtFlag(self) -> bool:
-    #     return self._fwUpdtFlag
-    #
-    # @fwUpdtFlag.setter
-    # def fwUpdtFlag(self, new_state: bool):
-    #     self.booleanUpdt(self._fwUpdtFlag, new_state)
-    #
-    # @property
-    # def sctUpdtFlag(self) -> bool:
-    #     return self._sctUpdtFlag
-    #
-    # @sctUpdtFlag.setter
-    # def sctUpdtFlag(self, new_state: bool):
-    #     self.booleanUpdt(self._sctUpdtFlag, new_state)
-    #
-    # @property
-    # def pxlUpdtFlag(self) -> bool:
-    #     return self._pxlUpdtFlag
-    #
-    # @pxlUpdtFlag.setter
-    # def pxlUpdtFlag(self, new_state: bool):
-    #     self.booleanUpdt(self._pxlUpdtFlag, new_state)
-    #
-    # @property
-    # def flagsTuple(self) -> tuple:
-    #     return self._flagsTuple
 
     @staticmethod
     def booleanUpdt(actual_state: bool, new_state: bool):

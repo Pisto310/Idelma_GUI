@@ -20,15 +20,21 @@ class MutableBrdInfo:
     def __ne__(self, other):
         return not self == other
 
-    def blockAssignation(self, used_blocks):
-        self._remaining -= used_blocks
-        self._assigned += used_blocks
-        return self
+    @classmethod
+    def blockUpdt(cls, capacity, remaining, assigned, blocks):
+        """
+        Assigns blocks (remaining drops, assigned increases) internally to this class
+        Using this func to change attr. doesn't trigger signal of calling objs.
 
-
-    def blockReallocation(self, restored_blocks):
-        self._remaining += restored_blocks
-        self._assigned -= restored_blocks
+        Parameters:
+            capacity (int): Board's blocks capacity
+            remaining (int): Board's remaining available blocks
+            assigned (int): Board's already assigned blocks
+            blocks (int): Count of used or freed blocks in the transaction
+        """
+        remaining -= blocks
+        assigned += blocks
+        return cls(capacity, remaining, assigned)
 
     @property
     def capacity(self):

@@ -41,27 +41,3 @@ class BoardInfosQObject(QObject, BoardInfos):
 
     def pxlsUpdtedEmit(self, *args):
         self.pxlsUpdted.emit(*args)
-
-    # def emitSignal(self, *args, **kwargs):
-    #     for index, qt_signal in enumerate(self.sigTuple):
-    #         if kwargs.values() == self.extractSigName(qt_signal):
-    #             qt_signal.emit(*args)
-    #         else:
-    #             # Should raise error since no signal is associated to a board attr
-    #             pass
-
-    # def extractSigName(self, pyqt_sig: pyqtSignal):
-    #     """
-    #     pyqtSignal obj have an attribute called 'signatures' which is essentially a tuple of 1 element. This tuple is
-    #     made up of a string constituted of the signal name, followed by the input type(s) in parenthesis. If there are
-    #     multiple input types, they are separated by a comma
-    #
-    #     ex. w/ sn_updt: signatures = ('snUpdted(str)')
-    #     """
-    #     final_char = '('
-    #     signal_name = ''
-    #     for index, val in enumerate(pyqt_sig.signatures[0]):
-    #         if val != final_char:
-    #             signal_name += val
-    #         else:
-    #             return signal_name

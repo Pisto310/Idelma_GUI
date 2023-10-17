@@ -4,13 +4,18 @@ class SctProp:
     """
     Contains all properties relating to user-created section
     """
-    # remainingPxls = 0
 
-    def __init__(self, name: str, pixel_count: int, set_default_name: bool):
+    infoTupleIndexes = {'sctID_index': 0,
+                        'pixelCount_index': 1}
 
-        self._sctName = name
+    def __init__(self, index, pixel_count: int, name: str, set_default_name: bool):
+
+        self._sctID = index
         self._pxlCount = pixel_count
+        self._sctName = name
         self._setDefaultName = set_default_name
+
+        self._sctInfoTuple = (index, pixel_count)
 
     def decrDefaultName(self):
         if self.setDefaultName:
@@ -26,16 +31,13 @@ class SctProp:
         return int(container[::-1])
 
     @property
-    def sctName(self):
-        return self._sctName
+    def sctID(self):
+        return self._sctID
 
-    @sctName.setter
-    def sctName(self, new_name: str):
-        try:
-            if self.typeCheck(new_name, str):
-                self._sctName = new_name
-        except TypeError as error:
-            print(error)
+    @sctID.setter
+    def sctID(self, new_index):
+        self._sctID = new_index
+        self._sctInfoTuple = (self._sctID, self.pxlCount)
 
     @property
     def pxlCount(self):
@@ -47,7 +49,20 @@ class SctProp:
             if self.typeCheck(new_val, int):
                 # and self.valueBoundCheck(new_val, 0, self.remainingPxls):
                 self._pxlCount = new_val
+                self._sctInfoTuple = (self.sctID, self._pxlCount)
         except (TypeError, ValueError) as error:
+            print(error)
+
+    @property
+    def sctName(self):
+        return self._sctName
+
+    @sctName.setter
+    def sctName(self, new_name: str):
+        try:
+            if self.typeCheck(new_name, str):
+                self._sctName = new_name
+        except TypeError as error:
             print(error)
 
     @property
@@ -61,6 +76,14 @@ class SctProp:
                 self._setDefaultName = bool_state
         except TypeError as error:
             print(error)
+
+    @property
+    def sctInfoTuple(self):
+        return self._sctInfoTuple
+
+    @sctInfoTuple.setter
+    def sctInfoTuple(self, new_sctID, new_pixelCount):
+        self._sctInfoTuple = (new_sctID, new_pixelCount)
 
     @staticmethod
     def typeCheck(var, user_t):

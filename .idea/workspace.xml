@@ -4,16 +4,16 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="3153b060-3ee7-475e-91c1-ba171824b147" name="Changes" comment="Duplicate warning push buttons all assigned. Pushing because I want to rework the serial command methods">
+    <list default="true" id="3153b060-3ee7-475e-91c1-ba171824b147" name="Changes" comment="Config Board method implemented in SerialHandler. BoardInfos takes care of updating the attr, but there is still a bug with the MutableBrdInfo setters...">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ArduinoEmulator.py" beforeDir="false" afterPath="$PROJECT_DIR$/ArduinoEmulator.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/BoardInfos.py" beforeDir="false" afterPath="$PROJECT_DIR$/BoardInfos.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/BoardInfosQObject.py" beforeDir="false" afterPath="$PROJECT_DIR$/BoardInfosQObject.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/IdelmaApp.py" beforeDir="false" afterPath="$PROJECT_DIR$/IdelmaApp.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/IdelmaSctDialog.py" beforeDir="false" afterPath="$PROJECT_DIR$/IdelmaSctDialog.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/MutableBrdInfo.py" beforeDir="false" afterPath="$PROJECT_DIR$/MutableBrdInfo.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/SctProp.py" beforeDir="false" afterPath="$PROJECT_DIR$/SctProp.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/SctPropQListWidgetItem.py" beforeDir="false" afterPath="$PROJECT_DIR$/SctPropQListWidgetItem.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/SerialHandler.py" beforeDir="false" afterPath="$PROJECT_DIR$/SerialHandler.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/SerialHandlerQObject.py" beforeDir="false" afterPath="$PROJECT_DIR$/SerialHandlerQObject.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/UsrSerial.py" beforeDir="false" afterPath="$PROJECT_DIR$/UsrSerial.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/main.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -352,7 +352,14 @@
       <option name="project" value="LOCAL" />
       <updated>1695760993271</updated>
     </task>
-    <option name="localTasksCounter" value="19" />
+    <task id="LOCAL-00019" summary="Config Board method implemented in SerialHandler. BoardInfos takes care of updating the attr, but there is still a bug with the MutableBrdInfo setters...">
+      <created>1696387985501</created>
+      <option name="number" value="00019" />
+      <option name="presentableId" value="LOCAL-00019" />
+      <option name="project" value="LOCAL" />
+      <updated>1696387985501</updated>
+    </task>
+    <option name="localTasksCounter" value="20" />
     <servers>
       <YouTrack url="https://idelma.youtrack.cloud">
         <option name="defaultSearch" value="" />
@@ -462,15 +469,16 @@
     <MESSAGE value="Section deletion now works by copying attributes and not copying whole objects" />
     <MESSAGE value="Removed the 'remaining_pixels' class variable of SctProp because pxl_count value_bound was removed. Slightly modified the for loop of the duplicate name warning method in IdelmaApp" />
     <MESSAGE value="Duplicate warning push buttons all assigned. Pushing because I want to rework the serial command methods" />
-    <option name="LAST_COMMIT_MESSAGE" value="Duplicate warning push buttons all assigned. Pushing because I want to rework the serial command methods" />
+    <MESSAGE value="Config Board method implemented in SerialHandler. BoardInfos takes care of updating the attr, but there is still a bug with the MutableBrdInfo setters..." />
+    <option name="LAST_COMMIT_MESSAGE" value="Config Board method implemented in SerialHandler. BoardInfos takes care of updating the attr, but there is still a bug with the MutableBrdInfo setters..." />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
       <breakpoints>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/BoardInfos.py</url>
-          <line>51</line>
-          <option name="timeStamp" value="107" />
+          <url>file://$PROJECT_DIR$/IdelmaApp.py</url>
+          <line>270</line>
+          <option name="timeStamp" value="11" />
         </line-breakpoint>
       </breakpoints>
       <default-breakpoints>

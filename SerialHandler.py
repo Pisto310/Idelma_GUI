@@ -66,7 +66,7 @@ class SerialHandler:
             board_inst (BoardInfos): a BoardInfos obj to updt attr after config
             *args (tuple): a tuple containing the sections info (a tuple for each scts)
         """
-        self.serRqst(self.configBrdCmd, board_inst.configBrdUpdt, *args)
+        self.serRqst(self.configBrdCmd, board_inst.configBrdAttrUpdt, *args)
 
     def serRqst(self, serial_command, func_cb, *args):
         """

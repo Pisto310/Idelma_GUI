@@ -8,7 +8,7 @@ class IdelmaSctDialog(QDialog):
     """
     Dialog that pops-up when user asks to create a new section
     Inputs:
-        - scts_assigned: sections actually assigned (Used as an index)
+        - scts_assigned: sections actually assigned (Used as an id)
         - pxls_remaining: remaining available pixel to map
 
     Outputs (as an emitted signal to connect to a slot):
