@@ -3,7 +3,7 @@ import time
 from time import sleep
 from SerialHandler import SerialHandler
 from BoardInfos import BoardInfos
-from MutableBrdInfo import MutableBrdInfo
+from MutableMetaData import MutableMetaData
 
 from PyQt5.QtWidgets import QApplication
 from PyQt5.QtWidgets import QMainWindow
@@ -68,7 +68,7 @@ class SectionEditWin(QMainWindow):
 
     def setSctsLayouts(self):
         # Create as many layouts as there are sections according to the correct board inst attr
-        for i in range(0, self.board.sctsBrdMgmt.capacity):
+        for i in range(0, self.board.sctsMetaData.capacity):
             layout = QGridLayout()
 
             btn = QPushButton("Edit")
@@ -98,7 +98,7 @@ class SectionEditWin(QMainWindow):
 
     def sctSetupDialog(self):
         leds, ok = QInputDialog.getInt(self, "Section set-up", "Number of LEDs :",
-                                    1, 1, self.board.pxlsBrdMgmt.remaining)
+                                    1, 1, self.board.pxlsMetaData.remaining)
         if ok:
             self.stripSinglePxl(leds)
 
@@ -118,12 +118,13 @@ class SectionEditWin(QMainWindow):
             single_pxl = 0
             self.ser.sctSetupRqst(self.board, led_count, single_pxl)
 
+
 if __name__ == '__main__':
     ser = SerialHandler()
     board = BoardInfos()
 
-    board.pxlsBrdMgmtMssgDecode([100, 100, 0])
-    board.sctsBrdMgmtMssgDecode([12, 12, 0])
+    board.pxlsMetaDataUpdt([100, 100, 0])
+    board.sctsMetaDataUpdt([12, 12, 0])
 
     app = QApplication(sys.argv)
     window = SectionEditWin(board, ser)

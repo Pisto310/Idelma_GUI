@@ -1,5 +1,5 @@
 from SctProp import SctProp
-from MutableBrdInfo import MutableBrdInfo
+from MutableMetaData import MutableMetaData
 from enum import Enum
 
 
@@ -13,10 +13,10 @@ class BoardInfos:
 
         self._serialNum   = None
         self._fwVersion   = None
-        self._sctsBrdMgmt = None
-        self._pxlsBrdMgmt = None
+        self._sctsMetaData = None
+        self._pxlsMetaData = None
 
-        self.sctsMetaData = []
+        self.sctsInfoTuple = []
 
         # self.configBrdByteToFunc = {SctProp.infoTupleIndexes.get('pixel_count_index'): self.pixelBlockAssig}
 
@@ -27,21 +27,21 @@ class BoardInfos:
             return NotImplemented
         return (self.serialNum == other.serialNum and
                 self.fwVersion == other.fwVersion and
-                self.sctsBrdMgmt == other.sctsBrdMgmt and
-                self.pxlsBrdMgmt == other.pxlsBrdMgmt)
+                self.sctsMetaData == other.sctsMetaData and
+                self.pxlsMetaData == other.pxlsMetaData)
 
     def __ne__(self, other):
         return not self == other
 
     # Method used to set the serial number of the board using the parsed message received in the serial buffer
-    def serialNumMssgDecode(self, parsed_ser_mssg: list):
+    def serialNumUpdt(self, parsed_ser_mssg: list):
         hex_container = 0
         for index, val in enumerate(parsed_ser_mssg):
             hex_container += val << (8 * index)
         self.serialNum = hex(hex_container)
 
     # Method to set the FW version with the parsed message of the serial buffer
-    def fwVersionMssgDecode(self, parsed_ser_mssg: list):
+    def fwVersionUpdt(self, parsed_ser_mssg: list):
         str_container = ""
         for index, val in enumerate(parsed_ser_mssg):
             str_container += str(val)
@@ -49,16 +49,11 @@ class BoardInfos:
                 str_container += "."
         self.fwVersion = str_container
 
-    def sctsBrdMgmtMssgDecode(self, parsed_ser_mssg: list):
-        self.sctsBrdMgmt = MutableBrdInfo(*parsed_ser_mssg)
+    def sctsMetaDataUpdt(self, parsed_ser_mssg: list):
+        self.sctsMetaData = MutableMetaData(*parsed_ser_mssg)
 
-    def pxlsBrdMgmtMssgDecode(self, parsed_ser_mssg: list):
-        self.pxlsBrdMgmt = MutableBrdInfo(*parsed_ser_mssg)
-
-    # def blocksUsageUpdt(self, param):
-    #     # Compare with actual assigned count to check for allocation or reallocation?
-    #     self.sctsBrdMgmt.blockAssig(1)
-    #     self.pxlsBrdMgmt.blockAssig(param)
+    def pxlsMetaDataUpdt(self, parsed_ser_mssg: list):
+        self.pxlsMetaData = MutableMetaData(*parsed_ser_mssg)
 
     def configBrdAttrUpdt(self, parsed_ser_mssg: list, *args):
         """
@@ -76,28 +71,28 @@ class BoardInfos:
             for sctInfoTuple in args:
                 try:
                     sct_id = sctInfoTuple[sct_id_index]
-                    pxl_count_diff = sctInfoTuple[pxl_count_index] - self.sctsMetaData[sct_id][pxl_count_index]
+                    pxl_count_diff = sctInfoTuple[pxl_count_index] - self.sctsInfoTuple[sct_id][pxl_count_index]
                     pxl_total_blocks += pxl_count_diff
-                    if abs(pxl_count_diff) == self.sctsMetaData[sct_id][pxl_count_index]:
+                    if abs(pxl_count_diff) == self.sctsInfoTuple[sct_id][pxl_count_index]:
                         sct_total_blocks -= 1
-                        self.sctsMetaData.pop(sct_id)
+                        self.sctsInfoTuple.pop(sct_id)
                         continue
-                    self.sctsMetaData[sct_id] = (sct_id, sctInfoTuple[pxl_count_index])
+                    self.sctsInfoTuple[sct_id] = (sct_id, sctInfoTuple[pxl_count_index])
                 except IndexError:
                     if sctInfoTuple[pxl_count_index]:
                         sct_total_blocks += 1
                         pxl_total_blocks += sctInfoTuple[pxl_count_index]
-                        self.sctsMetaData.append(sctInfoTuple)
+                        self.sctsInfoTuple.append(sctInfoTuple)
             if sct_total_blocks:
-                self.sctsBrdMgmt = MutableBrdInfo.blockUpdt(self.sctsBrdMgmt.capacity,
-                                                            self.sctsBrdMgmt.remaining,
-                                                            self.sctsBrdMgmt.assigned,
-                                                            sct_total_blocks)
+                self.sctsMetaData = MutableMetaData.blockUpdt(self.sctsMetaData.capacity,
+                                                             self.sctsMetaData.remaining,
+                                                             self.sctsMetaData.assigned,
+                                                             sct_total_blocks)
             if pxl_total_blocks:
-                self.pxlsBrdMgmt = MutableBrdInfo.blockUpdt(self.pxlsBrdMgmt.capacity,
-                                                            self.pxlsBrdMgmt.remaining,
-                                                            self.pxlsBrdMgmt.assigned,
-                                                            pxl_total_blocks)
+                self.pxlsMetaData = MutableMetaData.blockUpdt(self.pxlsMetaData.capacity,
+                                                             self.pxlsMetaData.remaining,
+                                                             self.pxlsMetaData.assigned,
+                                                             pxl_total_blocks)
 
     def ackConfirmed(self, parsed_ser_mssg: list):
         """
@@ -147,24 +142,24 @@ class BoardInfos:
             self.fwVerUpdtedEmit(self.fwVersion)
 
     @property
-    def sctsBrdMgmt(self) -> MutableBrdInfo:
-        return self._sctsBrdMgmt
+    def sctsMetaData(self) -> MutableMetaData:
+        return self._sctsMetaData
 
-    @sctsBrdMgmt.setter
-    def sctsBrdMgmt(self, new_inst: MutableBrdInfo):
-        if not self.valCompare(new_inst, self.sctsBrdMgmt):
-            self._sctsBrdMgmt = new_inst
-            self.sctsUpdtedEmit(self.sctsBrdMgmt)
+    @sctsMetaData.setter
+    def sctsMetaData(self, new_inst: MutableMetaData):
+        if not self.valCompare(new_inst, self.sctsMetaData):
+            self._sctsMetaData = new_inst
+            self.sctsUpdtedEmit(self.sctsMetaData)
 
     @property
-    def pxlsBrdMgmt(self) -> MutableBrdInfo:
-        return self._pxlsBrdMgmt
+    def pxlsMetaData(self) -> MutableMetaData:
+        return self._pxlsMetaData
 
-    @pxlsBrdMgmt.setter
-    def pxlsBrdMgmt(self, new_inst: MutableBrdInfo):
-        if not self.valCompare(new_inst, self.pxlsBrdMgmt):
-            self._pxlsBrdMgmt = new_inst
-            self.pxlsUpdtedEmit(self.pxlsBrdMgmt)
+    @pxlsMetaData.setter
+    def pxlsMetaData(self, new_inst: MutableMetaData):
+        if not self.valCompare(new_inst, self.pxlsMetaData):
+            self._pxlsMetaData = new_inst
+            self.pxlsUpdtedEmit(self.pxlsMetaData)
 
     @staticmethod
     def valCompare(new_val, old_val):

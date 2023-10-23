@@ -8,13 +8,13 @@ def bootApp():
     """-----     debug    -----"""
     app.fetchBrdInfosCmd()
 
-    app.sectionCreation('First', 15, False)
+    app.sectionCreation('First', 5, False)
     app.configBrdBttnStateTrig()
 
-    app.sectionCreation('Next', 8, False)
+    app.sectionCreation('Next', 2, False)
     app.configBrdBttnStateTrig()
 
-    app.sectionCreation('Section 2', 20, True)
+    app.sectionCreation('Section 2', 6, True)
     app.configBrdBttnStateTrig()
     """-----     debug    -----"""
 

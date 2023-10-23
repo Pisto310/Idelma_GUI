@@ -14,59 +14,12 @@ class SerialHandler:
         self._awaitingReply = False
 
         # Below are all commands for metadata (0-9 reserved)
-        self.serialNum   = "1"
-        self.fwVersion   = "2"
-        self.sctsBrdMgmt = "3"
-        self.pxlsBrdMgmt = "4"
-        # self._serialNum   = {"cmd": "1", "reply_expected": True}
-        # self._fwVersion   = {"cmd": "2", "reply_expected": True}
-        # self._sctsBrdMgmt = {"cmd": "3", "reply_expected": True}
-        # self._pxlsBrdMgmt = {"cmd": "4", "reply_expected": True}
-
-        # Commands necessitating the MCU to send an ACK
-        self.configBrdCmd = "10"
-        # self._configBrdCmd = {"cmd": "10", "reply_expected": True}
-
-        self.ack = 6
-
-    def serialNumRqst(self, board_inst: BoardInfos):
-        self.serRqst(self.serialNum, board_inst.serialNumMssgDecode)
-
-    def fwVersionRqst(self, board_inst: BoardInfos):
-        self.serRqst(self.fwVersion, board_inst.fwVersionMssgDecode)
-
-    def sctsBrdMgmtRqst(self, board_inst: BoardInfos):
-        self.serRqst(self.sctsBrdMgmt, board_inst.sctsBrdMgmtMssgDecode)
-
-    def pxlsBrdMgmtRqst(self, board_inst: BoardInfos):
-        self.serRqst(self.pxlsBrdMgmt, board_inst.pxlsBrdMgmtMssgDecode)
-
-    def getAllBrdInfos(self, board_inst: BoardInfos):
-
-        """-----     debug    -----"""
-        # self.serial.writeToPort(self.serial.txDataParsing("1"))
-        # self.awaitingReply = True
-        #
-        # while self.awaitingReply:
-        #     if self.checkRqstStatus():
-        #         self.serial.rxMessageParsing()
-        #         pass
-        """-----     debug    -----"""
-
-        self.serialNumRqst(board_inst)
-        self.fwVersionRqst(board_inst)
-        self.sctsBrdMgmtRqst(board_inst)
-        self.pxlsBrdMgmtRqst(board_inst)
-
-    def configBrdRqst(self, board_inst: BoardInfos, *args):
-        """
-        Sends all the necessary sections info to configure board
-
-        Parameters:
-            board_inst (BoardInfos): a BoardInfos obj to updt attr after config
-            *args (tuple): a tuple containing the sections info (a tuple for each scts)
-        """
-        self.serRqst(self.configBrdCmd, board_inst.configBrdAttrUpdt, *args)
+        self.serialRqsts = {"serial_num":    "1",
+                            "fw_version":    "2",
+                            "scts_metadata": "3",
+                            "pxls_metadata": "4",
+                            "config_board":  "10",
+                            "save_settings": "20"}
 
     def serRqst(self, serial_command, func_cb, *args):
         """
@@ -85,6 +38,13 @@ class SerialHandler:
                 self.rqstComplete()
 
     def sendRqst(self, *args):
+        """
+        Parse serial message if additional arguments are to be sent with cmd.
+        Empties TX buffer through serial port and triggers awaitingReply var
+
+        Parameters:
+            args (bytes): additional bytes to send along cmd byte
+        """
         if not self.awaitingReply:
             if args:
                 self.serial.txDataParsing(*args)
@@ -95,6 +55,9 @@ class SerialHandler:
             print("Serial port already busy with pending request")
 
     def checkRqstStatus(self):
+        """
+        Scans the serial port periodically while the prog is awaiting the MCU's reply
+        """
         if self.awaitingReply:
             self.serial.readPort()
         if len(self.serial.rxBuffer):
@@ -103,6 +66,9 @@ class SerialHandler:
             return False
 
     def rqstComplete(self):
+        """
+        Called when a serial rqst is completed to reset important attr.
+        """
         self.awaitingReply = False
         self.serial.clearBuffer()
 
@@ -125,25 +91,3 @@ class SerialHandler:
             self._awaitingReply = toggle_bool
         else:
             raise ValueError("Attribute must be a boolean, no other type accepted")
-
-    # @property
-    # def serialNum(self):
-    #     return self._serialNum
-    #
-    # @property
-    # def fwVersion(self):
-    #     return self._fwVersion
-    #
-    # @property
-    # def sctsBrdMgmt(self):
-    #     return self._sctsBrdMgmt
-    #
-    # @property
-    # def pxlsBrdMgmt(self):
-    #     return self._pxlsBrdMgmt
-    #
-    # @property
-    # def configBrdCmd(self):
-    #     return self._configBrdCmd
-    # # def configBrd(self):
-    # #     return self._configBrd

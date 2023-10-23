@@ -12,7 +12,7 @@ from IdelmaDuplicateNameDialog import IdelmaDuplicateNameDialog
 
 from BoardInfos import BoardInfos
 from BoardInfosQObject import BoardInfosQObject
-from MutableBrdInfo import MutableBrdInfo
+from MutableMetaData import MutableMetaData
 from SctProp import SctProp
 from SctPropQListWidgetItem import SctPropQListWidgetItem
 from ArduinoEmulator import ArduinoEmulator
@@ -96,6 +96,7 @@ class IdelmaApp(QApplication):
 
         # Board config and save buttons
         self.ui.configButton.clicked.connect(self.configBrdCmd)
+        self.ui.saveButton.clicked.connect(self.saveSettingsCmd)
 
     def fetchBrdInfosCmd(self):
         """
@@ -104,7 +105,11 @@ class IdelmaApp(QApplication):
         2. Enabling/Disabling GUI buttons
         3. Creating a virtual board with the fetched infos
         """
-        self.ser.getAllBrdInfos(self.board)
+
+        self.ser.serRqst(self.serialRqsts.get("serial_num"), self.board.serialNumUpdt)
+        self.ser.serRqst(self.serialRqsts.get("fw_version"), self.board.fwVersionUpdt)
+        self.ser.serRqst(self.serialRqsts.get("scts_metadata"), self.board.sctsMetaDataUpdt)
+        self.ser.serRqst(self.serialRqsts.get("pxls_metadata"), self.board.pxlsMetaDataUpdt)
 
         self.ui.fetchInfosButton.setEnabled(False)
         self.ui.sctAddButton.setEnabled(True)
@@ -117,9 +122,20 @@ class IdelmaApp(QApplication):
         """
         Passes all the necessary info (metadata of each sections) to the serial Handler
         """
-        self.ser.configBrdRqst(self.board, *self.metaDataCompare())
+        self.ser.serRqst(self.ser.serialRqsts.get("config_board"), self.board.configBrdAttrUpdt, *self.metaDataCompare())
 
         self.configBrdBttnStateTrig()
+
+        if not self.ui.saveButton.isEnabled():
+            self.ui.saveButton.setEnabled(True)
+
+    def saveSettingsCmd(self):
+        """
+        Save the last sent configuration in the MCU's EEPROM memory
+        """
+        self.ser.serRqst(self.ser.serialRqsts.get("save_settings"), self.board.ackConfirmed)
+
+        self.ui.saveButton.setEnabled(False)
 
     def instantiateVrtlBrd(self):
         """
@@ -130,12 +146,12 @@ class IdelmaApp(QApplication):
         self.virtualBoard = BoardInfos()
         self.virtualBoard.serialNum = self.board.serialNum
         self.virtualBoard.fwVersion = self.board.fwVersion
-        self.virtualBoard.sctsBrdMgmt = MutableBrdInfo(self.board.sctsBrdMgmt.capacity,
-                                                       self.board.sctsBrdMgmt.remaining,
-                                                       self.board.sctsBrdMgmt.assigned)
-        self.virtualBoard.pxlsBrdMgmt = MutableBrdInfo(self.board.pxlsBrdMgmt.capacity,
-                                                       self.board.pxlsBrdMgmt.remaining,
-                                                       self.board.pxlsBrdMgmt.assigned)
+        self.virtualBoard.sctsMetaData = MutableMetaData(self.board.sctsMetaData.capacity,
+                                                        self.board.sctsMetaData.remaining,
+                                                        self.board.sctsMetaData.assigned)
+        self.virtualBoard.pxlsMetaData = MutableMetaData(self.board.pxlsMetaData.capacity,
+                                                        self.board.pxlsMetaData.remaining,
+                                                        self.board.pxlsMetaData.assigned)
 
     def fillingSctPropList(self):
         """
@@ -143,7 +159,7 @@ class IdelmaApp(QApplication):
         as the section capacity of fetched board
         """
         counter = 0
-        while counter < self.board.sctsBrdMgmt.capacity:
+        while counter < self.board.sctsMetaData.capacity:
             self.sctPropList.append(None)
             counter += 1
 
@@ -152,7 +168,7 @@ class IdelmaApp(QApplication):
         Checks if there are remaining resources (sections & pixels)
         left for user assignation
         """
-        if self.virtualBoard.sctsBrdMgmt.remaining and self.virtualBoard.pxlsBrdMgmt.remaining:
+        if self.virtualBoard.sctsMetaData.remaining and self.virtualBoard.pxlsMetaData.remaining:
             return True
         else:
             return False
@@ -172,7 +188,7 @@ class IdelmaApp(QApplication):
         Scans through all already created sections names and checks
         if the sct pending its creation is a duplicate
         """
-        for index, section in enumerate(self.sctPropList[-1 * (self.virtualBoard.sctsBrdMgmt.remaining + 1)::-1]):
+        for index, section in enumerate(self.sctPropList[-1 * (self.virtualBoard.sctsMetaData.remaining + 1)::-1]):
             if section.sctName == input_name:
                 self.ui.sectionsList.setCurrentItem(section)
                 return True
@@ -180,18 +196,18 @@ class IdelmaApp(QApplication):
 
     def metaDataCompare(self):
         """
-        Method brief
+        Compares the metadata of board obj and virtualBoard obj to choose action accordingly
         """
-        if len(self.board.sctsMetaData) == 0:
-            return self.virtualBoard.sctsMetaData
+        if len(self.board.sctsInfoTuple) == 0:
+            return self.virtualBoard.sctsInfoTuple
         else:
             container = []
-            for i, val in enumerate(self.virtualBoard.sctsMetaData):
+            for i, val in enumerate(self.virtualBoard.sctsInfoTuple):
                 try:
-                    if val != self.board.sctsMetaData[i]:
+                    if val != self.board.sctsInfoTuple[i]:
                         container.append(val)
                         if not val[SctProp.infoTupleIndexes.get('pixelCount_index')]:
-                            self.virtualBoard.sctsMetaData.pop(i)
+                            self.virtualBoard.sctsInfoTuple.pop(i)
                 except IndexError:
                     if val[SctProp.infoTupleIndexes.get('pixelCount_index')]:
                         container.append(val)
@@ -203,7 +219,7 @@ class IdelmaApp(QApplication):
         info to create a new section. Once accepted by the user,
         a 'button check' is performed
         """
-        addSctDialog = IdelmaSctDialog(self.virtualBoard.sctsBrdMgmt.assigned, self.virtualBoard.pxlsBrdMgmt.remaining)
+        addSctDialog = IdelmaSctDialog(self.virtualBoard.sctsMetaData.assigned, self.virtualBoard.pxlsMetaData.remaining)
         addSctDialog.connectAccepted(self.sectionCreation)
         addSctDialog.exec_()
 
@@ -230,7 +246,7 @@ class IdelmaApp(QApplication):
         sct_index = self.ui.sectionsList.currentRow()
         sct_name = self.sctPropList[sct_index].sctName
         pxl_count = self.sctPropList[sct_index].pxlCount
-        editSctDialog = IdelmaSctDialog(sct_index, self.virtualBoard.pxlsBrdMgmt.remaining,
+        editSctDialog = IdelmaSctDialog(sct_index, self.virtualBoard.pxlsMetaData.remaining,
                                         sct_name, pxl_count)
         editSctDialog.connectAccepted(self.sectionEdit)
         editSctDialog.exec_()
@@ -264,8 +280,6 @@ class IdelmaApp(QApplication):
             pixel_count (int): number of pixels to be contained in the section
             set_default_name (bool): a bool indicating if the name is set to default
         """
-        test_dict = {0: lambda: self.newSectionDialog()}
-
         if self.duplicateNameCheck(section_name):
             duplicate_res = self.duplicateNameDialog()
             if duplicate_res == 0:
@@ -278,18 +292,18 @@ class IdelmaApp(QApplication):
                     new_name = section_name + ' (' + str(int(new_name[-2]) + 1) + ')'
                 section_name = new_name
 
-        sctPropObj = SctPropQListWidgetItem(self.virtualBoard.sctsBrdMgmt.assigned, pixel_count, section_name,
+        sctPropObj = SctPropQListWidgetItem(self.virtualBoard.sctsMetaData.assigned, pixel_count, section_name,
                                             set_default_name, self.ui.sectionsList, self.sctPropItemType)
-        self.sctPropList[self.virtualBoard.sctsBrdMgmt.assigned] = sctPropObj
-        self.virtualBoard.sctsMetaData.append(sctPropObj.sctInfoTuple)
-        self.virtualBoard.sctsBrdMgmt = MutableBrdInfo.blockUpdt(self.virtualBoard.sctsBrdMgmt.capacity,
-                                                                 self.virtualBoard.sctsBrdMgmt.remaining,
-                                                                 self.virtualBoard.sctsBrdMgmt.assigned,
-                                                                 1)
-        self.virtualBoard.pxlsBrdMgmt = MutableBrdInfo.blockUpdt(self.virtualBoard.pxlsBrdMgmt.capacity,
-                                                                 self.virtualBoard.pxlsBrdMgmt.remaining,
-                                                                 self.virtualBoard.pxlsBrdMgmt.assigned,
-                                                                 pixel_count)
+        self.sctPropList[self.virtualBoard.sctsMetaData.assigned] = sctPropObj
+        self.virtualBoard.sctsInfoTuple.append(sctPropObj.sctInfoTuple)
+        self.virtualBoard.sctsMetaData = MutableMetaData.blockUpdt(self.virtualBoard.sctsMetaData.capacity,
+                                                                  self.virtualBoard.sctsMetaData.remaining,
+                                                                  self.virtualBoard.sctsMetaData.assigned,
+                                                                  1)
+        self.virtualBoard.pxlsMetaData = MutableMetaData.blockUpdt(self.virtualBoard.pxlsMetaData.capacity,
+                                                                  self.virtualBoard.pxlsMetaData.remaining,
+                                                                  self.virtualBoard.pxlsMetaData.assigned,
+                                                                  pixel_count)
 
     def sectionDeletion(self, *args):
         """
@@ -305,11 +319,11 @@ class IdelmaApp(QApplication):
         sct_index = self.ui.sectionsList.currentRow()
         pixel_count = self.sctPropList[sct_index].pxlCount
 
-        while sct_index <= (self.virtualBoard.sctsBrdMgmt.assigned - 1):
+        while sct_index <= (self.virtualBoard.sctsMetaData.assigned - 1):
             if self.sctPropList[sct_index + 1] is None:
                 self.ui.sectionsList.takeItem(sct_index)
                 del self.sctPropList[sct_index]
-                self.virtualBoard.sctsMetaData[sct_index] = (sct_index, 0)
+                self.virtualBoard.sctsInfoTuple[sct_index] = (sct_index, 0)
             else:
                 if not (self.sctPropList[sct_index].setDefaultName and self.sctPropList[sct_index + 1].setDefaultName):
                     self.sctPropList[sct_index].sctName = self.sctPropList[sct_index + 1].sctName
@@ -320,16 +334,16 @@ class IdelmaApp(QApplication):
                         self.sctPropList[sct_index].setDefaultName = False
                     self.sctPropList[sct_index].setText()
                 self.sctPropList[sct_index].pxlCount = self.sctPropList[sct_index + 1].pxlCount
-                self.virtualBoard.sctsMetaData[sct_index] = self.sctPropList[sct_index].sctInfoTuple
+                self.virtualBoard.sctsInfoTuple[sct_index] = self.sctPropList[sct_index].sctInfoTuple
             sct_index += 1
 
-        self.virtualBoard.sctsBrdMgmt = MutableBrdInfo.blockUpdt(self.virtualBoard.sctsBrdMgmt.capacity,
-                                                                 self.virtualBoard.sctsBrdMgmt.remaining,
-                                                                 self.virtualBoard.sctsBrdMgmt.assigned,
+        self.virtualBoard.sctsMetaData = MutableMetaData.blockUpdt(self.virtualBoard.sctsMetaData.capacity,
+                                                                 self.virtualBoard.sctsMetaData.remaining,
+                                                                 self.virtualBoard.sctsMetaData.assigned,
                                                                  -1)
-        self.virtualBoard.pxlsBrdMgmt = MutableBrdInfo.blockUpdt(self.virtualBoard.pxlsBrdMgmt.capacity,
-                                                                 self.virtualBoard.pxlsBrdMgmt.remaining,
-                                                                 self.virtualBoard.pxlsBrdMgmt.assigned,
+        self.virtualBoard.pxlsMetaData = MutableMetaData.blockUpdt(self.virtualBoard.pxlsMetaData.capacity,
+                                                                 self.virtualBoard.pxlsMetaData.remaining,
+                                                                 self.virtualBoard.pxlsMetaData.assigned,
                                                                  -abs(pixel_count))
 
         # Buttons check
@@ -351,13 +365,13 @@ class IdelmaApp(QApplication):
         if self.sctPropList[sct_index] != new_sctPropObj:
             # Allocating or deallocating pixel resources
             edited_sct = self.ui.sectionsList.takeItem(sct_index)
-            self.virtualBoard.pxlsBrdMgmt = MutableBrdInfo.blockAssig(self.virtualBoard.pxlsBrdMgmt.capacity,
-                                                                      self.virtualBoard.pxlsBrdMgmt.remaining,
-                                                                      self.virtualBoard.pxlsBrdMgmt.assigned,
-                                                                      new_pixel_count - edited_sct.pxlCount)
+            self.virtualBoard.pxlsMetaData = MutableMetaData.blockUpdt(self.virtualBoard.pxlsMetaData.capacity,
+                                                                     self.virtualBoard.pxlsMetaData.remaining,
+                                                                     self.virtualBoard.pxlsMetaData.assigned,
+                                                                     new_pixel_count - edited_sct.pxlCount)
             self.ui.sectionsList.insertItem(sct_index, new_sctPropObj)
             self.sctPropList[sct_index] = new_sctPropObj
-            self.virtualBoard.sctsMetaData[sct_index] = self.sctPropList[sct_index].sctInfoTuple
+            self.virtualBoard.sctsInfoTuple[sct_index] = self.sctPropList[sct_index].sctInfoTuple
         else:
             del new_sctPropObj
 
@@ -370,9 +384,9 @@ class IdelmaApp(QApplication):
         pxl_updt = new_pixel_count - self.ui.sectionsList.currentItem().pxlCount
         if pxl_updt:
             self.sctPropList[self.ui.sectionsList.currentRow()].pxlCount = new_pixel_count
-            self.virtualBoard.pxlsBrdMgmt = MutableBrdInfo.blockUpdt(self.virtualBoard.pxlsBrdMgmt.capacity,
-                                                                     self.virtualBoard.pxlsBrdMgmt.remaining,
-                                                                     self.virtualBoard.pxlsBrdMgmt.assigned,
+            self.virtualBoard.pxlsMetaData = MutableMetaData.blockUpdt(self.virtualBoard.pxlsMetaData.capacity,
+                                                                     self.virtualBoard.pxlsMetaData.remaining,
+                                                                     self.virtualBoard.pxlsMetaData.assigned,
                                                                      pxl_updt)
             self.virtualBoard.sctsMetaData[self.ui.sectionsList.currentRow()] = (self.ui.sectionsList.currentRow(),
                                                                                  new_pixel_count)

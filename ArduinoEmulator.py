@@ -1,4 +1,4 @@
-from MutableBrdInfo import MutableBrdInfo
+from MutableMetaData import MutableMetaData
 
 from numpy import zeros
 import os
@@ -38,12 +38,14 @@ class ArduinoEmulator:
         self.spaceChar = 32
 
         self.cmdsDict = {
-            "1": self.serialNumSend,
-            "2": self.fwVersionSend,
-            "3": self.sctsBrdMgmtSend,
-            "4": self.pxlsBrdMgmtSend,
+            "1":  self.serialNumSend,
+            "2":  self.fwVersionSend,
+            "3":  self.sctsMetaDataSend,
+            "4":  self.pxlsMetaDataSend,
 
-            "10": self.configBrd
+            "10": self.configBrd,
+
+            "20": self.saveSettings
         }
 
         self.localVarDef()
@@ -54,8 +56,8 @@ class ArduinoEmulator:
         of the 'Board.cpp' file, but no defining pointer struct
         """
         self.fwVersion = bytearray([self.fwVerMajor, self.fwVerMinor, self.fwVerPatch])
-        self.sectionsInfo = MutableBrdInfo(self.maxNoScts, self.maxNoScts, 0)
-        self.pixelsInfo = MutableBrdInfo(self.pxlInfoHeapSize, self.pxlInfoHeapSize, 0)
+        self.sectionsInfo = MutableMetaData(self.maxNoScts, self.maxNoScts, 0)
+        self.pixelsInfo = MutableMetaData(self.pxlInfoHeapSize, self.pxlInfoHeapSize, 0)
 
     def processSerialMssg(self):
         """
@@ -80,14 +82,14 @@ class ArduinoEmulator:
         self.txBuffer.mssgLen = self.txDataParsing(self.txBuffer.buffer, self.fwVersion)
         self.serialWrite()
 
-    def sctsBrdMgmtSend(self):
+    def sctsMetaDataSend(self):
         self.txBuffer.mssgLen = self.txDataParsing(self.txBuffer.buffer,
                                                    bytearray([self.sectionsInfo.capacity,
                                                               self.sectionsInfo.remaining,
                                                               self.sectionsInfo.assigned]))
         self.serialWrite()
 
-    def pxlsBrdMgmtSend(self):
+    def pxlsMetaDataSend(self):
         self.txBuffer.mssgLen = self.txDataParsing(self.txBuffer.buffer,
                                                    bytearray([self.pixelsInfo.capacity,
                                                               self.pixelsInfo.remaining,
@@ -98,7 +100,24 @@ class ArduinoEmulator:
         """
         Updates board attributes with message content and sends an ACK (0x06) back to the PC
         """
+
         # Do the board attribute update here
+
+        self.sendAck()
+
+    def saveSettings(self):
+        """
+        Save actual board configuration in the EEPROM (might implement virtual EEPROM?)
+        """
+
+        # Do saving of settings here
+
+        self.sendAck()
+
+    def sendAck(self):
+        """
+        Method that returns an "ACK" character once mssg has been processed
+        """
         self.txBuffer.mssgLen = self.txDataParsing(self.txBuffer.buffer, bytearray([6]))
         self.serialWrite()
 

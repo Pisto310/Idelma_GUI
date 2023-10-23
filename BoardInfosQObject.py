@@ -1,6 +1,6 @@
 import sys
 from BoardInfos import BoardInfos
-from MutableBrdInfo import MutableBrdInfo
+from MutableMetaData import MutableMetaData
 
 from PyQt5.QtWidgets import (QWidget)
 from PyQt5.QtCore import (QObject, pyqtSignal)
@@ -12,8 +12,8 @@ class BoardInfosQObject(QObject, BoardInfos):
     """
     snUpdted = pyqtSignal(str, name='sn_updated')
     fwVerUpdted = pyqtSignal(str, name='fw_ver_updated')
-    sctsUpdted = pyqtSignal(MutableBrdInfo, name='sections_info_updated')
-    pxlsUpdted = pyqtSignal(MutableBrdInfo, name='pixels_info_updated')
+    sctsUpdted = pyqtSignal(MutableMetaData, name='sections_info_updated')
+    pxlsUpdted = pyqtSignal(MutableMetaData, name='pixels_info_updated')
 
     def __init__(self):
         super().__init__()

@@ -1,6 +1,6 @@
 
 
-class MutableBrdInfo:
+class MutableMetaData:
     """Basic class to create obj of which
     the attributes are the mutable infos
     of the IDELMA board
@@ -11,7 +11,7 @@ class MutableBrdInfo:
         self._assigned = assigned
 
     def __eq__(self, other):
-        if not isinstance(other, MutableBrdInfo):
+        if not isinstance(other, MutableMetaData):
             return NotImplemented
         return (self.capacity == other.capacity and
                 self.remaining == other.remaining and
