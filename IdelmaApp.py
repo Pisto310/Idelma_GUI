@@ -106,10 +106,10 @@ class IdelmaApp(QApplication):
         3. Creating a virtual board with the fetched infos
         """
 
-        self.ser.serRqst(self.serialRqsts.get("serial_num"), self.board.serialNumUpdt)
-        self.ser.serRqst(self.serialRqsts.get("fw_version"), self.board.fwVersionUpdt)
-        self.ser.serRqst(self.serialRqsts.get("scts_metadata"), self.board.sctsMetaDataUpdt)
-        self.ser.serRqst(self.serialRqsts.get("pxls_metadata"), self.board.pxlsMetaDataUpdt)
+        self.ser.serRqst(self.ser.serialRqsts.get("serial_num"), self.board.serialNumUpdt)
+        self.ser.serRqst(self.ser.serialRqsts.get("fw_version"), self.board.fwVersionUpdt)
+        self.ser.serRqst(self.ser.serialRqsts.get("scts_metadata"), self.board.sctsMetaDataUpdt)
+        self.ser.serRqst(self.ser.serialRqsts.get("pxls_metadata"), self.board.pxlsMetaDataUpdt)
 
         self.ui.fetchInfosButton.setEnabled(False)
         self.ui.sctAddButton.setEnabled(True)
