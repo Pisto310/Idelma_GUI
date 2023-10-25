@@ -98,6 +98,10 @@ class IdelmaApp(QApplication):
         self.ui.configButton.clicked.connect(self.configBrdCmd)
         self.ui.saveButton.clicked.connect(self.saveSettingsCmd)
 
+        # Menu actions
+        self.ui.actionReset_EEPROM.triggered.connect(self.resetEeprom)
+        self.ui.actionAll_OFF.triggered.connect(self.allOff)
+
     def fetchBrdInfosCmd(self):
         """
         Runs the board infos fetch protocol which includes:
@@ -136,6 +140,22 @@ class IdelmaApp(QApplication):
         self.ser.serRqst(self.ser.serialRqsts.get("save_settings"), self.board.ackConfirmed)
 
         self.ui.saveButton.setEnabled(False)
+
+    # // ** ** ** ** ** ** ** ** ** ** ** ** ** **  DEBUG  ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** //
+    def resetEeprom(self):
+        """
+        Resets the EEPROM memory of the arduino (debug purposes)
+        """
+        self.ser.serRqst(self.ser.serialRqsts.get("reset_eeprom"), self.board.ackConfirmed)
+        print('eeprom reset')
+
+    def allOff(self):
+        """
+        Turn all pixels OFF
+        """
+        self.ser.serRqst(self.ser.serialRqsts.get("all_pixels_off"), self.board.ackConfirmed)
+        print('All OFF')
+    # // ** ** ** ** ** ** ** ** ** ** ** ** ** **  DEBUG  ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** //
 
     def instantiateVrtlBrd(self):
         """
@@ -189,7 +209,7 @@ class IdelmaApp(QApplication):
         if the sct pending its creation is a duplicate
         """
         for index, section in enumerate(self.sctPropList[-1 * (self.virtualBoard.sctsMetaData.remaining + 1)::-1]):
-            if section.sctName == input_name:
+            if section is not None and section.sctName == input_name:
                 self.ui.sectionsList.setCurrentItem(section)
                 return True
         return False
@@ -297,13 +317,13 @@ class IdelmaApp(QApplication):
         self.sctPropList[self.virtualBoard.sctsMetaData.assigned] = sctPropObj
         self.virtualBoard.sctsInfoTuple.append(sctPropObj.sctInfoTuple)
         self.virtualBoard.sctsMetaData = MutableMetaData.blockUpdt(self.virtualBoard.sctsMetaData.capacity,
-                                                                  self.virtualBoard.sctsMetaData.remaining,
-                                                                  self.virtualBoard.sctsMetaData.assigned,
-                                                                  1)
+                                                                   self.virtualBoard.sctsMetaData.remaining,
+                                                                   self.virtualBoard.sctsMetaData.assigned,
+                                                                   1)
         self.virtualBoard.pxlsMetaData = MutableMetaData.blockUpdt(self.virtualBoard.pxlsMetaData.capacity,
-                                                                  self.virtualBoard.pxlsMetaData.remaining,
-                                                                  self.virtualBoard.pxlsMetaData.assigned,
-                                                                  pixel_count)
+                                                                   self.virtualBoard.pxlsMetaData.remaining,
+                                                                   self.virtualBoard.pxlsMetaData.assigned,
+                                                                   pixel_count)
 
     def sectionDeletion(self, *args):
         """

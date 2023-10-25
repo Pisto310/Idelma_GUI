@@ -12,11 +12,12 @@ from PyQt5.QtWidgets import QToolBar
 
 
 class IdelmaGui(QMainWindow):
-    """Main Window."""
+    """
+    Creates the Main Window for the IDELMA application
+    """
     def __init__(self):
         super().__init__()
 
-        # Declaring instance attr.
         self.centralWidget = QWidget(self)
 
         self.sectionsList = QListWidget(self.centralWidget)
@@ -53,15 +54,15 @@ class IdelmaGui(QMainWindow):
         self.configButton = QPushButton(self.progBttnsVerticalLayoutWidget)
         self.saveButton = QPushButton(self.progBttnsVerticalLayoutWidget)
 
-        self.menubar = None
-        self.menuFile = None
-        self.menuEdit = None
-        self.menuWindow = None
-        self.menuDebug = None
+        self.menuBar = QMenuBar(self)
+        self.menuFile = QMenu(self.menuBar)
+        self.menuEdit = QMenu(self.menuBar)
+        self.menuWindow = QMenu(self.menuBar)
+        self.menuDebug = QMenu(self.menuBar)
 
-        self.actionDebug = None
-        self.actionReset_EEPROM = None
-        self.actionAll_OFF = None
+        self.actionDebug = QAction(self)
+        self.actionReset_EEPROM = QAction(self)
+        self.actionAll_OFF = QAction(self)
 
         # setting main window
         self.initUi()
@@ -71,13 +72,10 @@ class IdelmaGui(QMainWindow):
         self.setObjectName("MainWindow")
         self.resize(480, 540)
 
-        # setting the central widget and general layout
         self.centralWidget.setObjectName("centralWidget")
 
-        # adding a list view widget to the main window
         self.setListWidget()
 
-        # Vertical Layout to contain layouts of each board info category
         self.setVerticalLayout(self.brdInfosVerticalLayoutWidget, (270, 10, 191, 311), "brdInfosVerticalLayoutWidget")
         self.setVerticalLayout(self.progBttnsVerticalLayoutWidget, (290, 380, 151, 91), "progBttnsVerticalLayoutWidget")
         self.setBoxLayout(self.brdInfosBoxLayout, (0, 0, 0, 0), "brdInfosBoxLayout")
@@ -105,40 +103,54 @@ class IdelmaGui(QMainWindow):
 
         self.setCentralWidget(self.centralWidget)
 
-        self.menubar = QMenuBar(self)
-        self.menubar.setGeometry(QRect(0, 0, 480, 24))
-        self.menubar.setObjectName("menubar")
-
-        self.menuFile = QMenu(self.menubar)
+        # Everything associated with the Menu Bar (Will be organized in specific methods later)
+        self.menuBar.setGeometry(QRect(0, 0, 480, 24))
+        self.menuBar.setObjectName("menuBar")
         self.menuFile.setObjectName("menuFile")
-
-        self.menuEdit = QMenu(self.menubar)
         self.menuEdit.setObjectName("menuEdit")
-
-        self.menuWindow = QMenu(self.menubar)
         self.menuWindow.setObjectName("menuWindow")
-
-        self.menuDebug = QMenu(self.menubar)
         self.menuDebug.setObjectName("menuDebug")
-
-        self.actionDebug = QAction(self)
         self.actionDebug.setObjectName("actionDebug")
-        self.actionReset_EEPROM = QAction(self)
         self.actionReset_EEPROM.setObjectName("actionReset_EEPROM")
-        self.actionAll_OFF = QAction(self)
         self.actionAll_OFF.setObjectName("actionAll_OFF")
+
         self.menuDebug.addAction(self.actionReset_EEPROM)
         self.menuDebug.addAction(self.actionAll_OFF)
-        self.menubar.addAction(self.menuFile.menuAction())
-        self.menubar.addAction(self.menuEdit.menuAction())
-        self.menubar.addAction(self.menuWindow.menuAction())
-        self.menubar.addAction(self.menuDebug.menuAction())
+        self.menuBar.addAction(self.menuFile.menuAction())
+        self.menuBar.addAction(self.menuEdit.menuAction())
+        self.menuBar.addAction(self.menuWindow.menuAction())
+        self.menuBar.addAction(self.menuDebug.menuAction())
 
-        self.setMenuBar(self.menubar)
+        self.setMenuBar(self.menuBar)
 
         # self.statusbar = QStatusBar(self)
         # self.statusbar.setObjectName("statusbar")
         # self.setStatusBar(self.statusbar)
+
+    def retranslateUi(self):
+        _translate = QCoreApplication.translate
+        self.setWindowTitle(_translate("MainWindow", "Idelma"))
+        self.snIdLabel.setText(_translate("MainWindow", "Serial Number"))
+        self.snNumberLabel.setText(_translate("MainWindow", "- Empty -"))
+        self.fwVerIdLabel.setText(_translate("MainWindow", "FW Version"))
+        self.fwVerLabel.setText(_translate("MainWindow", "- Empty -"))
+        self.sctsIdLabel.setText(_translate("MainWindow", "Sections Available"))
+        self.sctsLabel.setText(_translate("MainWindow", "- Empty -"))
+        self.pxlsIdLabel.setText(_translate("MainWindow", "Pixels Available"))
+        self.pxlsLabel.setText(_translate("MainWindow", "- Empty -"))
+        self.sctEditButton.setText(_translate("MainWindow", "Edit"))
+        self.sctDeleteButton.setText(_translate("MainWindow", "-"))
+        self.sctAddButton.setText(_translate("MainWindow", "+"))
+        self.fetchInfosButton.setText(_translate("MainWindow", "Fetch Infos"))
+        self.configButton.setText(_translate("MainWindow", "Config. Board"))
+        self.saveButton.setText(_translate("MainWindow", "Save Settings"))
+        self.menuFile.setTitle(_translate("MainWindow", "File"))
+        self.menuEdit.setTitle(_translate("MainWindow", "Edit"))
+        self.menuWindow.setTitle(_translate("MainWindow", "Window"))
+        self.menuDebug.setTitle(_translate("MainWindow", "Debug"))
+        self.actionDebug.setText(_translate("MainWindow", "Debug"))
+        self.actionReset_EEPROM.setText(_translate("MainWindow", "Reset EEPROM"))
+        self.actionAll_OFF.setText(_translate("MainWindow", "All OFF"))
 
     def setListWidget(self):
         self.sectionsList.setGeometry(QRect(10, 10, 240, 451))
@@ -149,13 +161,18 @@ class IdelmaGui(QMainWindow):
         self.sectionsList.setMidLineWidth(0)
         self.sectionsList.setObjectName("sectionsList")
 
-    """
-    Function used to set up the zone of the window where all the info relating to the MCU is shown
-    """
     def setBrdInfosZone(self, sub_layout: QVBoxLayout, sub_layout_name: str, info_id_label: QLabel,
                         info_id_label_name: str, info_val_label: QLabel, info_val_label_name: str):
         """
-        Set-up each zone
+        Set-up each zone of the board information
+
+        Parameters:
+            sub_layout (QVBoxLayout): parent layout for the QLabels to be inserted
+            sub_layout_name (str): parent layout name
+            info_id_label (QLabel): Information identification label
+            info_id_label_name (str): Information identification label name (internal to this class)
+            info_val_label (QLabel): Information id. associated value
+            info_val_label_name (str): Information id value label name (internal to this class)
         """
         # Setting the sub-layout
         sub_layout.setContentsMargins(-1, -1, -1, 12)
@@ -203,31 +220,6 @@ class IdelmaGui(QMainWindow):
         bttn.setEnabled(False)
         bttn.setObjectName(button_name)
         self.progBttnsBoxLayout.addWidget(bttn)
-
-    def retranslateUi(self):
-        _translate = QCoreApplication.translate
-        self.setWindowTitle(_translate("MainWindow", "Idelma"))
-        self.snIdLabel.setText(_translate("MainWindow", "Serial Number"))
-        self.snNumberLabel.setText(_translate("MainWindow", "- Empty -"))
-        self.fwVerIdLabel.setText(_translate("MainWindow", "FW Version"))
-        self.fwVerLabel.setText(_translate("MainWindow", "- Empty -"))
-        self.sctsIdLabel.setText(_translate("MainWindow", "Sections Available"))
-        self.sctsLabel.setText(_translate("MainWindow", "- Empty -"))
-        self.pxlsIdLabel.setText(_translate("MainWindow", "Pixels Available"))
-        self.pxlsLabel.setText(_translate("MainWindow", "- Empty -"))
-        self.sctEditButton.setText(_translate("MainWindow", "Edit"))
-        self.sctDeleteButton.setText(_translate("MainWindow", "-"))
-        self.sctAddButton.setText(_translate("MainWindow", "+"))
-        self.fetchInfosButton.setText(_translate("MainWindow", "Fetch Infos"))
-        self.configButton.setText(_translate("MainWindow", "Config. Board"))
-        self.saveButton.setText(_translate("MainWindow", "Save Settings"))
-        self.menuFile.setTitle(_translate("MainWindow", "File"))
-        self.menuEdit.setTitle(_translate("MainWindow", "Edit"))
-        self.menuWindow.setTitle(_translate("MainWindow", "Window"))
-        self.menuDebug.setTitle(_translate("MainWindow", "Debug"))
-        self.actionDebug.setText(_translate("MainWindow", "Debug"))
-        self.actionReset_EEPROM.setText(_translate("MainWindow", "Reset EEPROM"))
-        self.actionAll_OFF.setText(_translate("MainWindow", "All OFF"))
 
     def enableListWidgetBttns(self):
         self.sctDeleteButton.setEnabled(True)

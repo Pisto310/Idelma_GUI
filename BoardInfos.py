@@ -105,7 +105,8 @@ class BoardInfos:
             if parsed_ser_mssg[0] == self.ackChar:
                 return True
             else:
-                return False
+                while True:
+                    pass
         except IndexError as error:
             print(error)
 

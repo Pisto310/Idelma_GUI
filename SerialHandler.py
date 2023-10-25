@@ -13,13 +13,15 @@ class SerialHandler:
 
         self._awaitingReply = False
 
-        # Below are all commands for metadata (0-9 reserved)
-        self.serialRqsts = {"serial_num":    "1",
-                            "fw_version":    "2",
-                            "scts_metadata": "3",
-                            "pxls_metadata": "4",
-                            "config_board":  "10",
-                            "save_settings": "20"}
+        self.serialRqsts = {"serial_num":     "1",
+                            "fw_version":     "2",
+                            "scts_metadata":  "3",
+                            "pxls_metadata":  "4",
+                            "scts_array":     "5",
+                            "config_board":   "10",
+                            "save_settings":  "20",
+                            "all_pixels_off": "254",
+                            "reset_eeprom":   "255"}
 
     def serRqst(self, serial_command, func_cb, *args):
         """

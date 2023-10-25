@@ -17,6 +17,8 @@ class IdelmaSctDialog(QDialog):
     """
 
     accepted = pyqtSignal(str, int, bool, name='Returning user inputs')
+    # indexTracker = 0
+    # defaultName = "Section " + str(indexTracker)
 
     def __init__(self, sct_index: int, pxls_remaining: int, sct_name: str = "", pxl_count: int = 0):
         super().__init__()

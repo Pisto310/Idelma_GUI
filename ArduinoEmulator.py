@@ -45,7 +45,9 @@ class ArduinoEmulator:
 
             "10": self.configBrd,
 
-            "20": self.saveSettings
+            "20": self.saveSettings,
+
+            "254": self.allOff,
         }
 
         self.localVarDef()
@@ -112,6 +114,9 @@ class ArduinoEmulator:
 
         # Do saving of settings here
 
+        self.sendAck()
+
+    def allOff(self):
         self.sendAck()
 
     def sendAck(self):
