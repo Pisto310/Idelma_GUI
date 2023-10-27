@@ -4,14 +4,12 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="3153b060-3ee7-475e-91c1-ba171824b147" name="Changes" comment="Added a &quot;save settings rqst&quot; cmd and did some cleanup (file renaming, attr renaming, deleted/replaced some methods, etc.)">
+    <list default="true" id="3153b060-3ee7-475e-91c1-ba171824b147" name="Changes" comment="Added a few serial requests, mainly eeprom_reset, all_Off and sectionsInfoArr. Also, infinite loop in BoardInfos.py if no ACK reply">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ArduinoEmulator.py" beforeDir="false" afterPath="$PROJECT_DIR$/ArduinoEmulator.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/BoardInfos.py" beforeDir="false" afterPath="$PROJECT_DIR$/BoardInfos.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/BoardInfosQObject.py" beforeDir="false" afterPath="$PROJECT_DIR$/BoardInfosQObject.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/IdelmaApp.py" beforeDir="false" afterPath="$PROJECT_DIR$/IdelmaApp.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/IdelmaGui.py" beforeDir="false" afterPath="$PROJECT_DIR$/IdelmaGui.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/IdelmaSctDialog.py" beforeDir="false" afterPath="$PROJECT_DIR$/IdelmaSctDialog.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/SerialHandler.py" beforeDir="false" afterPath="$PROJECT_DIR$/SerialHandler.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/main.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -372,7 +370,14 @@
       <option name="project" value="LOCAL" />
       <updated>1698084758263</updated>
     </task>
-    <option name="localTasksCounter" value="22" />
+    <task id="LOCAL-00022" summary="Added a few serial requests, mainly eeprom_reset, all_Off and sectionsInfoArr. Also, infinite loop in BoardInfos.py if no ACK reply">
+      <created>1698192824645</created>
+      <option name="number" value="00022" />
+      <option name="presentableId" value="LOCAL-00022" />
+      <option name="project" value="LOCAL" />
+      <updated>1698192824645</updated>
+    </task>
+    <option name="localTasksCounter" value="23" />
     <servers>
       <YouTrack url="https://idelma.youtrack.cloud">
         <option name="defaultSearch" value="" />
@@ -485,15 +490,16 @@
     <MESSAGE value="Config Board method implemented in SerialHandler. BoardInfos takes care of updating the attr, but there is still a bug with the MutableBrdInfo setters..." />
     <MESSAGE value="All aspects of board configuration are working (adding, removing and editing all work)" />
     <MESSAGE value="Added a &quot;save settings rqst&quot; cmd and did some cleanup (file renaming, attr renaming, deleted/replaced some methods, etc.)" />
-    <option name="LAST_COMMIT_MESSAGE" value="Added a &quot;save settings rqst&quot; cmd and did some cleanup (file renaming, attr renaming, deleted/replaced some methods, etc.)" />
+    <MESSAGE value="Added a few serial requests, mainly eeprom_reset, all_Off and sectionsInfoArr. Also, infinite loop in BoardInfos.py if no ACK reply" />
+    <option name="LAST_COMMIT_MESSAGE" value="Added a few serial requests, mainly eeprom_reset, all_Off and sectionsInfoArr. Also, infinite loop in BoardInfos.py if no ACK reply" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
       <breakpoints>
-        <line-breakpoint suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/ArduinoEmulator.py</url>
-          <line>119</line>
-          <option name="timeStamp" value="5" />
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/BoardInfos.py</url>
+          <line>84</line>
+          <option name="timeStamp" value="39" />
         </line-breakpoint>
       </breakpoints>
       <default-breakpoints>

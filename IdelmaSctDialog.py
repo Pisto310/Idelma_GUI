@@ -16,9 +16,7 @@ class IdelmaSctDialog(QDialog):
         - int: number of pixels in section
     """
 
-    accepted = pyqtSignal(str, int, bool, name='Returning user inputs')
-    # indexTracker = 0
-    # defaultName = "Section " + str(indexTracker)
+    accepted = pyqtSignal(int, int, str, bool, name='Returning user inputs')
 
     def __init__(self, sct_index: int, pxls_remaining: int, sct_name: str = "", pxl_count: int = 0):
         super().__init__()
@@ -26,8 +24,21 @@ class IdelmaSctDialog(QDialog):
         self.maxPxls = pxls_remaining
         self.defaultName = "Section " + str(sct_index)
         self.setDefault = False
-        self.sctName = sct_name
+        self.sctIdx = sct_index
         self.pxlCount = pxl_count
+        self.sctName = sct_name
+
+        self.centralWidget = QWidget(self)
+
+        self.sctNameLabel = QLabel(self)
+        self.sctNameLineEdit = QLineEdit(self)
+
+        self.pxlsNbrLabel = QLabel(self)
+        self.pxlsSpinBox = QSpinBox(self)
+
+        self.formLayout = QFormLayout()
+        self.buttonBox = QDialogButtonBox(self)
+        self.verticalLayout = QVBoxLayout(self.centralWidget)
 
         self.setupUi()
         self.retranslateUi()
@@ -38,23 +49,19 @@ class IdelmaSctDialog(QDialog):
         self.resize(280, 120)
 
         # Creating central widget
-        self.centralWidget = QWidget(self)
         self.centralWidget.setGeometry(QRect(10, 10, 250, 100))
         self.centralWidget.setObjectName("widget")
 
         # Section Name label and associated LineEdit widget
-        self.sctNameLabel = QLabel(self)
         self.sctNameLabel.setObjectName("sctNameLabel")
-        self.sctNameLineEdit = QLineEdit(self)
         self.sctNameLineEdit.setPlaceholderText(self.defaultName)
         self.sctNameLineEdit.setText(self.sctName)
         self.sctNameLineEdit.setMaxLength(20)
         self.sctNameLineEdit.setObjectName("lineEdit")
 
         # Pixel Number Label and associated SpinBox widget
-        self.pxlsNbrLabel = QLabel(self)
+
         self.pxlsNbrLabel.setObjectName("pxlsNbrLabel")
-        self.pxlsSpinBox = QSpinBox(self)
         self.pxlsSpinBox.setEnabled(True)
         sizePolicy = QSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
         sizePolicy.setHorizontalStretch(0)
@@ -75,7 +82,6 @@ class IdelmaSctDialog(QDialog):
         self.pxlsSpinBox.setObjectName("pxlsSpinBox")
 
         # Arranging previously created widgets in a FormLayout
-        self.formLayout = QFormLayout()
         self.formLayout.setSizeConstraint(QLayout.SetDefaultConstraint)
         self.formLayout.setFieldGrowthPolicy(QFormLayout.ExpandingFieldsGrow)
         self.formLayout.setObjectName("formLayout")
@@ -85,13 +91,11 @@ class IdelmaSctDialog(QDialog):
         self.formLayout.setWidget(1, QFormLayout.FieldRole, self.pxlsSpinBox)
 
         # Setting the dialog ButtonBox
-        self.buttonBox = QDialogButtonBox(self)
         self.buttonBox.setOrientation(Qt.Horizontal)
         self.buttonBox.setStandardButtons(QDialogButtonBox.Cancel | QDialogButtonBox.Ok)
         self.buttonBox.setObjectName("buttonBox")
 
         # Arranging formLayout and ButtonBox in a vertical grid Layout
-        self.verticalLayout = QVBoxLayout(self.centralWidget)
         self.verticalLayout.setContentsMargins(0, 0, 0, 0)
         self.verticalLayout.setObjectName("verticalLayout")
         self.verticalLayout.addLayout(self.formLayout)
@@ -118,7 +122,7 @@ class IdelmaSctDialog(QDialog):
         else:
             self.sctName = self.sctNameLineEdit.text()
         self.pxlCount = self.pxlsSpinBox.value()
-        self.accepted.emit(self.sctName, self.pxlCount, self.setDefault)
+        self.accepted.emit(self.sctIdx, self.pxlCount, self.sctName, self.setDefault)
 
     def connectAccepted(self, callback):
         self.accepted.connect(callback)

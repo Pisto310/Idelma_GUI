@@ -55,6 +55,25 @@ class BoardInfos:
     def pxlsMetaDataUpdt(self, parsed_ser_mssg: list):
         self.pxlsMetaData = MutableMetaData(*parsed_ser_mssg)
 
+    def setSctInfosTuple(self, parsed_ser_mssg: list):
+        """
+        Fill the sctInfoTuple list with the rxed SctInfoArr to initialize the GUI
+        according to the saved set-up of the board. Only called in fetchBrdMetaDatas
+        method of IdelmaApp obj
+
+        Parameters:
+            parsed_ser_mssg (list): list containing the sectionInfoArr array, which
+                                    is composed of section_info_t structs of len =
+                                    core_data_len
+        """
+        core_data_len = 2
+        idx = 0
+        while idx < len(parsed_ser_mssg):
+            sct_Id = int(idx / core_data_len)
+            self.sctsInfoTuple.append((sct_Id, parsed_ser_mssg[idx]))
+            idx += core_data_len
+        self.sctsInfoTupleEmit(self.sctsInfoTuple)
+
     def configBrdAttrUpdt(self, parsed_ser_mssg: list, *args):
         """
         Checks if ACK has been received and if so, updates board attributes
@@ -73,7 +92,7 @@ class BoardInfos:
                     sct_id = sctInfoTuple[sct_id_index]
                     pxl_count_diff = sctInfoTuple[pxl_count_index] - self.sctsInfoTuple[sct_id][pxl_count_index]
                     pxl_total_blocks += pxl_count_diff
-                    if abs(pxl_count_diff) == self.sctsInfoTuple[sct_id][pxl_count_index]:
+                    if not sctInfoTuple[pxl_count_index]:
                         sct_total_blocks -= 1
                         self.sctsInfoTuple.pop(sct_id)
                         continue
@@ -85,14 +104,14 @@ class BoardInfos:
                         self.sctsInfoTuple.append(sctInfoTuple)
             if sct_total_blocks:
                 self.sctsMetaData = MutableMetaData.blockUpdt(self.sctsMetaData.capacity,
-                                                             self.sctsMetaData.remaining,
-                                                             self.sctsMetaData.assigned,
-                                                             sct_total_blocks)
+                                                              self.sctsMetaData.remaining,
+                                                              self.sctsMetaData.assigned,
+                                                              sct_total_blocks)
             if pxl_total_blocks:
                 self.pxlsMetaData = MutableMetaData.blockUpdt(self.pxlsMetaData.capacity,
-                                                             self.pxlsMetaData.remaining,
-                                                             self.pxlsMetaData.assigned,
-                                                             pxl_total_blocks)
+                                                              self.pxlsMetaData.remaining,
+                                                              self.pxlsMetaData.assigned,
+                                                              pxl_total_blocks)
 
     def ackConfirmed(self, parsed_ser_mssg: list):
         """
@@ -120,6 +139,9 @@ class BoardInfos:
         pass
 
     def pxlsUpdtedEmit(self, *args):
+        pass
+
+    def sctsInfoTupleEmit(self, *args):
         pass
 
     @property

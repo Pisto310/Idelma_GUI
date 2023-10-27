@@ -6,15 +6,15 @@ def bootApp():
     app = IdelmaApp(sys.argv)
 
     """-----     debug    -----"""
-    # app.fetchBrdInfosCmd()
+    # app.fetchBrdMetaDatasCmd()
     #
-    # app.sectionCreation('First', 5, False)
+    # app.sectionCreation(0, 5, 'First', False)
     # app.configBrdBttnStateTrig()
     #
-    # app.sectionCreation('Next', 2, False)
+    # app.sectionCreation(1, 2, 'Next', False)
     # app.configBrdBttnStateTrig()
     #
-    # app.sectionCreation('Section 2', 4, True)
+    # app.sectionCreation(2, 4, 'Section 2', True)
     # app.configBrdBttnStateTrig()
     """-----     debug    -----"""
 

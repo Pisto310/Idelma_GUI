@@ -14,6 +14,7 @@ class BoardInfosQObject(QObject, BoardInfos):
     fwVerUpdted = pyqtSignal(str, name='fw_ver_updated')
     sctsUpdted = pyqtSignal(MutableMetaData, name='sections_info_updated')
     pxlsUpdted = pyqtSignal(MutableMetaData, name='pixels_info_updated')
+    sctsInfoTupleSig = pyqtSignal(list, name="sections_info_tuple_from_MCU")
 
     def __init__(self):
         super().__init__()
@@ -30,6 +31,9 @@ class BoardInfosQObject(QObject, BoardInfos):
     def connectPxlsSignal(self, callback):
         self.pxlsUpdted.connect(callback)
 
+    def connectSctsInfoTupleSig(self, callback):
+        self.sctsInfoTupleSig.connect(callback)
+
     def snUpdtedEmit(self, *args):
         self.snUpdted.emit(*args)
 
@@ -41,3 +45,6 @@ class BoardInfosQObject(QObject, BoardInfos):
 
     def pxlsUpdtedEmit(self, *args):
         self.pxlsUpdted.emit(*args)
+
+    def sctsInfoTupleEmit(self, *args):
+        self.sctsInfoTupleSig.emit(*args)
