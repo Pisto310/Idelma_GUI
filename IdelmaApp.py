@@ -209,7 +209,8 @@ class IdelmaApp(QApplication):
         elif self.virtualBoard == self.board and self.ui.configButton.isEnabled():
             self.ui.configButton.setEnabled(False)
 
-    def duplicateNameHandler(self, sct_idx: int, pixel_count: int, input_name: str, set_default_name: bool):
+    def duplicateNameHandler(self, sct_idx: int, pixel_count: int, brightness: int, single_pxl_ctrl: bool,
+                             input_name: str, set_default_name: bool):
         """
         Handle the action to take if a section to be created has been given a name that already exists.
         Used as the callback function of the newSectionDialog method.
@@ -217,6 +218,8 @@ class IdelmaApp(QApplication):
         Parameters:
             sct_idx (int): Index of the section being created
             pixel_count (int): Number of pixels of the section being created
+            brightness (int): Brightness level of the section (0 to 255)
+            single_pxl_ctrl (bool): Indicates if whole strip is seen as a single pixel (True) or not (False)
             input_name (str): Name inputted by the user for the section being created
             set_default_name (bool): Indicates if the default name has been set for the section being created
         """
@@ -231,7 +234,7 @@ class IdelmaApp(QApplication):
                 while self.duplicateNameCheck(new_name):
                     new_name = input_name + ' (' + str(int(new_name[-2]) + 1) + ')'
                 input_name = new_name
-        self.sectionCreation(sct_idx, pixel_count, input_name, set_default_name)
+        self.sectionCreation(sct_idx, pixel_count, brightness, single_pxl_ctrl, input_name, set_default_name)
 
     def duplicateNameCheck(self, input_name: str):
         """
@@ -270,6 +273,8 @@ class IdelmaApp(QApplication):
         for val in list_of_tuple:
             self.sectionCreation(sct_idx=val[SctProp.infoTupleIndexes.get("sctID_index")],
                                  pixel_count=val[SctProp.infoTupleIndexes.get("pixelCount_index")],
+                                 brightness=val[SctProp.infoTupleIndexes.get("brightness_index")],
+                                 single_pxl_ctrl=val[SctProp.infoTupleIndexes.get("singlePxlCtrl_index")],
                                  section_name=("Section " + str(val[SctProp.infoTupleIndexes.get("sctID_index")])),
                                  set_default_name=True)
 
@@ -326,20 +331,25 @@ class IdelmaApp(QApplication):
         nameDuplicateDialog.exec_()
         return nameDuplicateDialog.result()
 
-    def sectionCreation(self, sct_idx: int, pixel_count: int, section_name: str, set_default_name: bool):
+    def sectionCreation(self, sct_idx: int, pixel_count: int, brightness: int, single_pxl_ctrl: bool,
+                        section_name: str, set_default_name: bool):
         """
         Handle the creation of a new section by updating applicable attributes and objects
 
         Parameters:
-            sct_idx (int): section's index
-            pixel_count (int): number of pixels to be contained in the section
-            section_name (str): name of the created section
-            set_default_name (bool): a bool indicating if the name is set to default
+            sct_idx (int): Section's index
+            pixel_count (int): Number of pixels to be contained in the section
+            brightness (int): Brightness level of the section (0 to 255)
+            single_pxl_ctrl (bool): Indicates if whole strip is seen as a single pixel (True) or not (False)
+            section_name (str): Name of the created section
+            set_default_name (bool): Indicates if the name is set to default
         """
-        sctPropObj = SctPropQListWidgetItem(sct_idx, pixel_count, section_name,
+        sctPropObj = SctPropQListWidgetItem(sct_idx, pixel_count, brightness, single_pxl_ctrl, section_name,
                                             set_default_name, self.ui.sectionsList, self.sctPropItemType)
         self.sctPropList[sct_idx] = sctPropObj
         self.virtualBoard.sctsInfoTuple.append(sctPropObj.sctInfoTuple)
+        if single_pxl_ctrl:
+            pixel_count = 1
         self.virtualBoard.sctsMetaData = MutableMetaData.blockUpdt(self.virtualBoard.sctsMetaData.capacity,
                                                                    self.virtualBoard.sctsMetaData.remaining,
                                                                    self.virtualBoard.sctsMetaData.assigned,
@@ -388,13 +398,13 @@ class IdelmaApp(QApplication):
             sct_index += 1
 
         self.virtualBoard.sctsMetaData = MutableMetaData.blockUpdt(self.virtualBoard.sctsMetaData.capacity,
-                                                                 self.virtualBoard.sctsMetaData.remaining,
-                                                                 self.virtualBoard.sctsMetaData.assigned,
-                                                                 -1)
+                                                                   self.virtualBoard.sctsMetaData.remaining,
+                                                                   self.virtualBoard.sctsMetaData.assigned,
+                                                                   -1)
         self.virtualBoard.pxlsMetaData = MutableMetaData.blockUpdt(self.virtualBoard.pxlsMetaData.capacity,
-                                                                 self.virtualBoard.pxlsMetaData.remaining,
-                                                                 self.virtualBoard.pxlsMetaData.assigned,
-                                                                 -abs(pixel_count))
+                                                                   self.virtualBoard.pxlsMetaData.remaining,
+                                                                   self.virtualBoard.pxlsMetaData.assigned,
+                                                                   -abs(pixel_count))
 
         # Buttons check
         if self.resourcesAvailable() and not self.ui.sctAddButton.isEnabled():
@@ -416,9 +426,9 @@ class IdelmaApp(QApplication):
             # Allocating or deallocating pixel resources
             edited_sct = self.ui.sectionsList.takeItem(sct_index)
             self.virtualBoard.pxlsMetaData = MutableMetaData.blockUpdt(self.virtualBoard.pxlsMetaData.capacity,
-                                                                     self.virtualBoard.pxlsMetaData.remaining,
-                                                                     self.virtualBoard.pxlsMetaData.assigned,
-                                                                     new_pixel_count - edited_sct.pxlCount)
+                                                                       self.virtualBoard.pxlsMetaData.remaining,
+                                                                       self.virtualBoard.pxlsMetaData.assigned,
+                                                                       new_pixel_count - edited_sct.pxlCount)
             self.ui.sectionsList.insertItem(sct_index, new_sctPropObj)
             self.sctPropList[sct_index] = new_sctPropObj
             self.virtualBoard.sctsInfoTuple[sct_index] = self.sctPropList[sct_index].sctInfoTuple

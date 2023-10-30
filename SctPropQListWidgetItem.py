@@ -11,10 +11,11 @@ class SctPropQListWidgetItem(SctProp, QListWidgetItem):
     environment by also subclassing the QListWidgetItem
     class to be use in a QListWidget
     """
-    def __init__(self, index: int, pixel_count: int, name: str, set_default_name: bool,
+    def __init__(self, index: int, pixel_count: int, brightness_level: int, single_pxl_ctrl: bool,
+                 name: str, set_default_name: bool,
                  item_parent: QListWidget, item_type: QListWidgetItem.ItemType):
         # Calling the superclass
-        super().__init__(index=index, pixel_count=pixel_count, name=name, set_default_name=set_default_name)
+        super().__init__(index, pixel_count, brightness_level, single_pxl_ctrl, name, set_default_name)
         QListWidgetItem.__init__(self, name, parent=item_parent, type=item_type)
 
         self.sctPropItemType = item_type
@@ -25,6 +26,8 @@ class SctPropQListWidgetItem(SctProp, QListWidgetItem):
             return NotImplemented
         return (self.sctID == other.sctID and
                 self.pxlCount == other.pxlCount and
+                self.brightness == other.brightness and
+                self.singlePxlCtrl == other.singlePxlCtrl and
                 self.sctName == other.sctName and
                 self.setDefaultName == other.setDefaultName)
 
@@ -41,6 +44,3 @@ class SctPropQListWidgetItem(SctProp, QListWidgetItem):
 
     def setText(self):
         super().setText(self.sctName)
-
-    # def updtRemainingPxls(self, pxls_remaining):
-    #     self.remainingPxls = pxls_remaining

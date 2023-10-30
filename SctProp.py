@@ -6,16 +6,21 @@ class SctProp:
     """
 
     infoTupleIndexes = {'sctID_index': 0,
-                        'pixelCount_index': 1}
+                        'pixelCount_index': 1,
+                        'brightness_index': 2,
+                        'singlePxlCtrl_index': 3}
 
-    def __init__(self, index, pixel_count: int, name: str, set_default_name: bool):
+    def __init__(self, index: int, pixel_count: int, brightness_level: int, single_pxl_ctrl: bool,
+                 name: str, set_default_name: bool):
 
         self._sctID = index
         self._pxlCount = pixel_count
+        self._brightness = brightness_level
+        self._singlePxlCtrl = single_pxl_ctrl
         self._sctName = name
         self._setDefaultName = set_default_name
 
-        self._sctInfoTuple = (index, pixel_count)
+        self._sctInfoTuple = (index, pixel_count, brightness_level, int(single_pxl_ctrl))
 
     def decrDefaultName(self):
         if self.setDefaultName:
@@ -54,6 +59,24 @@ class SctProp:
             print(error)
 
     @property
+    def brightness(self):
+        return self._brightness
+
+    @brightness.setter
+    def brightness(self, brightness_level: int):
+        if self.typeCheck(brightness_level, int) and self.valueBoundCheck(brightness_level, 0, 255):
+            self._brightness = brightness_level
+
+    @property
+    def singlePxlCtrl(self):
+        return self._singlePxlCtrl
+
+    @singlePxlCtrl.setter
+    def singlePxlCtrl(self, new_state: bool):
+        if self.typeCheck(new_state, bool):
+            self._singlePxlCtrl = new_state
+
+    @property
     def sctName(self):
         return self._sctName
 
@@ -82,8 +105,8 @@ class SctProp:
         return self._sctInfoTuple
 
     @sctInfoTuple.setter
-    def sctInfoTuple(self, new_sctID, new_pixelCount):
-        self._sctInfoTuple = (new_sctID, new_pixelCount)
+    def sctInfoTuple(self, new_sct_id, new_pixel_count, new_brightness_level, new_single_pxl_ctrl):
+        self._sctInfoTuple = (new_sct_id, new_pixel_count, new_brightness_level, int(new_single_pxl_ctrl))
 
     @staticmethod
     def typeCheck(var, user_t):

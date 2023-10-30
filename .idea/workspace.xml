@@ -4,13 +4,12 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="3153b060-3ee7-475e-91c1-ba171824b147" name="Changes" comment="Added a few serial requests, mainly eeprom_reset, all_Off and sectionsInfoArr. Also, infinite loop in BoardInfos.py if no ACK reply">
+    <list default="true" id="3153b060-3ee7-475e-91c1-ba171824b147" name="Changes" comment="Setting up the GUI from the MCU saved settings successfully implemented. Also corrected a small bug regarding the updt of Board Attr. in the configBrdAttrUpdt method in BoardInfos.py">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/BoardInfos.py" beforeDir="false" afterPath="$PROJECT_DIR$/BoardInfos.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/BoardInfosQObject.py" beforeDir="false" afterPath="$PROJECT_DIR$/BoardInfosQObject.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/IdelmaApp.py" beforeDir="false" afterPath="$PROJECT_DIR$/IdelmaApp.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/IdelmaSctDialog.py" beforeDir="false" afterPath="$PROJECT_DIR$/IdelmaSctDialog.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/main.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/SctProp.py" beforeDir="false" afterPath="$PROJECT_DIR$/SctProp.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/SctPropQListWidgetItem.py" beforeDir="false" afterPath="$PROJECT_DIR$/SctPropQListWidgetItem.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -120,27 +119,6 @@
       <option name="INPUT_FILE" value="" />
       <method v="2" />
     </configuration>
-    <configuration name="IdelmaSctDelDialog" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
-      <module name="colorPicker" />
-      <option name="INTERPRETER_OPTIONS" value="" />
-      <option name="PARENT_ENVS" value="true" />
-      <envs>
-        <env name="PYTHONUNBUFFERED" value="1" />
-      </envs>
-      <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
-      <option name="IS_MODULE_SDK" value="true" />
-      <option name="ADD_CONTENT_ROOTS" value="true" />
-      <option name="ADD_SOURCE_ROOTS" value="true" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/IdelmaSctDelDialog.py" />
-      <option name="PARAMETERS" value="" />
-      <option name="SHOW_COMMAND_LINE" value="false" />
-      <option name="EMULATE_TERMINAL" value="false" />
-      <option name="MODULE_MODE" value="false" />
-      <option name="REDIRECT_INPUT" value="false" />
-      <option name="INPUT_FILE" value="" />
-      <method v="2" />
-    </configuration>
     <configuration name="IdelmaSctDialog" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="colorPicker" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -204,13 +182,34 @@
       <option name="INPUT_FILE" value="" />
       <method v="2" />
     </configuration>
+    <configuration name="newSctDialog" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+      <module name="colorPicker" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/newSctDialog.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
     <recent_temporary>
       <list>
         <item itemvalue="Python.main" />
+        <item itemvalue="Python.IdelmaSctDialog" />
+        <item itemvalue="Python.newSctDialog" />
         <item itemvalue="Python.mainWinIdelma" />
         <item itemvalue="Python.IdelmaDuplicateNameDialog" />
-        <item itemvalue="Python.IdelmaSctDelDialog" />
-        <item itemvalue="Python.IdelmaSctDialog" />
       </list>
     </recent_temporary>
   </component>
@@ -377,7 +376,14 @@
       <option name="project" value="LOCAL" />
       <updated>1698192824645</updated>
     </task>
-    <option name="localTasksCounter" value="23" />
+    <task id="LOCAL-00023" summary="Setting up the GUI from the MCU saved settings successfully implemented. Also corrected a small bug regarding the updt of Board Attr. in the configBrdAttrUpdt method in BoardInfos.py">
+      <created>1698440721493</created>
+      <option name="number" value="00023" />
+      <option name="presentableId" value="LOCAL-00023" />
+      <option name="project" value="LOCAL" />
+      <updated>1698440721493</updated>
+    </task>
+    <option name="localTasksCounter" value="24" />
     <servers>
       <YouTrack url="https://idelma.youtrack.cloud">
         <option name="defaultSearch" value="" />
@@ -491,17 +497,11 @@
     <MESSAGE value="All aspects of board configuration are working (adding, removing and editing all work)" />
     <MESSAGE value="Added a &quot;save settings rqst&quot; cmd and did some cleanup (file renaming, attr renaming, deleted/replaced some methods, etc.)" />
     <MESSAGE value="Added a few serial requests, mainly eeprom_reset, all_Off and sectionsInfoArr. Also, infinite loop in BoardInfos.py if no ACK reply" />
-    <option name="LAST_COMMIT_MESSAGE" value="Added a few serial requests, mainly eeprom_reset, all_Off and sectionsInfoArr. Also, infinite loop in BoardInfos.py if no ACK reply" />
+    <MESSAGE value="Setting up the GUI from the MCU saved settings successfully implemented. Also corrected a small bug regarding the updt of Board Attr. in the configBrdAttrUpdt method in BoardInfos.py" />
+    <option name="LAST_COMMIT_MESSAGE" value="Setting up the GUI from the MCU saved settings successfully implemented. Also corrected a small bug regarding the updt of Board Attr. in the configBrdAttrUpdt method in BoardInfos.py" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
-      <breakpoints>
-        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/BoardInfos.py</url>
-          <line>84</line>
-          <option name="timeStamp" value="39" />
-        </line-breakpoint>
-      </breakpoints>
       <default-breakpoints>
         <breakpoint type="python-exception">
           <properties notifyOnTerminate="true" exception="BaseException">
