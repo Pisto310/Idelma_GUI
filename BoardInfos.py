@@ -1,6 +1,8 @@
-from SctProp import SctProp
-from MutableMetaData import MutableMetaData
-from enum import Enum
+from NonSerSctMetaData import NonSerSctMetaData
+from BrdMgmtMetaData import BrdMgmtMetaData
+from SctMetaData import SctMetaData
+
+from dataclasses import astuple
 
 
 class BoardInfos:
@@ -11,14 +13,14 @@ class BoardInfos:
     """
     def __init__(self):
 
-        self._serialNum   = None
-        self._fwVersion   = None
-        self._sctsMetaData = None
-        self._pxlsMetaData = None
+        self._serialNum        = None
+        self._fwVersion        = None
+        self._sctsMgmtMetaData = None
+        self._pxlsMgmtMetaData = None
 
-        self.sctsInfoTuple = []
+        self.sctsMetaDataList = []
 
-        # self.configBrdByteToFunc = {SctProp.infoTupleIndexes.get('pixel_count_index'): self.pixelBlockAssig}
+        # self.configBrdByteToFunc = {NonSerSctMetaData.infoTupleIndexes.get('pixel_count_index'): self.pixelBlockAssig}
 
         self.ackChar = 6
 
@@ -27,8 +29,8 @@ class BoardInfos:
             return NotImplemented
         return (self.serialNum == other.serialNum and
                 self.fwVersion == other.fwVersion and
-                self.sctsMetaData == other.sctsMetaData and
-                self.pxlsMetaData == other.pxlsMetaData)
+                self.sctsMgmtMetaData == other.sctsMgmtMetaData and
+                self.pxlsMgmtMetaData == other.pxlsMgmtMetaData)
 
     def __ne__(self, other):
         return not self == other
@@ -49,11 +51,11 @@ class BoardInfos:
                 str_container += "."
         self.fwVersion = str_container
 
-    def sctsMetaDataUpdt(self, parsed_ser_mssg: list):
-        self.sctsMetaData = MutableMetaData(*parsed_ser_mssg)
+    def sctsMgmtUpdt(self, parsed_ser_mssg: list):
+        self.sctsMgmtMetaData = BrdMgmtMetaData(*parsed_ser_mssg)
 
-    def pxlsMetaDataUpdt(self, parsed_ser_mssg: list):
-        self.pxlsMetaData = MutableMetaData(*parsed_ser_mssg)
+    def pxlsMgmtUpdt(self, parsed_ser_mssg: list):
+        self.pxlsMgmtMetaData = BrdMgmtMetaData(*parsed_ser_mssg)
 
     def setSctInfosTuple(self, parsed_ser_mssg: list):
         """
@@ -70,9 +72,9 @@ class BoardInfos:
         idx = 0
         while idx < len(parsed_ser_mssg):
             sct_Id = int(idx / core_data_len)
-            self.sctsInfoTuple.append((sct_Id, parsed_ser_mssg[idx]))
+            self.sctsMetaDataList.append((sct_Id, parsed_ser_mssg[idx]))
             idx += core_data_len
-        self.sctsInfoTupleEmit(self.sctsInfoTuple)
+        self.sctsInfoTupleEmit(self.sctsMetaDataList)
 
     def configBrdAttrUpdt(self, parsed_ser_mssg: list, *args):
         """
@@ -85,33 +87,87 @@ class BoardInfos:
         if self.ackConfirmed(parsed_ser_mssg):
             sct_total_blocks = 0
             pxl_total_blocks = 0
-            sct_id_index = SctProp.infoTupleIndexes.get('sctID_index')
-            pxl_count_index = SctProp.infoTupleIndexes.get('pixelCount_index')
+            sct_id_index = NonSerSctMetaData.infoTupleIndexes.get('sctID_index')
+            pxl_count_index = NonSerSctMetaData.infoTupleIndexes.get('pixelCount_index')
             for sctInfoTuple in args:
                 try:
                     sct_id = sctInfoTuple[sct_id_index]
-                    pxl_count_diff = sctInfoTuple[pxl_count_index] - self.sctsInfoTuple[sct_id][pxl_count_index]
+                    pxl_count_diff = sctInfoTuple[pxl_count_index] - self.sctsMetaDataList[sct_id][pxl_count_index]
                     pxl_total_blocks += pxl_count_diff
                     if not sctInfoTuple[pxl_count_index]:
                         sct_total_blocks -= 1
-                        self.sctsInfoTuple.pop(sct_id)
+                        self.sctsMetaDataList.pop(sct_id)
                         continue
-                    self.sctsInfoTuple[sct_id] = (sct_id, sctInfoTuple[pxl_count_index])
+                    self.sctsMetaDataList[sct_id] = (sct_id, sctInfoTuple[pxl_count_index])
                 except IndexError:
                     if sctInfoTuple[pxl_count_index]:
                         sct_total_blocks += 1
                         pxl_total_blocks += sctInfoTuple[pxl_count_index]
-                        self.sctsInfoTuple.append(sctInfoTuple)
+                        self.sctsMetaDataList.append(sctInfoTuple)
             if sct_total_blocks:
-                self.sctsMetaData = MutableMetaData.blockUpdt(self.sctsMetaData.capacity,
-                                                              self.sctsMetaData.remaining,
-                                                              self.sctsMetaData.assigned,
-                                                              sct_total_blocks)
+                self.sctsMgmtMetaData = BrdMgmtMetaData.blockUpdt(self.sctsMgmtMetaData.capacity,
+                                                                  self.sctsMgmtMetaData.remaining,
+                                                                  self.sctsMgmtMetaData.assigned,
+                                                                  sct_total_blocks)
             if pxl_total_blocks:
-                self.pxlsMetaData = MutableMetaData.blockUpdt(self.pxlsMetaData.capacity,
-                                                              self.pxlsMetaData.remaining,
-                                                              self.pxlsMetaData.assigned,
-                                                              pxl_total_blocks)
+                self.pxlsMgmtMetaData = BrdMgmtMetaData.blockUpdt(self.pxlsMgmtMetaData.capacity,
+                                                                  self.pxlsMgmtMetaData.remaining,
+                                                                  self.pxlsMgmtMetaData.assigned,
+                                                                  pxl_total_blocks)
+
+    def addingSection(self, sct_metadata: SctMetaData):
+        """
+        Take care of all board mgmt attributes updates when a new section is created
+
+        Parameters:
+            sct_metadata (SctMetaData): SctMetaData obj with all info related to the created section
+        """
+        real_pxl_count = sct_metadata.pixelCount
+        if sct_metadata.singlePxlCtrl:
+            real_pxl_count = sct_metadata.singlePxlCtrl
+        self.sctsMetaDataList.append(sct_metadata)
+        self.sctsMgmtMetaData = BrdMgmtMetaData.blockUpdt(self.sctsMgmtMetaData.remaining,
+                                                          self.sctsMgmtMetaData.assigned,
+                                                          1)
+        self.pxlsMgmtMetaData = BrdMgmtMetaData.blockUpdt(self.pxlsMgmtMetaData.remaining,
+                                                          self.pxlsMgmtMetaData.assigned,
+                                                          real_pxl_count)
+
+    def deletingSection(self, sct_metadata: SctMetaData):
+        """
+        Take care of all board mgmt attributes updates when a section is deleted
+
+        Parameters:
+            sct_metadata (SctMetaData): SctMetaData obj with all info related to the deleted section
+        """
+        real_pxl_count = sct_metadata.pixelCount
+        if sct_metadata.singlePxlCtrl:
+            real_pxl_count = sct_metadata.singlePxlCtrl
+        self.sctsMgmtMetaData = BrdMgmtMetaData.blockUpdt(self.sctsMgmtMetaData.remaining,
+                                                          self.sctsMgmtMetaData.assigned,
+                                                          -1)
+        self.pxlsMgmtMetaData = BrdMgmtMetaData.blockUpdt(self.pxlsMgmtMetaData.remaining,
+                                                          self.pxlsMgmtMetaData.assigned,
+                                                          -abs(real_pxl_count))
+
+    def editingSection(self, edit_sct_metadata: SctMetaData):
+        """
+        Handle all actions related to this class' attributes when editing a section
+
+        Parameters:
+            edit_sct_metadata (SctMetaData): A new SctMetaData obj representing the edited section and its new attr.
+        """
+        pxl_diff = edit_sct_metadata.pixelCount - self.sctsMetaDataList[edit_sct_metadata.sctIdx].pixelCount
+        if edit_sct_metadata.singlePxlCtrl and self.sctsMetaDataList[edit_sct_metadata.sctIdx].singlePxlCtrl:
+            pxl_diff = 0
+        elif edit_sct_metadata.singlePxlCtrl and not self.sctsMetaDataList[edit_sct_metadata.sctIdx].singlePxlCtrl:
+            pxl_diff = edit_sct_metadata.singlePxlCtrl - self.sctsMetaDataList[edit_sct_metadata.sctIdx].pixelCount
+        elif not edit_sct_metadata.singlePxlCtrl and self.sctsMetaDataList[edit_sct_metadata.sctIdx].singlePxlCtrl:
+            pxl_diff = edit_sct_metadata.pixelCount - self.sctsMetaDataList[edit_sct_metadata.sctIdx].singlePxlCtrl
+        self.pxlsMgmtMetaData = BrdMgmtMetaData.blockUpdt(self.pxlsMgmtMetaData.remaining,
+                                                          self.pxlsMgmtMetaData.assigned,
+                                                          pxl_diff)
+        self.sctsMetaDataList[edit_sct_metadata.sctIdx] = edit_sct_metadata
 
     def ackConfirmed(self, parsed_ser_mssg: list):
         """
@@ -129,16 +185,16 @@ class BoardInfos:
         except IndexError as error:
             print(error)
 
-    def snUpdtedEmit(self, *args):
+    def snUpdtEmit(self, *args):
         pass
 
-    def fwVerUpdtedEmit(self, *args):
+    def fwVerUpdtEmit(self, *args):
         pass
 
-    def sctsUpdtedEmit(self, *args):
+    def sctsMgmtUpdtEmit(self, *args):
         pass
 
-    def pxlsUpdtedEmit(self, *args):
+    def pxlsMgmtUpdtEmit(self, *args):
         pass
 
     def sctsInfoTupleEmit(self, *args):
@@ -152,7 +208,7 @@ class BoardInfos:
     def serialNum(self, new_serial: int):
         if not self.valCompare(new_serial, self.serialNum):
             self._serialNum = new_serial
-            self.snUpdtedEmit(self.serialNum)
+            self.snUpdtEmit(self.serialNum)
 
     @property
     def fwVersion(self):
@@ -162,27 +218,27 @@ class BoardInfos:
     def fwVersion(self, new_version: str):
         if not self.valCompare(new_version, self.fwVersion):
             self._fwVersion = new_version
-            self.fwVerUpdtedEmit(self.fwVersion)
+            self.fwVerUpdtEmit(self.fwVersion)
 
     @property
-    def sctsMetaData(self) -> MutableMetaData:
-        return self._sctsMetaData
+    def sctsMgmtMetaData(self) -> BrdMgmtMetaData:
+        return self._sctsMgmtMetaData
 
-    @sctsMetaData.setter
-    def sctsMetaData(self, new_inst: MutableMetaData):
-        if not self.valCompare(new_inst, self.sctsMetaData):
-            self._sctsMetaData = new_inst
-            self.sctsUpdtedEmit(self.sctsMetaData)
+    @sctsMgmtMetaData.setter
+    def sctsMgmtMetaData(self, new_inst: BrdMgmtMetaData):
+        if not self.valCompare(new_inst, self.sctsMgmtMetaData):
+            self._sctsMgmtMetaData = new_inst
+            self.sctsMgmtUpdtEmit(self.sctsMgmtMetaData)
 
     @property
-    def pxlsMetaData(self) -> MutableMetaData:
-        return self._pxlsMetaData
+    def pxlsMgmtMetaData(self) -> BrdMgmtMetaData:
+        return self._pxlsMgmtMetaData
 
-    @pxlsMetaData.setter
-    def pxlsMetaData(self, new_inst: MutableMetaData):
-        if not self.valCompare(new_inst, self.pxlsMetaData):
-            self._pxlsMetaData = new_inst
-            self.pxlsUpdtedEmit(self.pxlsMetaData)
+    @pxlsMgmtMetaData.setter
+    def pxlsMgmtMetaData(self, new_inst: BrdMgmtMetaData):
+        if not self.valCompare(new_inst, self.pxlsMgmtMetaData):
+            self._pxlsMgmtMetaData = new_inst
+            self.pxlsMgmtUpdtEmit(self.pxlsMgmtMetaData)
 
     @staticmethod
     def valCompare(new_val, old_val):

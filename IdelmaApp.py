@@ -6,16 +6,18 @@ import os
 import pty
 
 from IdelmaGui import IdelmaGui
-from IdelmaSctDialog import IdelmaSctDialog
+from IdelmaNewSctDialog import IdelmaNewSctDialog
 from IdelmaSctDelDialog import IdelmaSctDelDialog
+from IdelmaEditSctDialog import IdelmaEditSctDialog
 from IdelmaDuplicateNameDialog import IdelmaDuplicateNameDialog
 
 from BoardInfos import BoardInfos
 from BoardInfosQObject import BoardInfosQObject
-from MutableMetaData import MutableMetaData
-from SctProp import SctProp
-from SctPropQListWidgetItem import SctPropQListWidgetItem
+from BrdMgmtMetaData import BrdMgmtMetaData
+from NonSerSctMetaData import NonSerSctMetaData
+from NonSerSctMetaDataQListWidgetItem import NonSerSctMetaDataQListWidgetItem
 from ArduinoEmulator import ArduinoEmulator
+from SctMetaData import SctMetaData
 
 from ListWidgetItemUserTypes import ListWidgetItemUserType
 
@@ -40,14 +42,13 @@ class IdelmaApp(QApplication):
         self.ser = SerialHandlerQObject(self.serialPort)
 
         # Declaring a virtual arduino board for all changes not pushed to the actual MCU
-        self.virtualBoard = None
+        self.virtualBoard = BoardInfos()
 
         # Instantiating and Declaring UI objects
         self.ui = IdelmaGui()
 
-        # Section property objects list and creating an ItemType for QListWidgetItems that are Section Properties obj
-        self.sctPropList = []
-        self.sctPropItemType = ListWidgetItemUserType.newUserType('Section Properties Type')
+        # Creating an ItemType for QListWidgetItems that are non-serial sections metadatas
+        self.NonSerSctMetaDataItemType = ListWidgetItemUserType.newUserType('Section Properties Type')
 
         # Connecting signals
         self.assigningSlots()
@@ -82,8 +83,8 @@ class IdelmaApp(QApplication):
         # Board infos signals
         self.board.connectSnSignal(self.ui.updtSnNumLabel)
         self.board.connectFwVerSignal(self.ui.updtFwVerLabel)
-        self.board.connectSctsSignal(self.ui.updtSctsInfo)
-        self.board.connectPxlsSignal(self.ui.updtPxlsInfo)
+        self.board.connectSctsMgmtSignal(self.ui.updtSctsInfo)
+        self.board.connectPxlsMgmtSignal(self.ui.updtPxlsInfo)
         self.board.connectSctsInfoTupleSig(self.setupFromSave)
 
         # Fetch board infos button
@@ -110,14 +111,14 @@ class IdelmaApp(QApplication):
 
         self.ser.serRqst(self.ser.serialRqsts.get("serial_num"), self.board.serialNumUpdt)
         self.ser.serRqst(self.ser.serialRqsts.get("fw_version"), self.board.fwVersionUpdt)
-        self.ser.serRqst(self.ser.serialRqsts.get("scts_metadata"), self.board.sctsMetaDataUpdt)
-        self.ser.serRqst(self.ser.serialRqsts.get("pxls_metadata"), self.board.pxlsMetaDataUpdt)
+        self.ser.serRqst(self.ser.serialRqsts.get("scts_metadata"), self.board.sctsMgmtUpdt)
+        self.ser.serRqst(self.ser.serialRqsts.get("pxls_metadata"), self.board.pxlsMgmtUpdt)
 
         self.instantiateVrtlBrd()
-        self.fillingSctPropList()
+        # self.fillingSctPropList()
 
         # ---------------                   TEMPORARY                   ---------------
-        if self.board.sctsMetaData.assigned:
+        if self.board.sctsMgmtMetaData.assigned:
             self.ser.serRqst(self.ser.serialRqsts.get("scts_array"), self.board.setSctInfosTuple)
         # ---------------                   TEMPORARY                   ---------------
 
@@ -169,32 +170,21 @@ class IdelmaApp(QApplication):
         all its attr with the ones recently fetched
         from the actual MCU, thus creating a virtual brd
         """
-        self.virtualBoard = BoardInfos()
         self.virtualBoard.serialNum = self.board.serialNum
         self.virtualBoard.fwVersion = self.board.fwVersion
-        self.virtualBoard.sctsMetaData = MutableMetaData(self.board.sctsMetaData.capacity,
-                                                         self.board.sctsMetaData.capacity,
-                                                         0)
-        self.virtualBoard.pxlsMetaData = MutableMetaData(self.board.pxlsMetaData.capacity,
-                                                         self.board.pxlsMetaData.capacity,
-                                                         0)
-
-    def fillingSctPropList(self):
-        """
-        Fills the sctPropList with as much 'None type obj'
-        as the section capacity of fetched board
-        """
-        counter = self.board.sctsMetaData.assigned
-        while counter < self.board.sctsMetaData.capacity:
-            self.sctPropList.append(None)
-            counter += 1
+        self.virtualBoard.sctsMgmtMetaData = BrdMgmtMetaData(self.board.sctsMgmtMetaData.capacity,
+                                                             self.board.sctsMgmtMetaData.capacity,
+                                                             0)
+        self.virtualBoard.pxlsMgmtMetaData = BrdMgmtMetaData(self.board.pxlsMgmtMetaData.capacity,
+                                                             self.board.pxlsMgmtMetaData.capacity,
+                                                             0)
 
     def resourcesAvailable(self):
         """
         Checks if there are remaining resources (sections & pixels)
         left for user assignation
         """
-        if self.virtualBoard.sctsMetaData.remaining and self.virtualBoard.pxlsMetaData.remaining:
+        if self.virtualBoard.sctsMgmtMetaData.remaining and self.virtualBoard.pxlsMgmtMetaData.remaining:
             return True
         else:
             return False
@@ -209,83 +199,89 @@ class IdelmaApp(QApplication):
         elif self.virtualBoard == self.board and self.ui.configButton.isEnabled():
             self.ui.configButton.setEnabled(False)
 
-    def duplicateNameHandler(self, sct_idx: int, pixel_count: int, brightness: int, single_pxl_ctrl: bool,
-                             input_name: str, set_default_name: bool):
+    def duplicateNameHandler(self, sct_metadata: SctMetaData, list_widget_item: NonSerSctMetaData):
         """
-        Handle the action to take if a section to be created has been given a name that already exists.
-        Used as the callback function of the newSectionDialog method.
+        Handle the action to take if a section to be created has been given a name that already exists
 
         Parameters:
-            sct_idx (int): Index of the section being created
-            pixel_count (int): Number of pixels of the section being created
-            brightness (int): Brightness level of the section (0 to 255)
-            single_pxl_ctrl (bool): Indicates if whole strip is seen as a single pixel (True) or not (False)
-            input_name (str): Name inputted by the user for the section being created
-            set_default_name (bool): Indicates if the default name has been set for the section being created
+            sct_metadata (SctMetaData): SctMetaData class object containing infos of previously dialog
+            list_widget_item (NonSerSctMetaData): Contains all non-serial info related to section
         """
-        if not set_default_name and self.duplicateNameCheck(input_name):
+        if not list_widget_item.defaultNameCheck(sct_metadata.sctIdx) \
+                and self.duplicateNameCheck(sct_metadata.sctIdx, list_widget_item.sctName):
             duplicate_res = self.duplicateNameDialog()
             if duplicate_res == 0:
                 return self.newSectionDialog()
             elif duplicate_res == 1:
-                return self.sectionReplacement(pixel_count)
+                sct_metadata.sctIdx = self.ui.sectionsList.currentRow()
+                return self.sectionEdit(sct_metadata, list_widget_item)
             elif duplicate_res == 2:
-                new_name = input_name + ' (1)'
-                while self.duplicateNameCheck(new_name):
-                    new_name = input_name + ' (' + str(int(new_name[-2]) + 1) + ')'
-                input_name = new_name
-        self.sectionCreation(sct_idx, pixel_count, brightness, single_pxl_ctrl, input_name, set_default_name)
+                new_name = list_widget_item.sctName + ' (1)'
+                while self.duplicateNameCheck(sct_metadata.sctIdx, new_name):
+                    new_name = list_widget_item.sctName + ' (' + str(int(new_name[-2]) + 1) + ')'
+                list_widget_item.sctName = new_name
+        if self.ui.sectionsList.item(sct_metadata.sctIdx) is None:
+            self.sectionCreation(sct_metadata, list_widget_item)
+        else:
+            self.sectionEdit(sct_metadata, list_widget_item)
 
-    def duplicateNameCheck(self, input_name: str):
+    def duplicateNameCheck(self, check_sct_idx: int, check_sct_name: str):
         """
-        Scan the existing sections and compares their name to the one pending creation.
-        Return True if name already exists; False otherwise
+        Scan the existing sections and compares their name to the one whose name was
+        passed as input argument
 
         Parameters:
-            input_name (str): Name to compare with already assigned ones
+            check_sct_idx (int): Section index of the section for which to pass the name check
+                                 (to not compare it with itself in case of editing)
+            check_sct_name (str): Name to compare with already assigned ones
+
+        Return:
+            A boolean indicating if a section with the same name already exists (True) or not (False)
         """
-        for index, section in enumerate(self.sctPropList[-1 * (self.virtualBoard.sctsMetaData.remaining + 1)::-1]):
-            if section is not None and section.sctName == input_name:
-                self.ui.sectionsList.setCurrentItem(section)
+        list_widget_idx = 0
+        while list_widget_idx < self.virtualBoard.sctsMgmtMetaData.assigned:
+            if list_widget_idx != check_sct_idx and self.ui.sectionsList.item(list_widget_idx).sctName == check_sct_name:
+                self.ui.sectionsList.setCurrentRow(list_widget_idx)
                 return True
+            list_widget_idx += 1
         return False
 
     def metaDataCompare(self):
         """
         Compares the metadata of board obj and virtualBoard obj to choose action accordingly
         """
-        if len(self.board.sctsInfoTuple) == 0:
-            return self.virtualBoard.sctsInfoTuple
+        if len(self.board.sctsMetaDataList) == 0:
+            return self.virtualBoard.sctsMetaDataList
         else:
             container = []
-            for i, val in enumerate(self.virtualBoard.sctsInfoTuple):
+            for i, val in enumerate(self.virtualBoard.sctsMetaDataList):
                 try:
-                    if val != self.board.sctsInfoTuple[i]:
+                    if val != self.board.sctsMetaDataList[i]:
                         container.append(val)
-                        if not val[SctProp.infoTupleIndexes.get('pixelCount_index')]:
-                            self.virtualBoard.sctsInfoTuple.pop(i)
+                        if not val[NonSerSctMetaData.infoTupleIndexes.get('pixelCount_index')]:
+                            self.virtualBoard.sctsMetaDataList.pop(i)
                 except IndexError:
-                    if val[SctProp.infoTupleIndexes.get('pixelCount_index')]:
+                    if val[NonSerSctMetaData.infoTupleIndexes.get('pixelCount_index')]:
                         container.append(val)
             return container
 
     def setupFromSave(self, list_of_tuple: list):
-        for val in list_of_tuple:
-            self.sectionCreation(sct_idx=val[SctProp.infoTupleIndexes.get("sctID_index")],
-                                 pixel_count=val[SctProp.infoTupleIndexes.get("pixelCount_index")],
-                                 brightness=val[SctProp.infoTupleIndexes.get("brightness_index")],
-                                 single_pxl_ctrl=val[SctProp.infoTupleIndexes.get("singlePxlCtrl_index")],
-                                 section_name=("Section " + str(val[SctProp.infoTupleIndexes.get("sctID_index")])),
-                                 set_default_name=True)
+        # for val in list_of_tuple:
+        #     self.sectionCreation(sct_idx=val[NonSerSctMetaData.infoTupleIndexes.get("sctID_index")],
+        #                          pixel_count=val[NonSerSctMetaData.infoTupleIndexes.get("pixelCount_index")],
+        #                          brightness=val[NonSerSctMetaData.infoTupleIndexes.get("brightness_index")],
+        #                          single_pxl_ctrl=val[NonSerSctMetaData.infoTupleIndexes.get("singlePxlCtrl_index")],
+        #                          section_name=("Section " + str(val[NonSerSctMetaData.infoTupleIndexes.get("sctID_index")])),
+        #                          set_default_name=True)
+        pass
 
     def newSectionDialog(self):
         """
-        Pop-up a dialog in which user has to enter the required
-        info to create a new section. Once accepted by the user,
-        a 'button check' is performed
+        Open the 'Section Configuration' dialog for user to create
+        a new section
         """
-        addSctDialog = IdelmaSctDialog(self.virtualBoard.sctsMetaData.assigned,
-                                       self.virtualBoard.pxlsMetaData.remaining)
+        addSctDialog = IdelmaNewSctDialog(self.virtualBoard.sctsMgmtMetaData.assigned,
+                                          self.virtualBoard.pxlsMgmtMetaData.remaining)
         addSctDialog.connectAccepted(self.duplicateNameHandler)
         addSctDialog.exec_()
 
@@ -300,15 +296,14 @@ class IdelmaApp(QApplication):
 
     def editSectionDialog(self):
         """
-        Basically calls the same Dialog than when creating a section,
-        but blanks are filled with section's actual properties
+        Open the 'Section Configuration' dialog w/ blanks filled w/
+        infos of the selected section to be edited
         """
-        sct_index = self.ui.sectionsList.currentRow()
-        sct_name = self.sctPropList[sct_index].sctName
-        pxl_count = self.sctPropList[sct_index].pxlCount
-        editSctDialog = IdelmaSctDialog(sct_index, self.virtualBoard.pxlsMetaData.remaining,
-                                        sct_name, pxl_count)
-        editSctDialog.connectAccepted(self.sectionEdit)
+        edit_sct_idx = self.ui.sectionsList.currentRow()
+        editSctDialog = IdelmaEditSctDialog(self.virtualBoard.sctsMetaDataList[edit_sct_idx],
+                                            self.ui.sectionsList.item(edit_sct_idx),
+                                            self.virtualBoard.pxlsMgmtMetaData.remaining)
+        editSctDialog.connectAccepted(self.duplicateNameHandler)
         editSctDialog.exec_()
 
         # Buttons check
@@ -331,33 +326,16 @@ class IdelmaApp(QApplication):
         nameDuplicateDialog.exec_()
         return nameDuplicateDialog.result()
 
-    def sectionCreation(self, sct_idx: int, pixel_count: int, brightness: int, single_pxl_ctrl: bool,
-                        section_name: str, set_default_name: bool):
+    def sectionCreation(self, sct_metadata: SctMetaData, list_widget_item: NonSerSctMetaData):
         """
         Handle the creation of a new section by updating applicable attributes and objects
 
         Parameters:
-            sct_idx (int): Section's index
-            pixel_count (int): Number of pixels to be contained in the section
-            brightness (int): Brightness level of the section (0 to 255)
-            single_pxl_ctrl (bool): Indicates if whole strip is seen as a single pixel (True) or not (False)
-            section_name (str): Name of the created section
-            set_default_name (bool): Indicates if the name is set to default
+            sct_metadata (SctMetaData): SctMetaData class object containing info of previously accepted newSectionDialog
+            list_widget_item (NonSerSctMetaData): Contains all non-serial info related to section
         """
-        sctPropObj = SctPropQListWidgetItem(sct_idx, pixel_count, brightness, single_pxl_ctrl, section_name,
-                                            set_default_name, self.ui.sectionsList, self.sctPropItemType)
-        self.sctPropList[sct_idx] = sctPropObj
-        self.virtualBoard.sctsInfoTuple.append(sctPropObj.sctInfoTuple)
-        if single_pxl_ctrl:
-            pixel_count = 1
-        self.virtualBoard.sctsMetaData = MutableMetaData.blockUpdt(self.virtualBoard.sctsMetaData.capacity,
-                                                                   self.virtualBoard.sctsMetaData.remaining,
-                                                                   self.virtualBoard.sctsMetaData.assigned,
-                                                                   1)
-        self.virtualBoard.pxlsMetaData = MutableMetaData.blockUpdt(self.virtualBoard.pxlsMetaData.capacity,
-                                                                   self.virtualBoard.pxlsMetaData.remaining,
-                                                                   self.virtualBoard.pxlsMetaData.assigned,
-                                                                   pixel_count)
+        NonSerSctMetaDataQListWidgetItem(list_widget_item.sctName, self.ui.sectionsList, self.NonSerSctMetaDataItemType)
+        self.virtualBoard.addingSection(sct_metadata)
 
         # Buttons check
         if not self.resourcesAvailable():
@@ -365,46 +343,38 @@ class IdelmaApp(QApplication):
 
         self.configBrdBttnStateTrig()
 
-    def sectionDeletion(self, *args):
+    def sectionDeletion(self, dialog_check_state: bool=False):
         """
-        Called after user has dealt with warning dialog. Signal slot
-        for section delete button is changed to this method directly
-        if checkbox was checked
+        Delete a user-chosen section after warning dialog has been accepted.
+        Basically, every scts attr. coming after the deleted one are shifted.
+        In practice, nothing is really deleted, only attributes are changed.
+
+        Parameters:
+            dialog_check_state (bool): State of the checkbox of the Warning Dialog
         """
-        if len(args):
-            if args[0]:
-                self.ui.sctDeleteButton.clicked.disconnect()
-                self.ui.sctDeleteButton.clicked.connect(self.sectionDeletion)
+        if dialog_check_state:
+            self.ui.sctDeleteButton.clicked.disconnect()
+            self.ui.sctDeleteButton.clicked.connect(self.sectionDeletion)
 
-        sct_index = self.ui.sectionsList.currentRow()
-        pixel_count = self.sctPropList[sct_index].pxlCount
+        sct_idx_iter = self.virtualBoard.sctsMetaDataList[self.ui.sectionsList.currentRow()].sctIdx
+        del_sct_metadata = self.virtualBoard.sctsMetaDataList[self.ui.sectionsList.currentRow()]
 
-        while sct_index <= (self.virtualBoard.sctsMetaData.assigned - 1):
-            if self.sctPropList[sct_index + 1] is None:
-                self.ui.sectionsList.takeItem(sct_index)
-                del self.sctPropList[sct_index]
-                self.virtualBoard.sctsInfoTuple[sct_index] = (sct_index, 0)
+        while sct_idx_iter < self.virtualBoard.sctsMgmtMetaData.assigned:
+            if self.ui.sectionsList.item(sct_idx_iter + 1) is None:
+                self.ui.sectionsList.takeItem(sct_idx_iter)
+                self.virtualBoard.sctsMetaDataList[sct_idx_iter] = SctMetaData(sct_idx_iter, 0, 0, False)
             else:
-                if not (self.sctPropList[sct_index].setDefaultName and self.sctPropList[sct_index + 1].setDefaultName):
-                    self.sctPropList[sct_index].sctName = self.sctPropList[sct_index + 1].sctName
-                    if self.sctPropList[sct_index + 1].setDefaultName:
-                        self.sctPropList[sct_index].setDefaultName = True
-                        self.sctPropList[sct_index].decrDefaultName()
-                    else:
-                        self.sctPropList[sct_index].setDefaultName = False
-                    self.sctPropList[sct_index].setText()
-                self.sctPropList[sct_index].pxlCount = self.sctPropList[sct_index + 1].pxlCount
-                self.virtualBoard.sctsInfoTuple[sct_index] = self.sctPropList[sct_index].sctInfoTuple
-            sct_index += 1
+                if self.ui.sectionsList.item(sct_idx_iter + 1).defaultNameCheck(sct_idx_iter + 1):
+                    self.ui.sectionsList.item(sct_idx_iter).defaultNameSet(sct_idx_iter)
+                else:
+                    self.ui.sectionsList.item(sct_idx_iter).sctName = \
+                        self.ui.sectionsList.item(sct_idx_iter + 1).sctName
+                self.ui.sectionsList.item(sct_idx_iter).setText()
+                self.virtualBoard.sctsMetaDataList[sct_idx_iter] = self.virtualBoard.sctsMetaDataList[sct_idx_iter + 1]
+                self.virtualBoard.sctsMetaDataList[sct_idx_iter].sctIdx = sct_idx_iter
+            sct_idx_iter += 1
 
-        self.virtualBoard.sctsMetaData = MutableMetaData.blockUpdt(self.virtualBoard.sctsMetaData.capacity,
-                                                                   self.virtualBoard.sctsMetaData.remaining,
-                                                                   self.virtualBoard.sctsMetaData.assigned,
-                                                                   -1)
-        self.virtualBoard.pxlsMetaData = MutableMetaData.blockUpdt(self.virtualBoard.pxlsMetaData.capacity,
-                                                                   self.virtualBoard.pxlsMetaData.remaining,
-                                                                   self.virtualBoard.pxlsMetaData.assigned,
-                                                                   -abs(pixel_count))
+        self.virtualBoard.deletingSection(del_sct_metadata)
 
         # Buttons check
         if self.resourcesAvailable() and not self.ui.sctAddButton.isEnabled():
@@ -413,40 +383,18 @@ class IdelmaApp(QApplication):
             self.ui.disableListWidgetBttns()
         self.configBrdBttnStateTrig()
 
-    def sectionEdit(self, new_section_name: str, new_pixel_count: int, new_set_default_name: bool):
+    def sectionEdit(self, edit_sct_metadata: SctMetaData, edit_list_widget_item: NonSerSctMetaData):
         """
-        Once section dialog is accepted by user, every necessary
-        operations for mods are done in this method
-        """
-        sct_index = self.ui.sectionsList.currentRow()
-        new_sctPropObj = SctPropQListWidgetItem(sct_index, new_pixel_count, new_section_name, new_set_default_name,
-                                                None, self.sctPropItemType)
+        Update the attributes of an edited section (if changes were made by the user)
 
-        if self.sctPropList[sct_index] != new_sctPropObj:
-            # Allocating or deallocating pixel resources
-            edited_sct = self.ui.sectionsList.takeItem(sct_index)
-            self.virtualBoard.pxlsMetaData = MutableMetaData.blockUpdt(self.virtualBoard.pxlsMetaData.capacity,
-                                                                       self.virtualBoard.pxlsMetaData.remaining,
-                                                                       self.virtualBoard.pxlsMetaData.assigned,
-                                                                       new_pixel_count - edited_sct.pxlCount)
-            self.ui.sectionsList.insertItem(sct_index, new_sctPropObj)
-            self.sctPropList[sct_index] = new_sctPropObj
-            self.virtualBoard.sctsInfoTuple[sct_index] = self.sctPropList[sct_index].sctInfoTuple
-        else:
-            del new_sctPropObj
-
-    def sectionReplacement(self, new_pixel_count: int):
+        Parameters:
+            edit_sct_metadata (SctMetaData): SctMetaData class object w/ infos of the previously accepted edit dialog
+            edit_list_widget_item (NonSerSctMetaData): All non-serial info related to edited section
         """
-        Only called when user has accepted to overwrite an already
-        existing section with another having the same name. So it's
-        only necessary to change the pxl_count attribute of existing sct
-        """
-        pxl_updt = new_pixel_count - self.ui.sectionsList.currentItem().pxlCount
-        if pxl_updt:
-            self.sctPropList[self.ui.sectionsList.currentRow()].pxlCount = new_pixel_count
-            self.virtualBoard.pxlsMetaData = MutableMetaData.blockUpdt(self.virtualBoard.pxlsMetaData.capacity,
-                                                                       self.virtualBoard.pxlsMetaData.remaining,
-                                                                       self.virtualBoard.pxlsMetaData.assigned,
-                                                                       pxl_updt)
-            self.virtualBoard.sctsInfoTuple[self.ui.sectionsList.currentRow()] = (self.ui.sectionsList.currentRow(),
-                                                                                  new_pixel_count)
+        if edit_sct_metadata != self.virtualBoard.sctsMetaDataList[edit_sct_metadata.sctIdx]:
+            self.virtualBoard.editingSection(edit_sct_metadata)
+        if edit_list_widget_item != self.ui.sectionsList.currentItem():
+            self.ui.sectionsList.takeItem(edit_sct_metadata.sctIdx)
+            self.ui.sectionsList.insertItem(edit_sct_metadata.sctIdx,
+                                            NonSerSctMetaDataQListWidgetItem(edit_list_widget_item.sctName, None,
+                                                                             self.NonSerSctMetaDataItemType))

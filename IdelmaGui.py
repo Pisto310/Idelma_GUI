@@ -1,5 +1,5 @@
 from BoardInfosQObject import BoardInfosQObject
-from MutableMetaData import MutableMetaData
+from BrdMgmtMetaData import BrdMgmtMetaData
 
 from PyQt5.QtWidgets import (QApplication, QMainWindow, QWidget, QLabel, QGridLayout, QPushButton, QVBoxLayout,
                              QBoxLayout, QListWidget, QFrame, QMenuBar, QMenu, QAction, QStatusBar)
@@ -235,10 +235,10 @@ class IdelmaGui(QMainWindow):
     def updtFwVerLabel(self, text: str):
         self.fwVerLabel.setText(text)
 
-    def updtSctsInfo(self, mutable_brd_info_inst: MutableMetaData):
+    def updtSctsInfo(self, mutable_brd_info_inst: BrdMgmtMetaData):
         self.sctsLabel.setText(str(mutable_brd_info_inst.remaining))
 
-    def updtPxlsInfo(self, mutable_brd_info_inst: MutableMetaData):
+    def updtPxlsInfo(self, mutable_brd_info_inst: BrdMgmtMetaData):
         self.pxlsLabel.setText(str(mutable_brd_info_inst.remaining))
 
     @staticmethod

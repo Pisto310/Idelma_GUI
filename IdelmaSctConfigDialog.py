@@ -1,49 +1,16 @@
 from PyQt5.QtGui import (QFont)
-from PyQt5.QtWidgets import (QVBoxLayout, QHBoxLayout, QFormLayout, QLayout, QGridLayout, QLabel, QLineEdit, QSpinBox,
-                             QPushButton, QSpacerItem, QSlider, QCheckBox, QDialogButtonBox, QApplication, QDialog,
-                             QWidget, QSizePolicy, QFrame)
-from PyQt5.QtCore import (Qt, QRect, QSize, QCoreApplication, pyqtSignal, QMetaObject)
+from PyQt5.QtWidgets import (QVBoxLayout, QHBoxLayout, QFormLayout, QGridLayout, QLabel, QLineEdit, QSpinBox,
+                             QPushButton, QSlider, QCheckBox, QDialogButtonBox, QApplication, QDialog, QWidget,
+                             QSizePolicy, QFrame)
+from PyQt5.QtCore import (Qt, QRect, QSize, QCoreApplication, QMetaObject)
 
 
-class IdelmaSctDialog(QDialog):
-
-    accepted = pyqtSignal(int, int, int, bool, str, bool, name='Returning user inputs')
-
-    def __init__(self, sct_index: int, pxls_remaining: int, brightness: int = 50, strip_single_ctrl: bool = False,
-                 pxl_count: int = 0, sct_name: str = ""):
+class IdelmaSctConfigDialog(QDialog):
+    def __init__(self):
         """
-        Dialog that pops-up when user asks to create a new section or edit an existing one
-
-        Parameters:
-            sct_index (int): The ID of the section being created
-            pxls_remaining (int): Remaining pixels (unassigned ones)
-            brightness (int): Brightness level for the whole strip (set to 50 over 255 by default)
-            strip_single_ctrl (bool): Indicates if the whole strip is to be controlled as a single pixel
-            pxl_count (int): Actual pixel count in the section (set to 0 by default)
-            sct_name (str): Name of the section for user ID purpose (set to empty by default)
-
-        Return (a pyqt signal containing the following variables):
-            sct_index (int);
-            pxl_count (int);
-            brightness (int);
-            strip_single_pixel (bool);
-            sct_name (str);
-            set_default_name (bool)
+        Creates a dialog window for configuring new or existing sections
         """
         super().__init__()
-
-        self.maxPxls = pxls_remaining
-        self.defaultName = "Section " + str(sct_index)
-        self.setDefault = False
-        self.sctIdx = sct_index
-        self.pxlCount = pxl_count
-        self.sctName = sct_name
-
-        self.maxBrightness = 255
-        self.brightness = brightness
-        self.brightnessPageStepUnit = 25
-
-        self.stripSinglePxl = strip_single_ctrl
 
         self.centralWidget = QWidget(self)
 
@@ -73,8 +40,9 @@ class IdelmaSctDialog(QDialog):
 
         self.setObjNames()
         self.setupUi()
-        self.retranslateUi()
         self.slotConnect()
+        self.setWidgetsAttr()
+        self.retranslateUi()
 
     def setObjNames(self):
         self.setObjectName("SectionSetupDialog")
@@ -98,13 +66,12 @@ class IdelmaSctDialog(QDialog):
         self.brightnessSingleStepDown.setObjectName("brightnessSingleStepDown")
         self.brightnessSingleStepUp.setObjectName("brightnessSingleStepUp")
         self.brightnessPageStepUp.setObjectName("brightnessPageStepUp")
-        # self.brightnessSpinBox.setObjectName("brightnessSpinBox")
         self.sctAsPxlLabel.setObjectName("sctAsPxlLabel")
 
         self.buttonBox.setObjectName("buttonBox")
 
     def setupUi(self):
-        # Resizing whole window
+        # Resizing window
         self.resize(415, 225)
 
         # Setting central widget
@@ -135,11 +102,9 @@ class IdelmaSctDialog(QDialog):
         self.checkBoxHLayout.addWidget(self.singlePxlCheckBox)
 
         # Section Name label and associated LineEdit widget
-        self.sctNameLineEdit.setPlaceholderText(self.defaultName)
-        self.sctNameLineEdit.setText(self.sctName)
         self.sctNameLineEdit.setMaxLength(20)
 
-        # Pixel Number Label and associated SpinBox widget
+        # Pixel Count Label and associated SpinBox widget
         self.pxlsSpinBox.setEnabled(True)
         sizePolicy = QSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
         sizePolicy.setHorizontalStretch(0)
@@ -152,13 +117,10 @@ class IdelmaSctDialog(QDialog):
         self.pxlsSpinBox.setLayoutDirection(Qt.LeftToRight)
         self.pxlsSpinBox.setAlignment(Qt.AlignLeft | Qt.AlignTrailing | Qt.AlignVCenter)
         self.pxlsSpinBox.setMinimum(1)
-        self.pxlsSpinBox.setMaximum(self.pxlCount + self.maxPxls)
-        self.pxlsSpinBox.setValue(self.pxlCount)
 
         # Strip brightness Label and associated widgets
-        self.brightnessSlider.setMaximum(self.maxBrightness)
-        self.brightnessSlider.setPageStep(self.brightnessPageStepUnit)
-        self.brightnessSlider.setSliderPosition(self.brightness)
+        self.brightnessSlider.setMaximum(255)
+        self.brightnessSlider.setPageStep(25)
         self.brightnessSlider.setOrientation(Qt.Horizontal)
         self.brightnessSlider.setTickPosition(QSlider.NoTicks)
         self.brightnessValLabel.setFont(self.fontSetter(point_size=14, bold=True, weight=75))
@@ -174,7 +136,6 @@ class IdelmaSctDialog(QDialog):
 
         # Strip controlled as a single pixel Label and Checkbox
         self.singlePxlCheckBox.setText("")
-        self.singlePxlCheckBox.setChecked(self.stripSinglePxl)
 
         # Setting the dialog ButtonBox
         self.buttonBox.setOrientation(Qt.Horizontal)
@@ -184,21 +145,26 @@ class IdelmaSctDialog(QDialog):
         sizePolicy.setHeightForWidth(self.buttonBox.sizePolicy().hasHeightForWidth())
         self.buttonBox.setSizePolicy(sizePolicy)
         self.buttonBox.setStandardButtons(QDialogButtonBox.Cancel | QDialogButtonBox.Ok)
-        self.buttonBox.setObjectName("buttonBox")
 
         # Arranging formLayout and ButtonBox in a vertical grid Layout
         self.mainVLayout.setContentsMargins(0, 0, 0, 0)
-        self.mainVLayout.setObjectName("mainVLayout")
         self.mainVLayout.addLayout(self.formLayout)
         self.mainVLayout.addWidget(self.buttonBox)
 
-        self.setTabOrder(self.sctNameLineEdit, self.pxlsSpinBox)
+        # self.setTabOrder(self.sctNameLineEdit, self.pxlsSpinBox)
+
+    def setWidgetsAttr(self):
+        """
+        Sets a number of widget attributes (max, min, placeholder text, etc.)
+        To be implemented in children classes
+        """
+        pass
 
     def retranslateUi(self):
         _translate = QCoreApplication.translate
         self.setWindowTitle(_translate("SectionSetupDialog", "Section Configuration"))
         self.sctNameLabel.setText(_translate("SectionSetupDialog", "Section name:"))
-        self.pxlsCountLabel.setText(_translate("SectionSetupDialog", "Pixels number:"))
+        self.pxlsCountLabel.setText(_translate("SectionSetupDialog", "Pixels count:"))
         self.brightnessLabel.setText(_translate("SectionSetupDialog", "Brightness:"))
         self.brightnessValLabel.setText(_translate("SectionSetupDialog", str(self.brightnessSlider.value())))
         self.brightnessPageStepDown.setText(_translate("SectionSetupDialog", "<<"))
@@ -210,9 +176,10 @@ class IdelmaSctDialog(QDialog):
     def slotConnect(self):
         self.brightnessSlider.valueChanged.connect(self.updtBrightVal)
         self.brightnessPageStepDown.clicked.connect(self.sliderPageDown)
+        self.brightnessPageStepUp.clicked.connect(self.sliderPageUp)
         self.brightnessSingleStepDown.clicked.connect(self.sliderUnitDown)
         self.brightnessSingleStepUp.clicked.connect(self.sliderUnitUp)
-        self.brightnessPageStepUp.clicked.connect(self.sliderPageUp)
+        self.singlePxlCheckBox.stateChanged.connect(self.checkBoxStateChanged)
         self.buttonBox.accepted.connect(self.accept)
         self.buttonBox.rejected.connect(self.reject)
         #QMetaObject.connectSlotsByName(self)                       Not sure if needed... TBD
@@ -223,30 +190,21 @@ class IdelmaSctDialog(QDialog):
     def sliderPageDown(self):
         self.brightnessSlider.setValue(self.brightnessSlider.value() - self.brightnessSlider.pageStep())
 
+    def sliderPageUp(self):
+        self.brightnessSlider.setValue(self.brightnessSlider.value() + self.brightnessSlider.pageStep())
+
     def sliderUnitDown(self):
         self.brightnessSlider.setValue(self.brightnessSlider.value() - 1)
 
     def sliderUnitUp(self):
         self.brightnessSlider.setValue(self.brightnessSlider.value() + 1)
 
-    def sliderPageUp(self):
-        self.brightnessSlider.setValue(self.brightnessSlider.value() + self.brightnessSlider.pageStep())
-
-    def accept(self):
-        super().accept()
-        if self.sctNameLineEdit.text() == "":
-            self.sctName = self.defaultName
-            self.setDefault = True
-        else:
-            self.sctName = self.sctNameLineEdit.text()
-        self.pxlCount = self.pxlsSpinBox.value()
-        self.brightness = self.brightnessSlider.value()
-        self.stripSinglePxl = self.singlePxlCheckBox.isChecked()
-        self.accepted.emit(self.sctIdx, self.pxlCount, self.brightness, self.stripSinglePxl,
-                           self.sctName, self.setDefault)
-
-    def connectAccepted(self, callback):
-        self.accepted.connect(callback)
+    def checkBoxStateChanged(self, new_state: int):
+        """
+        Handle what to do in real-time when the checkbox state has changed.
+        Implemented in children classes
+        """
+        pass
 
     @staticmethod
     def fontSetter(point_size: int = 13, kerning: bool = False, bold: bool = False, italic: bool = False,
@@ -264,7 +222,6 @@ class IdelmaSctDialog(QDialog):
 if __name__ == "__main__":
     import sys
     app = QApplication(sys.argv)
-    ui = IdelmaSctDialog(0, 100, 79)
-    # ui = IdelmaSctDialog(0, 100, "Soleil", 24)
+    ui = IdelmaSctConfigDialog()
     ui.show()
     sys.exit(app.exec_())

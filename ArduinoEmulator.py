@@ -1,4 +1,4 @@
-from MutableMetaData import MutableMetaData
+from BrdMgmtMetaData import BrdMgmtMetaData
 
 from numpy import zeros
 import os
@@ -58,8 +58,8 @@ class ArduinoEmulator:
         of the 'Board.cpp' file, but no defining pointer struct
         """
         self.fwVersion = bytearray([self.fwVerMajor, self.fwVerMinor, self.fwVerPatch])
-        self.sectionsInfo = MutableMetaData(self.maxNoScts, self.maxNoScts, 0)
-        self.pixelsInfo = MutableMetaData(self.pxlInfoHeapSize, self.pxlInfoHeapSize, 0)
+        self.sectionsInfo = BrdMgmtMetaData(self.maxNoScts, self.maxNoScts, 0)
+        self.pixelsInfo = BrdMgmtMetaData(self.pxlInfoHeapSize, self.pxlInfoHeapSize, 0)
 
     def processSerialMssg(self):
         """

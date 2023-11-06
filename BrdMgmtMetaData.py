@@ -1,6 +1,6 @@
 
 
-class MutableMetaData:
+class BrdMgmtMetaData:
     """Basic class to create obj of which
     the attributes are the mutable infos
     of the IDELMA board
@@ -11,7 +11,7 @@ class MutableMetaData:
         self._assigned = assigned
 
     def __eq__(self, other):
-        if not isinstance(other, MutableMetaData):
+        if not isinstance(other, BrdMgmtMetaData):
             return NotImplemented
         return (self.capacity == other.capacity and
                 self.remaining == other.remaining and
@@ -21,7 +21,7 @@ class MutableMetaData:
         return not self == other
 
     @classmethod
-    def blockUpdt(cls, capacity, remaining, assigned, blocks):
+    def blockUpdt(cls, remaining, assigned, blocks):
         """
         Assigns blocks (remaining drops, assigned increases) internally to this class
         Using this func to change attr. doesn't trigger signal of calling objs.
@@ -34,7 +34,7 @@ class MutableMetaData:
         """
         remaining -= blocks
         assigned += blocks
-        return cls(capacity, remaining, assigned)
+        return cls((remaining + assigned), remaining, assigned)
 
     @property
     def capacity(self):

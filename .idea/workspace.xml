@@ -4,12 +4,26 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="3153b060-3ee7-475e-91c1-ba171824b147" name="Changes" comment="Setting up the GUI from the MCU saved settings successfully implemented. Also corrected a small bug regarding the updt of Board Attr. in the configBrdAttrUpdt method in BoardInfos.py">
+    <list default="true" id="3153b060-3ee7-475e-91c1-ba171824b147" name="Changes" comment="Added the option to set the Brightness of the strip as well as control the whole strip as a single pixel. Will have to rework the section editing (WIP)">
+      <change afterPath="$PROJECT_DIR$/IdelmaEditSctDialog.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/IdelmaNewSctDialog.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/IdelmaSctConfigDialog.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/NonSerSctMetaData.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/NonSerSctMetaDataQListWidgetItem.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/SctMetaData.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ArduinoEmulator.py" beforeDir="false" afterPath="$PROJECT_DIR$/ArduinoEmulator.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/BoardInfos.py" beforeDir="false" afterPath="$PROJECT_DIR$/BoardInfos.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/BoardInfosQObject.py" beforeDir="false" afterPath="$PROJECT_DIR$/BoardInfosQObject.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/IdelmaApp.py" beforeDir="false" afterPath="$PROJECT_DIR$/IdelmaApp.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/IdelmaSctDialog.py" beforeDir="false" afterPath="$PROJECT_DIR$/IdelmaSctDialog.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/SctProp.py" beforeDir="false" afterPath="$PROJECT_DIR$/SctProp.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/SctPropQListWidgetItem.py" beforeDir="false" afterPath="$PROJECT_DIR$/SctPropQListWidgetItem.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/IdelmaGui.py" beforeDir="false" afterPath="$PROJECT_DIR$/IdelmaGui.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/IdelmaSctDialog.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/IdelmaSctEditDialog.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/MutableMetaData.py" beforeDir="false" afterPath="$PROJECT_DIR$/BrdMgmtMetaData.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/SctProp.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/SctPropQListWidgetItem.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/SectionEditWin.py" beforeDir="false" afterPath="$PROJECT_DIR$/SectionEditWin.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/main.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -98,7 +112,7 @@
     </key>
   </component>
   <component name="RunManager" selected="Python.main">
-    <configuration name="IdelmaDuplicateNameDialog" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+    <configuration name="IdelmaNewSctDialog" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="colorPicker" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
@@ -110,7 +124,28 @@
       <option name="IS_MODULE_SDK" value="true" />
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/IdelmaDuplicateNameDialog.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/IdelmaNewSctDialog.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
+    <configuration name="IdelmaSctConfigDialog" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+      <module name="colorPicker" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/IdelmaSctConfigDialog.py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
@@ -161,27 +196,6 @@
       <option name="INPUT_FILE" value="" />
       <method v="2" />
     </configuration>
-    <configuration name="mainWinIdelma" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
-      <module name="colorPicker" />
-      <option name="INTERPRETER_OPTIONS" value="" />
-      <option name="PARENT_ENVS" value="true" />
-      <envs>
-        <env name="PYTHONUNBUFFERED" value="1" />
-      </envs>
-      <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
-      <option name="IS_MODULE_SDK" value="true" />
-      <option name="ADD_CONTENT_ROOTS" value="true" />
-      <option name="ADD_SOURCE_ROOTS" value="true" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/mainWinIdelma.py" />
-      <option name="PARAMETERS" value="" />
-      <option name="SHOW_COMMAND_LINE" value="false" />
-      <option name="EMULATE_TERMINAL" value="false" />
-      <option name="MODULE_MODE" value="false" />
-      <option name="REDIRECT_INPUT" value="false" />
-      <option name="INPUT_FILE" value="" />
-      <method v="2" />
-    </configuration>
     <configuration name="newSctDialog" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="colorPicker" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -206,10 +220,10 @@
     <recent_temporary>
       <list>
         <item itemvalue="Python.main" />
+        <item itemvalue="Python.IdelmaNewSctDialog" />
+        <item itemvalue="Python.IdelmaSctConfigDialog" />
         <item itemvalue="Python.IdelmaSctDialog" />
         <item itemvalue="Python.newSctDialog" />
-        <item itemvalue="Python.mainWinIdelma" />
-        <item itemvalue="Python.IdelmaDuplicateNameDialog" />
       </list>
     </recent_temporary>
   </component>
@@ -383,7 +397,14 @@
       <option name="project" value="LOCAL" />
       <updated>1698440721493</updated>
     </task>
-    <option name="localTasksCounter" value="24" />
+    <task id="LOCAL-00024" summary="Added the option to set the Brightness of the strip as well as control the whole strip as a single pixel. Will have to rework the section editing (WIP)">
+      <created>1698707112738</created>
+      <option name="number" value="00024" />
+      <option name="presentableId" value="LOCAL-00024" />
+      <option name="project" value="LOCAL" />
+      <updated>1698707112739</updated>
+    </task>
+    <option name="localTasksCounter" value="25" />
     <servers>
       <YouTrack url="https://idelma.youtrack.cloud">
         <option name="defaultSearch" value="" />
@@ -498,7 +519,8 @@
     <MESSAGE value="Added a &quot;save settings rqst&quot; cmd and did some cleanup (file renaming, attr renaming, deleted/replaced some methods, etc.)" />
     <MESSAGE value="Added a few serial requests, mainly eeprom_reset, all_Off and sectionsInfoArr. Also, infinite loop in BoardInfos.py if no ACK reply" />
     <MESSAGE value="Setting up the GUI from the MCU saved settings successfully implemented. Also corrected a small bug regarding the updt of Board Attr. in the configBrdAttrUpdt method in BoardInfos.py" />
-    <option name="LAST_COMMIT_MESSAGE" value="Setting up the GUI from the MCU saved settings successfully implemented. Also corrected a small bug regarding the updt of Board Attr. in the configBrdAttrUpdt method in BoardInfos.py" />
+    <MESSAGE value="Added the option to set the Brightness of the strip as well as control the whole strip as a single pixel. Will have to rework the section editing (WIP)" />
+    <option name="LAST_COMMIT_MESSAGE" value="Added the option to set the Brightness of the strip as well as control the whole strip as a single pixel. Will have to rework the section editing (WIP)" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
