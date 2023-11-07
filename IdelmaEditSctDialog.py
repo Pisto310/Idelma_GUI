@@ -29,7 +29,7 @@ class IdelmaEditSctDialog(IdelmaSctConfigDialog):
         self.sctMetaData = sct_metadata
         self.listWidgetItem = list_widget_item
 
-        self.setMaxPxlCount
+        self.setMaxPxlCount()
         super().__init__()
 
     def setMaxPxlCount(self):
@@ -47,7 +47,7 @@ class IdelmaEditSctDialog(IdelmaSctConfigDialog):
         self.pxlsSpinBox.setValue(self.sctMetaData.pixelCount)
         self.brightnessSlider.setSliderPosition(self.sctMetaData.brightness)
         self.singlePxlCheckBox.setChecked(self.sctMetaData.singlePxlCtrl)
-        # self.pxlsSpinBox.setMaximum(self.maxPxls)
+        self.pxlsSpinBox.setMaximum(self.maxPxls)
 
     def checkBoxStateChanged(self, new_state: int):
         if new_state:

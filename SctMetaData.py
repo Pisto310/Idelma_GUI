@@ -11,7 +11,11 @@ class SctMetaData:
     brightness: int = 50
     singlePxlCtrl: int = 0
 
-    # def keyIndex(self):
-    #     """
-    #     Returns the of each key for quick tuple association
-    #     """
+    def pxlHeapBlocksCount(self):
+        """
+        Return the number of blocks to be used in the heap
+        """
+        if self.singlePxlCtrl:
+            return self.singlePxlCtrl
+        else:
+            return self.pixelCount

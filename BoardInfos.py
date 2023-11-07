@@ -2,7 +2,7 @@ from NonSerSctMetaData import NonSerSctMetaData
 from BrdMgmtMetaData import BrdMgmtMetaData
 from SctMetaData import SctMetaData
 
-from dataclasses import astuple
+from dataclasses import (astuple, asdict)
 
 
 class BoardInfos:
@@ -20,8 +20,6 @@ class BoardInfos:
 
         self.sctsMetaDataList = []
 
-        # self.configBrdByteToFunc = {NonSerSctMetaData.infoTupleIndexes.get('pixel_count_index'): self.pixelBlockAssig}
-
         self.ackChar = 6
 
     def __eq__(self, other):
@@ -30,20 +28,32 @@ class BoardInfos:
         return (self.serialNum == other.serialNum and
                 self.fwVersion == other.fwVersion and
                 self.sctsMgmtMetaData == other.sctsMgmtMetaData and
-                self.pxlsMgmtMetaData == other.pxlsMgmtMetaData)
+                self.pxlsMgmtMetaData == other.pxlsMgmtMetaData and
+                self.sctsMetaDataList == other.sctsMetaDataList)
 
     def __ne__(self, other):
         return not self == other
 
-    # Method used to set the serial number of the board using the parsed message received in the serial buffer
     def serialNumUpdt(self, parsed_ser_mssg: list):
+        """
+        Update the serial number attr from a received serial message
+
+        Parameters:
+            parsed_ser_mssg (list): List of bytes of a 32-bit serial number in little endian (LE) format
+        """
         hex_container = 0
         for index, val in enumerate(parsed_ser_mssg):
             hex_container += val << (8 * index)
         self.serialNum = hex(hex_container)
 
-    # Method to set the FW version with the parsed message of the serial buffer
     def fwVersionUpdt(self, parsed_ser_mssg: list):
+        """
+        Update the firmware version attr from a received serial message
+
+        Parameters:
+            parsed_ser_mssg (list): List of bytes, one for each part of FW version (major, minor & patch).
+                                    LE format
+        """
         str_container = ""
         for index, val in enumerate(parsed_ser_mssg):
             str_container += str(val)
@@ -52,66 +62,75 @@ class BoardInfos:
         self.fwVersion = str_container
 
     def sctsMgmtUpdt(self, parsed_ser_mssg: list):
+        """
+        Update the sections mgmt attr from a received serial message
+
+        Parameters:
+            parsed_ser_mssg (list): List of bytes representing board sections capacity, remaining & assigned
+        """
         self.sctsMgmtMetaData = BrdMgmtMetaData(*parsed_ser_mssg)
 
     def pxlsMgmtUpdt(self, parsed_ser_mssg: list):
-        self.pxlsMgmtMetaData = BrdMgmtMetaData(*parsed_ser_mssg)
-
-    def setSctInfosTuple(self, parsed_ser_mssg: list):
         """
-        Fill the sctInfoTuple list with the rxed SctInfoArr to initialize the GUI
-        according to the saved set-up of the board. Only called in fetchBrdMetaDatas
-        method of IdelmaApp obj
+        Update the pixels mgmt attr from a received serial message
 
         Parameters:
-            parsed_ser_mssg (list): list containing the sectionInfoArr array, which
-                                    is composed of section_info_t structs of len =
-                                    core_data_len
+            parsed_ser_mssg (list): List of bytes representing board pixels capacity, remaining & assigned
         """
-        core_data_len = 2
-        idx = 0
-        while idx < len(parsed_ser_mssg):
-            sct_Id = int(idx / core_data_len)
-            self.sctsMetaDataList.append((sct_Id, parsed_ser_mssg[idx]))
-            idx += core_data_len
-        self.sctsInfoTupleEmit(self.sctsMetaDataList)
+        self.pxlsMgmtMetaData = BrdMgmtMetaData(*parsed_ser_mssg)
+
+    # def setSctInfosTuple(self, parsed_ser_mssg: list):
+    #     """
+    #     Fill the sctInfoTuple list with the rxed SctInfoArr to initialize the GUI
+    #     according to the saved set-up of the board. Only called in fetchBrdMetaDatas
+    #     method of IdelmaApp obj
+    #
+    #     Parameters:
+    #         parsed_ser_mssg (list): list containing the sectionInfoArr array, which
+    #                                 is composed of section_info_t structs of len =
+    #                                 core_data_len
+    #     """
+    #     core_data_len = 2
+    #     idx = 0
+    #     while idx < len(parsed_ser_mssg):
+    #         sct_Id = int(idx / core_data_len)
+    #         self.sctsMetaDataList.append((sct_Id, parsed_ser_mssg[idx]))
+    #         idx += core_data_len
+    #     self.sctsInfoTupleEmit(self.sctsMetaDataList)
 
     def configBrdAttrUpdt(self, parsed_ser_mssg: list, *args):
         """
-        Checks if ACK has been received and if so, updates board attributes
+        Checks if ACK has been received and if so, updates board attributes following a config request
 
         Parameters:
             parsed_ser_mssg (list): received serial response, parsed (should be ack char 0x06)
-            *args (tuple of tuples): a tuple of sctInfoTuple
+            *args (tuple of tuples): a tuple of sctMetaData raw data
         """
         if self.ackConfirmed(parsed_ser_mssg):
             sct_total_blocks = 0
             pxl_total_blocks = 0
-            sct_id_index = NonSerSctMetaData.infoTupleIndexes.get('sctID_index')
-            pxl_count_index = NonSerSctMetaData.infoTupleIndexes.get('pixelCount_index')
-            for sctInfoTuple in args:
+            for sctMetaDataTuple in args:
+                sctMetaDataObj = SctMetaData(*sctMetaDataTuple)
+                sctMetaDataDict = asdict(sctMetaDataObj)
                 try:
-                    sct_id = sctInfoTuple[sct_id_index]
-                    pxl_count_diff = sctInfoTuple[pxl_count_index] - self.sctsMetaDataList[sct_id][pxl_count_index]
+                    pxl_count_diff = sctMetaDataObj.pxlHeapBlocksCount() - \
+                                     self.sctsMetaDataList[sctMetaDataDict.get('sctIdx')].pxlHeapBlocksCount()
                     pxl_total_blocks += pxl_count_diff
-                    if not sctInfoTuple[pxl_count_index]:
+                    if not sctMetaDataDict.get('pixelCount'):
                         sct_total_blocks -= 1
-                        self.sctsMetaDataList.pop(sct_id)
-                        continue
-                    self.sctsMetaDataList[sct_id] = (sct_id, sctInfoTuple[pxl_count_index])
+                        self.sctsMetaDataList.pop(sctMetaDataDict.get('sctIdx'))
+                    self.sctsMetaDataList[sctMetaDataDict.get('sctIdx')] = sctMetaDataObj
                 except IndexError:
-                    if sctInfoTuple[pxl_count_index]:
+                    if sctMetaDataDict.get('pixelCount'):
                         sct_total_blocks += 1
-                        pxl_total_blocks += sctInfoTuple[pxl_count_index]
-                        self.sctsMetaDataList.append(sctInfoTuple)
+                        pxl_total_blocks += sctMetaDataObj.pxlHeapBlocksCount()
+                        self.sctsMetaDataList.append(sctMetaDataObj)
             if sct_total_blocks:
-                self.sctsMgmtMetaData = BrdMgmtMetaData.blockUpdt(self.sctsMgmtMetaData.capacity,
-                                                                  self.sctsMgmtMetaData.remaining,
+                self.sctsMgmtMetaData = BrdMgmtMetaData.blockUpdt(self.sctsMgmtMetaData.remaining,
                                                                   self.sctsMgmtMetaData.assigned,
                                                                   sct_total_blocks)
             if pxl_total_blocks:
-                self.pxlsMgmtMetaData = BrdMgmtMetaData.blockUpdt(self.pxlsMgmtMetaData.capacity,
-                                                                  self.pxlsMgmtMetaData.remaining,
+                self.pxlsMgmtMetaData = BrdMgmtMetaData.blockUpdt(self.pxlsMgmtMetaData.remaining,
                                                                   self.pxlsMgmtMetaData.assigned,
                                                                   pxl_total_blocks)
 
@@ -122,16 +141,17 @@ class BoardInfos:
         Parameters:
             sct_metadata (SctMetaData): SctMetaData obj with all info related to the created section
         """
-        real_pxl_count = sct_metadata.pixelCount
-        if sct_metadata.singlePxlCtrl:
-            real_pxl_count = sct_metadata.singlePxlCtrl
-        self.sctsMetaDataList.append(sct_metadata)
-        self.sctsMgmtMetaData = BrdMgmtMetaData.blockUpdt(self.sctsMgmtMetaData.remaining,
-                                                          self.sctsMgmtMetaData.assigned,
-                                                          1)
-        self.pxlsMgmtMetaData = BrdMgmtMetaData.blockUpdt(self.pxlsMgmtMetaData.remaining,
-                                                          self.pxlsMgmtMetaData.assigned,
-                                                          real_pxl_count)
+        try:
+            self.sctsMetaDataList[sct_metadata.sctIdx] = sct_metadata
+        except IndexError:
+            self.sctsMetaDataList.append(sct_metadata)
+        finally:
+            self.sctsMgmtMetaData = BrdMgmtMetaData.blockUpdt(self.sctsMgmtMetaData.remaining,
+                                                              self.sctsMgmtMetaData.assigned,
+                                                              1)
+            self.pxlsMgmtMetaData = BrdMgmtMetaData.blockUpdt(self.pxlsMgmtMetaData.remaining,
+                                                              self.pxlsMgmtMetaData.assigned,
+                                                              sct_metadata.pxlHeapBlocksCount())
 
     def deletingSection(self, sct_metadata: SctMetaData):
         """
@@ -140,15 +160,12 @@ class BoardInfos:
         Parameters:
             sct_metadata (SctMetaData): SctMetaData obj with all info related to the deleted section
         """
-        real_pxl_count = sct_metadata.pixelCount
-        if sct_metadata.singlePxlCtrl:
-            real_pxl_count = sct_metadata.singlePxlCtrl
         self.sctsMgmtMetaData = BrdMgmtMetaData.blockUpdt(self.sctsMgmtMetaData.remaining,
                                                           self.sctsMgmtMetaData.assigned,
                                                           -1)
         self.pxlsMgmtMetaData = BrdMgmtMetaData.blockUpdt(self.pxlsMgmtMetaData.remaining,
                                                           self.pxlsMgmtMetaData.assigned,
-                                                          -abs(real_pxl_count))
+                                                          -abs(sct_metadata.pxlHeapBlocksCount()))
 
     def editingSection(self, edit_sct_metadata: SctMetaData):
         """
@@ -168,6 +185,47 @@ class BoardInfos:
                                                           self.pxlsMgmtMetaData.assigned,
                                                           pxl_diff)
         self.sctsMetaDataList[edit_sct_metadata.sctIdx] = edit_sct_metadata
+
+    def shiftSection(self, sct_idx: int):
+        """
+        Called during a section deletion procedure to shift sections
+
+        Parameters:
+            sct_idx (int): Index of the section where to shift the next one (sct_idx + 1)
+        """
+        try:
+            if self.sctsMetaDataList[sct_idx + 1].pixelCount:
+                self.sctsMetaDataList[sct_idx] = self.sctsMetaDataList[sct_idx + 1]
+                self.sctsMetaDataList[sct_idx].sctIdx = sct_idx
+            else:
+                self.clearSection(sct_idx)
+        except IndexError:
+            self.clearSection(sct_idx)
+
+    def clearSection(self, sct_idx: int):
+        """
+        Clear the section MetaDatas. A sort of shift used when the next section is either
+        None or has empty attributes
+
+        Parameters:
+            sct_idx (int): Index of the section from which to clear attr.
+        """
+        self.sctsMetaDataList[sct_idx] = SctMetaData(sct_idx, 0, 0, 0)
+
+    def sctMetaDataTupleFormat(self, sct_idx: int = -1):
+        """
+        Update the SctMetaData obj format to a tuple
+
+        Parameters:
+            sct_idx (int): section index of SctMetaData obj to return as tuple.
+                           If no idx is given, the whole list is returned in tuple format (contained in a list)
+        """
+        if sct_idx == -1:
+            container = []
+            for obj in self.sctsMetaDataList:
+                container.append(astuple(obj))
+            return container
+        return astuple(self.sctsMetaDataList[sct_idx])
 
     def ackConfirmed(self, parsed_ser_mssg: list):
         """

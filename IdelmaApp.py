@@ -22,7 +22,6 @@ from SctMetaData import SctMetaData
 from ListWidgetItemUserTypes import ListWidgetItemUserType
 
 from SerialHandlerQObject import SerialHandlerQObject
-from UserEvents import UserEvents
 
 
 class IdelmaApp(QApplication):
@@ -85,7 +84,7 @@ class IdelmaApp(QApplication):
         self.board.connectFwVerSignal(self.ui.updtFwVerLabel)
         self.board.connectSctsMgmtSignal(self.ui.updtSctsInfo)
         self.board.connectPxlsMgmtSignal(self.ui.updtPxlsInfo)
-        self.board.connectSctsInfoTupleSig(self.setupFromSave)
+        # self.board.connectSctsInfoTupleSig(self.setupFromSave)
 
         # Fetch board infos button
         self.ui.fetchInfosButton.clicked.connect(self.fetchBrdMetaDatasCmd)
@@ -115,7 +114,6 @@ class IdelmaApp(QApplication):
         self.ser.serRqst(self.ser.serialRqsts.get("pxls_metadata"), self.board.pxlsMgmtUpdt)
 
         self.instantiateVrtlBrd()
-        # self.fillingSctPropList()
 
         # ---------------                   TEMPORARY                   ---------------
         if self.board.sctsMgmtMetaData.assigned:
@@ -129,7 +127,8 @@ class IdelmaApp(QApplication):
         """
         Passes all the necessary info (metadata of each sections) to the serial Handler
         """
-        self.ser.serRqst(self.ser.serialRqsts.get("config_board"), self.board.configBrdAttrUpdt, *self.metaDataCompare())
+        self.ser.serRqst(self.ser.serialRqsts.get("config_board"), self.board.configBrdAttrUpdt,
+                         *self.metaDataCompare())
 
         self.configBrdBttnStateTrig()
 
@@ -143,26 +142,6 @@ class IdelmaApp(QApplication):
         self.ser.serRqst(self.ser.serialRqsts.get("save_settings"), self.board.ackConfirmed)
 
         self.ui.saveButton.setEnabled(False)
-
-
-
-    # // ** ** ** ** ** ** ** ** ** ** ** ** ** **  DEBUG  ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** //
-    def resetEeprom(self):
-        """
-        Resets the EEPROM memory of the arduino (debug purposes)
-        """
-        self.ser.serRqst(self.ser.serialRqsts.get("reset_eeprom"), self.board.ackConfirmed)
-        print('eeprom reset')
-
-    def allOff(self):
-        """
-        Turn all pixels OFF
-        """
-        self.ser.serRqst(self.ser.serialRqsts.get("all_pixels_off"), self.board.ackConfirmed)
-        print('All OFF')
-    # // ** ** ** ** ** ** ** ** ** ** ** ** ** **  DEBUG  ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** //
-
-
 
     def instantiateVrtlBrd(self):
         """
@@ -240,7 +219,8 @@ class IdelmaApp(QApplication):
         """
         list_widget_idx = 0
         while list_widget_idx < self.virtualBoard.sctsMgmtMetaData.assigned:
-            if list_widget_idx != check_sct_idx and self.ui.sectionsList.item(list_widget_idx).sctName == check_sct_name:
+            if list_widget_idx != check_sct_idx and \
+                    self.ui.sectionsList.item(list_widget_idx).sctName == check_sct_name:
                 self.ui.sectionsList.setCurrentRow(list_widget_idx)
                 return True
             list_widget_idx += 1
@@ -251,29 +231,19 @@ class IdelmaApp(QApplication):
         Compares the metadata of board obj and virtualBoard obj to choose action accordingly
         """
         if len(self.board.sctsMetaDataList) == 0:
-            return self.virtualBoard.sctsMetaDataList
+            return self.virtualBoard.sctMetaDataTupleFormat()
         else:
             container = []
             for i, val in enumerate(self.virtualBoard.sctsMetaDataList):
                 try:
                     if val != self.board.sctsMetaDataList[i]:
-                        container.append(val)
-                        if not val[NonSerSctMetaData.infoTupleIndexes.get('pixelCount_index')]:
+                        container.append(self.virtualBoard.sctMetaDataTupleFormat(val.sctIdx))
+                        if not val.pixelCount:
                             self.virtualBoard.sctsMetaDataList.pop(i)
                 except IndexError:
-                    if val[NonSerSctMetaData.infoTupleIndexes.get('pixelCount_index')]:
-                        container.append(val)
+                    if val.pixelCount:
+                        container.append(self.virtualBoard.sctMetaDataTupleFormat(val.sctIdx))
             return container
-
-    def setupFromSave(self, list_of_tuple: list):
-        # for val in list_of_tuple:
-        #     self.sectionCreation(sct_idx=val[NonSerSctMetaData.infoTupleIndexes.get("sctID_index")],
-        #                          pixel_count=val[NonSerSctMetaData.infoTupleIndexes.get("pixelCount_index")],
-        #                          brightness=val[NonSerSctMetaData.infoTupleIndexes.get("brightness_index")],
-        #                          single_pxl_ctrl=val[NonSerSctMetaData.infoTupleIndexes.get("singlePxlCtrl_index")],
-        #                          section_name=("Section " + str(val[NonSerSctMetaData.infoTupleIndexes.get("sctID_index")])),
-        #                          set_default_name=True)
-        pass
 
     def newSectionDialog(self):
         """
@@ -306,14 +276,6 @@ class IdelmaApp(QApplication):
         editSctDialog.connectAccepted(self.duplicateNameHandler)
         editSctDialog.exec_()
 
-        # Buttons check
-        if self.resourcesAvailable() and not self.ui.sctAddButton.isEnabled():
-            self.ui.sctAddButton.setEnabled(True)
-        if not self.resourcesAvailable():
-            self.ui.sctAddButton.setEnabled(False)
-
-        self.configBrdBttnStateTrig()
-
     def duplicateNameDialog(self):
         """
         Func that calls the duplicate name Dialog window.
@@ -343,7 +305,7 @@ class IdelmaApp(QApplication):
 
         self.configBrdBttnStateTrig()
 
-    def sectionDeletion(self, dialog_check_state: bool=False):
+    def sectionDeletion(self, dialog_check_state: bool = False):
         """
         Delete a user-chosen section after warning dialog has been accepted.
         Basically, every scts attr. coming after the deleted one are shifted.
@@ -362,7 +324,6 @@ class IdelmaApp(QApplication):
         while sct_idx_iter < self.virtualBoard.sctsMgmtMetaData.assigned:
             if self.ui.sectionsList.item(sct_idx_iter + 1) is None:
                 self.ui.sectionsList.takeItem(sct_idx_iter)
-                self.virtualBoard.sctsMetaDataList[sct_idx_iter] = SctMetaData(sct_idx_iter, 0, 0, False)
             else:
                 if self.ui.sectionsList.item(sct_idx_iter + 1).defaultNameCheck(sct_idx_iter + 1):
                     self.ui.sectionsList.item(sct_idx_iter).defaultNameSet(sct_idx_iter)
@@ -370,8 +331,7 @@ class IdelmaApp(QApplication):
                     self.ui.sectionsList.item(sct_idx_iter).sctName = \
                         self.ui.sectionsList.item(sct_idx_iter + 1).sctName
                 self.ui.sectionsList.item(sct_idx_iter).setText()
-                self.virtualBoard.sctsMetaDataList[sct_idx_iter] = self.virtualBoard.sctsMetaDataList[sct_idx_iter + 1]
-                self.virtualBoard.sctsMetaDataList[sct_idx_iter].sctIdx = sct_idx_iter
+            self.virtualBoard.shiftSection(sct_idx_iter)
             sct_idx_iter += 1
 
         self.virtualBoard.deletingSection(del_sct_metadata)
@@ -398,3 +358,37 @@ class IdelmaApp(QApplication):
             self.ui.sectionsList.insertItem(edit_sct_metadata.sctIdx,
                                             NonSerSctMetaDataQListWidgetItem(edit_list_widget_item.sctName, None,
                                                                              self.NonSerSctMetaDataItemType))
+
+        # Buttons check
+        if self.resourcesAvailable() and not self.ui.sctAddButton.isEnabled():
+            self.ui.sctAddButton.setEnabled(True)
+        if not self.resourcesAvailable():
+            self.ui.sctAddButton.setEnabled(False)
+
+        self.configBrdBttnStateTrig()
+
+    # // ** ** ** ** ** ** ** ** ** ** ** ** ** **  DEBUG  ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** //
+    def resetEeprom(self):
+        """
+        Resets the EEPROM memory of the arduino (debug purposes)
+        """
+        self.ser.serRqst(self.ser.serialRqsts.get("reset_eeprom"), self.board.ackConfirmed)
+        print('eeprom reset')
+
+    def allOff(self):
+        """
+        Turn all pixels OFF
+        """
+        self.ser.serRqst(self.ser.serialRqsts.get("all_pixels_off"), self.board.ackConfirmed)
+        print('All OFF')
+    # // ** ** ** ** ** ** ** ** ** ** ** ** ** **  DEBUG  ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** //
+
+    # def setupFromSave(self, list_of_tuple: list):
+        # for val in list_of_tuple:
+        #     self.sectionCreation(sct_idx=val[NonSerSctMetaData.infoTupleIndexes.get("sctID_index")],
+        #                          pixel_count=val[NonSerSctMetaData.infoTupleIndexes.get("pixelCount_index")],
+        #                          brightness=val[NonSerSctMetaData.infoTupleIndexes.get("brightness_index")],
+        #                          single_pxl_ctrl=val[NonSerSctMetaData.infoTupleIndexes.get("singlePxlCtrl_index")],
+        #                          section_name=("Section " + str(val[NonSerSctMetaData.infoTupleIndexes.get("sctID_index")])),
+        #                          set_default_name=True)
+        # pass
