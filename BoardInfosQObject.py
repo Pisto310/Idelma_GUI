@@ -1,8 +1,7 @@
-import sys
 from BoardInfos import BoardInfos
 from BrdMgmtMetaData import BrdMgmtMetaData
+from SctMetaData import SctMetaData
 
-from PyQt5.QtWidgets import (QWidget)
 from PyQt5.QtCore import (QObject, pyqtSignal)
 
 
@@ -18,6 +17,16 @@ class BoardInfosQObject(QObject, BoardInfos):
 
     def __init__(self):
         super().__init__()
+
+    def deletingSection(self, sct_metadata: SctMetaData):
+        """
+        Supercharge the method by adding the popping of element being deleted
+
+        Parameters:
+            sct_metadata (SctMetaData): SctMetaData obj with all info related to the deleted section
+        """
+        super().deletingSection(sct_metadata)
+        self.sctsMetaDataList.pop(sct_metadata.sctIdx)
 
     def connectSnSignal(self, callback):
         self.snUpdted.connect(callback)

@@ -127,7 +127,7 @@ class IdelmaApp(QApplication):
         """
         Passes all the necessary info (metadata of each sections) to the serial Handler
         """
-        self.ser.serRqst(self.ser.serialRqsts.get("config_board"), self.board.configBrdAttrUpdt,
+        self.ser.serRqst(self.ser.serialRqsts.get("config_board"), self.board.configBrd,
                          *self.metaDataCompare())
 
         self.configBrdBttnStateTrig()
@@ -230,20 +230,21 @@ class IdelmaApp(QApplication):
         """
         Compares the metadata of board obj and virtualBoard obj to choose action accordingly
         """
-        if len(self.board.sctsMetaDataList) == 0:
-            return self.virtualBoard.sctMetaDataTupleFormat()
-        else:
-            container = []
-            for i, val in enumerate(self.virtualBoard.sctsMetaDataList):
-                try:
-                    if val != self.board.sctsMetaDataList[i]:
-                        container.append(self.virtualBoard.sctMetaDataTupleFormat(val.sctIdx))
-                        if not val.pixelCount:
-                            self.virtualBoard.sctsMetaDataList.pop(i)
-                except IndexError:
-                    if val.pixelCount:
-                        container.append(self.virtualBoard.sctMetaDataTupleFormat(val.sctIdx))
-            return container
+        container = []
+        for idx, sctMetaData_obj in enumerate(self.virtualBoard.sctsMetaDataList[::-1]):
+            try:
+                if sctMetaData_obj != self.board.sctsMetaDataList[sctMetaData_obj.sctIdx]:
+                    if not sctMetaData_obj.pixelCount:
+                        container.append((self.board.configBrdSubCmdsKeys.index('delete_sct'),
+                                          self.virtualBoard.sctMetaDataTupleFormat(sctMetaData_obj.sctIdx)))
+                        self.virtualBoard.sctsMetaDataList.remove(sctMetaData_obj)
+                    else:
+                        container.append((self.board.configBrdSubCmdsKeys.index('edit_sct'),
+                                          self.virtualBoard.sctMetaDataTupleFormat(sctMetaData_obj.sctIdx)))
+            except IndexError:
+                container.append((self.board.configBrdSubCmdsKeys.index('create_sct'),
+                                  self.virtualBoard.sctMetaDataTupleFormat(sctMetaData_obj.sctIdx)))
+        return container[::-1]
 
     def newSectionDialog(self):
         """
@@ -254,15 +255,6 @@ class IdelmaApp(QApplication):
                                           self.virtualBoard.pxlsMgmtMetaData.remaining)
         addSctDialog.connectAccepted(self.duplicateNameHandler)
         addSctDialog.exec_()
-
-    def deleteSectionDialog(self):
-        """
-        Pop-up a warning dialog of the involvement of deleting
-        a section and prompts the user to decline or accept
-        """
-        deleteSctDialog = IdelmaSctDelDialog()
-        deleteSctDialog.connectAccepted(self.sectionDeletion)
-        deleteSctDialog.exec_()
 
     def editSectionDialog(self):
         """
@@ -275,6 +267,15 @@ class IdelmaApp(QApplication):
                                             self.virtualBoard.pxlsMgmtMetaData.remaining)
         editSctDialog.connectAccepted(self.duplicateNameHandler)
         editSctDialog.exec_()
+
+    def deleteSectionDialog(self):
+        """
+        Pop-up a warning dialog of the involvement of deleting
+        a section and prompts the user to decline or accept
+        """
+        deleteSctDialog = IdelmaSctDelDialog()
+        deleteSctDialog.connectAccepted(self.sectionDeletion)
+        deleteSctDialog.exec_()
 
     def duplicateNameDialog(self):
         """
@@ -305,44 +306,6 @@ class IdelmaApp(QApplication):
 
         self.configBrdBttnStateTrig()
 
-    def sectionDeletion(self, dialog_check_state: bool = False):
-        """
-        Delete a user-chosen section after warning dialog has been accepted.
-        Basically, every scts attr. coming after the deleted one are shifted.
-        In practice, nothing is really deleted, only attributes are changed.
-
-        Parameters:
-            dialog_check_state (bool): State of the checkbox of the Warning Dialog
-        """
-        if dialog_check_state:
-            self.ui.sctDeleteButton.clicked.disconnect()
-            self.ui.sctDeleteButton.clicked.connect(self.sectionDeletion)
-
-        sct_idx_iter = self.virtualBoard.sctsMetaDataList[self.ui.sectionsList.currentRow()].sctIdx
-        del_sct_metadata = self.virtualBoard.sctsMetaDataList[self.ui.sectionsList.currentRow()]
-
-        while sct_idx_iter < self.virtualBoard.sctsMgmtMetaData.assigned:
-            if self.ui.sectionsList.item(sct_idx_iter + 1) is None:
-                self.ui.sectionsList.takeItem(sct_idx_iter)
-            else:
-                if self.ui.sectionsList.item(sct_idx_iter + 1).defaultNameCheck(sct_idx_iter + 1):
-                    self.ui.sectionsList.item(sct_idx_iter).defaultNameSet(sct_idx_iter)
-                else:
-                    self.ui.sectionsList.item(sct_idx_iter).sctName = \
-                        self.ui.sectionsList.item(sct_idx_iter + 1).sctName
-                self.ui.sectionsList.item(sct_idx_iter).setText()
-            self.virtualBoard.shiftSection(sct_idx_iter)
-            sct_idx_iter += 1
-
-        self.virtualBoard.deletingSection(del_sct_metadata)
-
-        # Buttons check
-        if self.resourcesAvailable() and not self.ui.sctAddButton.isEnabled():
-            self.ui.sctAddButton.setEnabled(True)
-        if not self.ui.sectionsList.count():
-            self.ui.disableListWidgetBttns()
-        self.configBrdBttnStateTrig()
-
     def sectionEdit(self, edit_sct_metadata: SctMetaData, edit_list_widget_item: NonSerSctMetaData):
         """
         Update the attributes of an edited section (if changes were made by the user)
@@ -365,6 +328,45 @@ class IdelmaApp(QApplication):
         if not self.resourcesAvailable():
             self.ui.sctAddButton.setEnabled(False)
 
+        self.configBrdBttnStateTrig()
+
+    def sectionDeletion(self, dialog_check_state: bool = False):
+        """
+        Delete a user-chosen section after warning dialog has been accepted.
+        Basically, every scts attr. coming after the deleted one are shifted.
+        In practice, nothing is really deleted, only attributes are changed.
+
+        Parameters:
+            dialog_check_state (bool): State of the checkbox of the Warning Dialog
+        """
+        if dialog_check_state:
+            self.ui.sctDeleteButton.clicked.disconnect()
+            self.ui.sctDeleteButton.clicked.connect(self.sectionDeletion)
+
+        sct_idx_iter = self.virtualBoard.sctsMetaDataList[self.ui.sectionsList.currentRow()].sctIdx
+        self.virtualBoard.deletingSection(self.virtualBoard.sctsMetaDataList[sct_idx_iter])
+
+        while sct_idx_iter < self.virtualBoard.sctsMgmtMetaData.assigned:
+            if self.ui.sectionsList.item(sct_idx_iter + 1).defaultNameCheck(sct_idx_iter + 1):
+                self.ui.sectionsList.item(sct_idx_iter).defaultNameSet(sct_idx_iter)
+            else:
+                self.ui.sectionsList.item(sct_idx_iter).sctName = \
+                    self.ui.sectionsList.item(sct_idx_iter + 1).sctName
+            self.ui.sectionsList.item(sct_idx_iter).setText()
+            self.virtualBoard.shiftSection(sct_idx_iter)
+            sct_idx_iter += 1
+        self.ui.sectionsList.takeItem(sct_idx_iter)
+
+        if len(self.virtualBoard.sctsMetaDataList) == len(self.board.sctsMetaDataList):
+            self.virtualBoard.clearSection(sct_idx_iter)
+        else:
+            self.virtualBoard.sctsMetaDataList.pop(sct_idx_iter)
+
+        # Buttons check
+        if self.resourcesAvailable() and not self.ui.sctAddButton.isEnabled():
+            self.ui.sctAddButton.setEnabled(True)
+        if not self.ui.sectionsList.count():
+            self.ui.disableListWidgetBttns()
         self.configBrdBttnStateTrig()
 
     # // ** ** ** ** ** ** ** ** ** ** ** ** ** **  DEBUG  ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** //

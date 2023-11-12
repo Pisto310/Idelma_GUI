@@ -20,6 +20,11 @@ class BoardInfos:
 
         self.sctsMetaDataList = []
 
+        self.configBrdSubCmds = {"create_sct": self.addingSection,
+                                 "edit_sct":   self.editingSection,
+                                 "delete_sct": self.deletingSection}
+        self.configBrdSubCmdsKeys = list(self.configBrdSubCmds.keys())
+
         self.ackChar = 6
 
     def __eq__(self, other):
@@ -98,41 +103,22 @@ class BoardInfos:
     #         idx += core_data_len
     #     self.sctsInfoTupleEmit(self.sctsMetaDataList)
 
-    def configBrdAttrUpdt(self, parsed_ser_mssg: list, *args):
+    def configBrd(self, parsed_ser_mssg: list, *args):
         """
         Checks if ACK has been received and if so, updates board attributes following a config request
 
         Parameters:
-            parsed_ser_mssg (list): received serial response, parsed (should be ack char 0x06)
-            *args (tuple of tuples): a tuple of sctMetaData raw data
+            parsed_ser_mssg (list): Received serial response, parsed (should be ack char 0x06)
+            *args (tuple of tuples): In each tuple is a sub_cmd (int) @ idx = 0 and sctMetaData raw data (tuple)
+                                     @ idx = 1
         """
         if self.ackConfirmed(parsed_ser_mssg):
-            sct_total_blocks = 0
-            pxl_total_blocks = 0
-            for sctMetaDataTuple in args:
-                sctMetaDataObj = SctMetaData(*sctMetaDataTuple)
-                sctMetaDataDict = asdict(sctMetaDataObj)
-                try:
-                    pxl_count_diff = sctMetaDataObj.pxlHeapBlocksCount() - \
-                                     self.sctsMetaDataList[sctMetaDataDict.get('sctIdx')].pxlHeapBlocksCount()
-                    pxl_total_blocks += pxl_count_diff
-                    if not sctMetaDataDict.get('pixelCount'):
-                        sct_total_blocks -= 1
-                        self.sctsMetaDataList.pop(sctMetaDataDict.get('sctIdx'))
-                    self.sctsMetaDataList[sctMetaDataDict.get('sctIdx')] = sctMetaDataObj
-                except IndexError:
-                    if sctMetaDataDict.get('pixelCount'):
-                        sct_total_blocks += 1
-                        pxl_total_blocks += sctMetaDataObj.pxlHeapBlocksCount()
-                        self.sctsMetaDataList.append(sctMetaDataObj)
-            if sct_total_blocks:
-                self.sctsMgmtMetaData = BrdMgmtMetaData.blockUpdt(self.sctsMgmtMetaData.remaining,
-                                                                  self.sctsMgmtMetaData.assigned,
-                                                                  sct_total_blocks)
-            if pxl_total_blocks:
-                self.pxlsMgmtMetaData = BrdMgmtMetaData.blockUpdt(self.pxlsMgmtMetaData.remaining,
-                                                                  self.pxlsMgmtMetaData.assigned,
-                                                                  pxl_total_blocks)
+            if args[-1][-1][0] < len(self.sctsMetaDataList):       # Maybe change index zero for a method returning "sctIdx" attr index?
+                args = args[::-1]
+            for dataPacket in args:
+                sub_cmd = dataPacket[0]
+                sct_metadata = SctMetaData(*dataPacket[1])
+                self.configBrdSubCmds[self.configBrdSubCmdsKeys[sub_cmd]](sct_metadata)
 
     def addingSection(self, sct_metadata: SctMetaData):
         """
@@ -153,6 +139,20 @@ class BoardInfos:
                                                               self.pxlsMgmtMetaData.assigned,
                                                               sct_metadata.pxlHeapBlocksCount())
 
+    def editingSection(self, edit_sct_metadata: SctMetaData):
+        """
+        Handle all actions related to this class' attributes when editing a section
+
+        Parameters:
+            edit_sct_metadata (SctMetaData): A new SctMetaData obj representing the edited section and its new attr.
+        """
+        self.pxlsMgmtMetaData = BrdMgmtMetaData.blockUpdt(self.pxlsMgmtMetaData.remaining,
+                                                          self.pxlsMgmtMetaData.assigned,
+                                                          (edit_sct_metadata.pxlHeapBlocksCount() -
+                                                           self.sctsMetaDataList[edit_sct_metadata.sctIdx].
+                                                           pxlHeapBlocksCount()))
+        self.sctsMetaDataList[edit_sct_metadata.sctIdx] = edit_sct_metadata
+
     def deletingSection(self, sct_metadata: SctMetaData):
         """
         Take care of all board mgmt attributes updates when a section is deleted
@@ -165,26 +165,8 @@ class BoardInfos:
                                                           -1)
         self.pxlsMgmtMetaData = BrdMgmtMetaData.blockUpdt(self.pxlsMgmtMetaData.remaining,
                                                           self.pxlsMgmtMetaData.assigned,
-                                                          -abs(sct_metadata.pxlHeapBlocksCount()))
-
-    def editingSection(self, edit_sct_metadata: SctMetaData):
-        """
-        Handle all actions related to this class' attributes when editing a section
-
-        Parameters:
-            edit_sct_metadata (SctMetaData): A new SctMetaData obj representing the edited section and its new attr.
-        """
-        pxl_diff = edit_sct_metadata.pixelCount - self.sctsMetaDataList[edit_sct_metadata.sctIdx].pixelCount
-        if edit_sct_metadata.singlePxlCtrl and self.sctsMetaDataList[edit_sct_metadata.sctIdx].singlePxlCtrl:
-            pxl_diff = 0
-        elif edit_sct_metadata.singlePxlCtrl and not self.sctsMetaDataList[edit_sct_metadata.sctIdx].singlePxlCtrl:
-            pxl_diff = edit_sct_metadata.singlePxlCtrl - self.sctsMetaDataList[edit_sct_metadata.sctIdx].pixelCount
-        elif not edit_sct_metadata.singlePxlCtrl and self.sctsMetaDataList[edit_sct_metadata.sctIdx].singlePxlCtrl:
-            pxl_diff = edit_sct_metadata.pixelCount - self.sctsMetaDataList[edit_sct_metadata.sctIdx].singlePxlCtrl
-        self.pxlsMgmtMetaData = BrdMgmtMetaData.blockUpdt(self.pxlsMgmtMetaData.remaining,
-                                                          self.pxlsMgmtMetaData.assigned,
-                                                          pxl_diff)
-        self.sctsMetaDataList[edit_sct_metadata.sctIdx] = edit_sct_metadata
+                                                          -abs(self.sctsMetaDataList[sct_metadata.sctIdx]
+                                                               .pxlHeapBlocksCount()))
 
     def shiftSection(self, sct_idx: int):
         """
@@ -193,14 +175,10 @@ class BoardInfos:
         Parameters:
             sct_idx (int): Index of the section where to shift the next one (sct_idx + 1)
         """
-        try:
-            if self.sctsMetaDataList[sct_idx + 1].pixelCount:
-                self.sctsMetaDataList[sct_idx] = self.sctsMetaDataList[sct_idx + 1]
-                self.sctsMetaDataList[sct_idx].sctIdx = sct_idx
-            else:
-                self.clearSection(sct_idx)
-        except IndexError:
-            self.clearSection(sct_idx)
+        if self.sctsMetaDataList[sct_idx + 1].pixelCount:
+            self.sctsMetaDataList[sct_idx].pixelCount = self.sctsMetaDataList[sct_idx + 1].pixelCount
+            self.sctsMetaDataList[sct_idx].brightness = self.sctsMetaDataList[sct_idx + 1].brightness
+            self.sctsMetaDataList[sct_idx].singlePxlCtrl = self.sctsMetaDataList[sct_idx + 1].singlePxlCtrl
 
     def clearSection(self, sct_idx: int):
         """

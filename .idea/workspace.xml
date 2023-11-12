@@ -4,12 +4,11 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="3153b060-3ee7-475e-91c1-ba171824b147" name="Changes" comment="Lots of mods:&#10;- Var/Class renaming&#10;- Added SctMetaData dataclass&#10;- Created a parent SctConfig dialog for generating new section &amp; section edit dialog&#10;- Section Config dialog now returns SctMetaData obj and NonSerSctMetaData obj instead of individual var/args&#10;- Had to rework logic in IdelmaApp of section creation, deletion and editing&#10;- No need to have a sections property list. All actions are relevant on QListWidget SectionsList">
+    <list default="true" id="3153b060-3ee7-475e-91c1-ba171824b147" name="Changes" comment="Corrected a few bugs with the configuring in Board class; Added a few func in Board class to ease with section creation, deletion and editing; New method in SctMetaData cls that returns the needed count of blocks in heap when creating section (real mem space)">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/BoardInfos.py" beforeDir="false" afterPath="$PROJECT_DIR$/BoardInfos.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/BoardInfosQObject.py" beforeDir="false" afterPath="$PROJECT_DIR$/BoardInfosQObject.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/IdelmaApp.py" beforeDir="false" afterPath="$PROJECT_DIR$/IdelmaApp.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/IdelmaEditSctDialog.py" beforeDir="false" afterPath="$PROJECT_DIR$/IdelmaEditSctDialog.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/SctMetaData.py" beforeDir="false" afterPath="$PROJECT_DIR$/SctMetaData.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -397,7 +396,14 @@
       <option name="project" value="LOCAL" />
       <updated>1699298945342</updated>
     </task>
-    <option name="localTasksCounter" value="26" />
+    <task id="LOCAL-00026" summary="Corrected a few bugs with the configuring in Board class; Added a few func in Board class to ease with section creation, deletion and editing; New method in SctMetaData cls that returns the needed count of blocks in heap when creating section (real mem space)">
+      <created>1699400733065</created>
+      <option name="number" value="00026" />
+      <option name="presentableId" value="LOCAL-00026" />
+      <option name="project" value="LOCAL" />
+      <updated>1699400733065</updated>
+    </task>
+    <option name="localTasksCounter" value="27" />
     <servers>
       <YouTrack url="https://idelma.youtrack.cloud">
         <option name="defaultSearch" value="" />
@@ -514,22 +520,11 @@
     <MESSAGE value="Setting up the GUI from the MCU saved settings successfully implemented. Also corrected a small bug regarding the updt of Board Attr. in the configBrdAttrUpdt method in BoardInfos.py" />
     <MESSAGE value="Added the option to set the Brightness of the strip as well as control the whole strip as a single pixel. Will have to rework the section editing (WIP)" />
     <MESSAGE value="Lots of mods:&#10;- Var/Class renaming&#10;- Added SctMetaData dataclass&#10;- Created a parent SctConfig dialog for generating new section &amp; section edit dialog&#10;- Section Config dialog now returns SctMetaData obj and NonSerSctMetaData obj instead of individual var/args&#10;- Had to rework logic in IdelmaApp of section creation, deletion and editing&#10;- No need to have a sections property list. All actions are relevant on QListWidget SectionsList" />
-    <option name="LAST_COMMIT_MESSAGE" value="Lots of mods:&#10;- Var/Class renaming&#10;- Added SctMetaData dataclass&#10;- Created a parent SctConfig dialog for generating new section &amp; section edit dialog&#10;- Section Config dialog now returns SctMetaData obj and NonSerSctMetaData obj instead of individual var/args&#10;- Had to rework logic in IdelmaApp of section creation, deletion and editing&#10;- No need to have a sections property list. All actions are relevant on QListWidget SectionsList" />
+    <MESSAGE value="Corrected a few bugs with the configuring in Board class; Added a few func in Board class to ease with section creation, deletion and editing; New method in SctMetaData cls that returns the needed count of blocks in heap when creating section (real mem space)" />
+    <option name="LAST_COMMIT_MESSAGE" value="Corrected a few bugs with the configuring in Board class; Added a few func in Board class to ease with section creation, deletion and editing; New method in SctMetaData cls that returns the needed count of blocks in heap when creating section (real mem space)" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
-      <breakpoints>
-        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/IdelmaApp.py</url>
-          <line>272</line>
-          <option name="timeStamp" value="101" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/IdelmaEditSctDialog.py</url>
-          <line>48</line>
-          <option name="timeStamp" value="103" />
-        </line-breakpoint>
-      </breakpoints>
       <default-breakpoints>
         <breakpoint type="python-exception">
           <properties notifyOnTerminate="true" exception="BaseException">
@@ -538,5 +533,15 @@
         </breakpoint>
       </default-breakpoints>
     </breakpoint-manager>
+    <watches-manager>
+      <configuration name="PythonConfigurationType">
+        <watch expression="self.board.sctsMetaDataList" language="Python" />
+        <watch expression="self.virtualBoard.sctsMetaDataList" language="Python" />
+        <watch expression="self.board.pxlsMgmtMetaData" language="Python" />
+        <watch expression="self.virtualBoard.pxlsMgmtMetaData" language="Python" />
+        <watch expression="self.board.sctsMgmtMetaData" language="Python" />
+        <watch expression="self.virtualBoard.sctsMgmtMetaData" language="Python" />
+      </configuration>
+    </watches-manager>
   </component>
 </project>
