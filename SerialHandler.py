@@ -1,5 +1,5 @@
 from UsrSerial import *
-from BoardInfos import BoardInfos
+from BoardMetaDatas import BoardMetaDatas
 
 
 class SerialHandler:
@@ -13,15 +13,15 @@ class SerialHandler:
 
         self._awaitingReply = False
 
-        self.serialRqsts = {"serial_num":     "1",
-                            "fw_version":     "2",
-                            "scts_metadata":  "3",
-                            "pxls_metadata":  "4",
-                            "scts_array":     "5",
-                            "config_board":   "10",
-                            "save_settings":  "20",
-                            "all_pixels_off": "254",
-                            "reset_eeprom":   "255"}
+        self.serialRqsts = {"serial_num":          "1",
+                            "fw_version":          "2",
+                            "scts_mgmt_metadata":  "3",
+                            "pxls_mgmt_metadata":  "4",
+                            "scts_metadata":       "5",
+                            "config_board":        "10",
+                            "save_settings":       "20",
+                            "all_pixels_off":      "254",
+                            "reset_eeprom":        "255"}
 
     def serRqst(self, serial_command, func_cb, *args):
         """

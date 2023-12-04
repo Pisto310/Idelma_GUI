@@ -3,7 +3,7 @@
 class BrdMgmtMetaData:
     """Basic class to create obj of which
     the attributes are the mutable infos
-    of the IDELMA board
+    of the IDELMA mcu
     """
     def __init__(self, capacity, remaining, assigned):
         self._capacity = capacity

@@ -1,10 +1,11 @@
+from dataclasses import dataclass
+
 from BrdMgmtMetaData import BrdMgmtMetaData
 
-from numpy import zeros
 import os
 
 
-class ArduinoEmulator:
+class ArduinoSerialEmulator:
     """
     A class that aims to create a 'virtual arduino'. Every macro as defined in 'Board.h'
     are in the constructor of the class. All methods refer to the content of useful
@@ -100,16 +101,16 @@ class ArduinoEmulator:
 
     def configBrd(self):
         """
-        Updates board attributes with message content and sends an ACK (0x06) back to the PC
+        Updates mcu attributes with message content and sends an ACK (0x06) back to the PC
         """
 
-        # Do the board attribute update here
+        # Do the mcu attribute update here
 
         self.sendAck()
 
     def saveSettings(self):
         """
-        Save actual board configuration in the EEPROM (might implement virtual EEPROM?)
+        Save actual mcu configuration in the EEPROM (might implement virtual EEPROM?)
         """
 
         # Do saving of settings here
@@ -194,7 +195,7 @@ class ArduinoEmulator:
     def uint32LittleEndian(uint_32):
         """
         Reorganizes an hex str in a Little Endian manner to emulate the storing
-        of variables in the RAM of an Arduino board
+        of variables in the RAM of an Arduino mcu
         """
         container = ''
         index = -2
@@ -221,3 +222,28 @@ class SerialBufferType:
     def __init__(self, buffer_size):
         self.buffer = bytearray(buffer_size)
         self.mssgLen = 0
+
+
+@dataclass
+class PixelMetaDataType:
+    """
+    Class that replicates the pixel_metadata_t struct appearing
+    in SK6812 header
+    """
+    pxlSctID = None
+    pxlID = None
+    pxlState = None
+    pxlActionTimes = None
+    pxlActionStart = None
+    rgbwColor = None
+    hsvColor = None
+    rgbwTarget = None
+    hsvTarget = None
+
+
+# if __name__ == '__main__':
+#     master, slave = pty.openpty()
+#     virtualPort = os.ttyname(slave)
+#     arduinoSerEmu = ArduinoSerialEmulator(master)
+#     obj = json.dumps(arduinoSerEmu.__dict__, indent=4)
+#     pass

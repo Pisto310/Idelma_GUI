@@ -5,9 +5,9 @@ from SctMetaData import SctMetaData
 from dataclasses import (astuple, asdict)
 
 
-class BoardInfos:
+class BoardMetaDatas:
     """
-    This class contains all the board info
+    This class contains all the mcu info
     as attributes and all associated methods
     to get, set and more
     """
@@ -26,9 +26,10 @@ class BoardInfos:
         self.configBrdSubCmdsKeys = list(self.configBrdSubCmds.keys())
 
         self.ackChar = 6
+        self.nakChar = 21
 
     def __eq__(self, other):
-        if not isinstance(other, BoardInfos):
+        if not isinstance(other, BoardMetaDatas):
             return NotImplemented
         return (self.serialNum == other.serialNum and
                 self.fwVersion == other.fwVersion and
@@ -71,7 +72,7 @@ class BoardInfos:
         Update the sections mgmt attr from a received serial message
 
         Parameters:
-            parsed_ser_mssg (list): List of bytes representing board sections capacity, remaining & assigned
+            parsed_ser_mssg (list): List of bytes representing mcu sections capacity, remaining & assigned
         """
         self.sctsMgmtMetaData = BrdMgmtMetaData(*parsed_ser_mssg)
 
@@ -80,32 +81,24 @@ class BoardInfos:
         Update the pixels mgmt attr from a received serial message
 
         Parameters:
-            parsed_ser_mssg (list): List of bytes representing board pixels capacity, remaining & assigned
+            parsed_ser_mssg (list): List of bytes representing mcu pixels capacity, remaining & assigned
         """
         self.pxlsMgmtMetaData = BrdMgmtMetaData(*parsed_ser_mssg)
 
-    # def setSctInfosTuple(self, parsed_ser_mssg: list):
-    #     """
-    #     Fill the sctInfoTuple list with the rxed SctInfoArr to initialize the GUI
-    #     according to the saved set-up of the board. Only called in fetchBrdMetaDatas
-    #     method of IdelmaApp obj
-    #
-    #     Parameters:
-    #         parsed_ser_mssg (list): list containing the sectionInfoArr array, which
-    #                                 is composed of section_info_t structs of len =
-    #                                 core_data_len
-    #     """
-    #     core_data_len = 2
-    #     idx = 0
-    #     while idx < len(parsed_ser_mssg):
-    #         sct_Id = int(idx / core_data_len)
-    #         self.sctsMetaDataList.append((sct_Id, parsed_ser_mssg[idx]))
-    #         idx += core_data_len
-    #     self.sctsInfoTupleEmit(self.sctsMetaDataList)
+    def sctsMetaDataListUpdt(self, parsed_ser_mssg: list):
+        """
+
+        """
+        if parsed_ser_mssg[0] != self.nakChar and len(parsed_ser_mssg) > 1:
+            data_pckt_len = int(len(parsed_ser_mssg) / self.sctsMgmtMetaData.assigned)
+            indexed_scts_metadatas = [parsed_ser_mssg[x:x + data_pckt_len]
+                                      for x in range(0, len(parsed_ser_mssg), data_pckt_len)]
+            for i in range(0, self.sctsMgmtMetaData.assigned):
+                self.sctsMetaDataList.append(SctMetaData(i, *indexed_scts_metadatas[i]))
 
     def configBrd(self, parsed_ser_mssg: list, *args):
         """
-        Checks if ACK has been received and if so, updates board attributes following a config request
+        Checks if ACK has been received and if so, updates mcu attributes following a config request
 
         Parameters:
             parsed_ser_mssg (list): Received serial response, parsed (should be ack char 0x06)
@@ -122,7 +115,7 @@ class BoardInfos:
 
     def addingSection(self, sct_metadata: SctMetaData):
         """
-        Take care of all board mgmt attributes updates when a new section is created
+        Take care of all mcu mgmt attributes updates when a new section is created
 
         Parameters:
             sct_metadata (SctMetaData): SctMetaData obj with all info related to the created section
@@ -155,7 +148,7 @@ class BoardInfos:
 
     def deletingSection(self, sct_metadata: SctMetaData):
         """
-        Take care of all board mgmt attributes updates when a section is deleted
+        Take care of all mcu mgmt attributes updates when a section is deleted
 
         Parameters:
             sct_metadata (SctMetaData): SctMetaData obj with all info related to the deleted section
@@ -233,9 +226,6 @@ class BoardInfos:
     def pxlsMgmtUpdtEmit(self, *args):
         pass
 
-    def sctsInfoTupleEmit(self, *args):
-        pass
-
     @property
     def serialNum(self):
         return self._serialNum
@@ -264,7 +254,7 @@ class BoardInfos:
     def sctsMgmtMetaData(self, new_inst: BrdMgmtMetaData):
         if not self.valCompare(new_inst, self.sctsMgmtMetaData):
             self._sctsMgmtMetaData = new_inst
-            self.sctsMgmtUpdtEmit(self.sctsMgmtMetaData)
+            self.sctsMgmtUpdtEmit(str(self.sctsMgmtMetaData.remaining))
 
     @property
     def pxlsMgmtMetaData(self) -> BrdMgmtMetaData:
@@ -274,7 +264,7 @@ class BoardInfos:
     def pxlsMgmtMetaData(self, new_inst: BrdMgmtMetaData):
         if not self.valCompare(new_inst, self.pxlsMgmtMetaData):
             self._pxlsMgmtMetaData = new_inst
-            self.pxlsMgmtUpdtEmit(self.pxlsMgmtMetaData)
+            self.pxlsMgmtUpdtEmit(str(self.pxlsMgmtMetaData.remaining))
 
     @staticmethod
     def valCompare(new_val, old_val):

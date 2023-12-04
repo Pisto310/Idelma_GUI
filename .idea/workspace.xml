@@ -4,11 +4,17 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="3153b060-3ee7-475e-91c1-ba171824b147" name="Changes" comment="Corrected a few bugs with the configuring in Board class; Added a few func in Board class to ease with section creation, deletion and editing; New method in SctMetaData cls that returns the needed count of blocks in heap when creating section (real mem space)">
+    <list default="true" id="3153b060-3ee7-475e-91c1-ba171824b147" name="Changes" comment="Had bugs from previous mods. All good now. Had to modify the deletingSection method in IdelmaApp and the metaDataCompare also. Now sending sub-cmds when clicking 'config' to elaborate on what func to call when boards receive data (dict of funcs)">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/BoardInfos.py" beforeDir="false" afterPath="$PROJECT_DIR$/BoardInfos.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/BoardInfosQObject.py" beforeDir="false" afterPath="$PROJECT_DIR$/BoardInfosQObject.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ArduinoEmulator.py" beforeDir="false" afterPath="$PROJECT_DIR$/ArduinoSerialEmulator.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/BoardInfos.py" beforeDir="false" afterPath="$PROJECT_DIR$/BoardMetaDatas.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/BoardInfosQObject.py" beforeDir="false" afterPath="$PROJECT_DIR$/BoardMetaDatasQObject.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/BrdMgmtMetaData.py" beforeDir="false" afterPath="$PROJECT_DIR$/BrdMgmtMetaData.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/IdelmaApp.py" beforeDir="false" afterPath="$PROJECT_DIR$/IdelmaApp.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/IdelmaGui.py" beforeDir="false" afterPath="$PROJECT_DIR$/IdelmaGui.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/QBrdInfoLabel.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/SerialHandler.py" beforeDir="false" afterPath="$PROJECT_DIR$/SerialHandler.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/main.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -97,6 +103,27 @@
     </key>
   </component>
   <component name="RunManager" selected="Python.main">
+    <configuration name="ArduinoSerialEmulator" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+      <module name="colorPicker" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/ArduinoSerialEmulator.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
     <configuration name="IdelmaNewSctDialog" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="colorPicker" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -181,34 +208,13 @@
       <option name="INPUT_FILE" value="" />
       <method v="2" />
     </configuration>
-    <configuration name="newSctDialog" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
-      <module name="colorPicker" />
-      <option name="INTERPRETER_OPTIONS" value="" />
-      <option name="PARENT_ENVS" value="true" />
-      <envs>
-        <env name="PYTHONUNBUFFERED" value="1" />
-      </envs>
-      <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
-      <option name="IS_MODULE_SDK" value="true" />
-      <option name="ADD_CONTENT_ROOTS" value="true" />
-      <option name="ADD_SOURCE_ROOTS" value="true" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/newSctDialog.py" />
-      <option name="PARAMETERS" value="" />
-      <option name="SHOW_COMMAND_LINE" value="false" />
-      <option name="EMULATE_TERMINAL" value="false" />
-      <option name="MODULE_MODE" value="false" />
-      <option name="REDIRECT_INPUT" value="false" />
-      <option name="INPUT_FILE" value="" />
-      <method v="2" />
-    </configuration>
     <recent_temporary>
       <list>
         <item itemvalue="Python.main" />
+        <item itemvalue="Python.ArduinoSerialEmulator" />
         <item itemvalue="Python.IdelmaNewSctDialog" />
         <item itemvalue="Python.IdelmaSctConfigDialog" />
         <item itemvalue="Python.IdelmaSctDialog" />
-        <item itemvalue="Python.newSctDialog" />
       </list>
     </recent_temporary>
   </component>
@@ -403,7 +409,14 @@
       <option name="project" value="LOCAL" />
       <updated>1699400733065</updated>
     </task>
-    <option name="localTasksCounter" value="27" />
+    <task id="LOCAL-00027" summary="Had bugs from previous mods. All good now. Had to modify the deletingSection method in IdelmaApp and the metaDataCompare also. Now sending sub-cmds when clicking 'config' to elaborate on what func to call when boards receive data (dict of funcs)">
+      <created>1699765487063</created>
+      <option name="number" value="00027" />
+      <option name="presentableId" value="LOCAL-00027" />
+      <option name="project" value="LOCAL" />
+      <updated>1699765487063</updated>
+    </task>
+    <option name="localTasksCounter" value="28" />
     <servers>
       <YouTrack url="https://idelma.youtrack.cloud">
         <option name="defaultSearch" value="" />
@@ -496,7 +509,6 @@
     <option name="oldMeFiltersMigrated" value="true" />
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="- Removed SerialCmds file and moved commands to newly created SerialHandler&#10;- Moved reply_size attribute from UsrSerial to SerialHandler&#10;- Implemented 3 methods in SerialHandler that takes care of sending cmds and receiving MCU reply" />
     <MESSAGE value="Started work on create section command" />
     <MESSAGE value="Set-up section command implemented, but still not clear if board should send response" />
     <MESSAGE value="Added a good chunk of GUI for basic serial functions already coded" />
@@ -521,7 +533,8 @@
     <MESSAGE value="Added the option to set the Brightness of the strip as well as control the whole strip as a single pixel. Will have to rework the section editing (WIP)" />
     <MESSAGE value="Lots of mods:&#10;- Var/Class renaming&#10;- Added SctMetaData dataclass&#10;- Created a parent SctConfig dialog for generating new section &amp; section edit dialog&#10;- Section Config dialog now returns SctMetaData obj and NonSerSctMetaData obj instead of individual var/args&#10;- Had to rework logic in IdelmaApp of section creation, deletion and editing&#10;- No need to have a sections property list. All actions are relevant on QListWidget SectionsList" />
     <MESSAGE value="Corrected a few bugs with the configuring in Board class; Added a few func in Board class to ease with section creation, deletion and editing; New method in SctMetaData cls that returns the needed count of blocks in heap when creating section (real mem space)" />
-    <option name="LAST_COMMIT_MESSAGE" value="Corrected a few bugs with the configuring in Board class; Added a few func in Board class to ease with section creation, deletion and editing; New method in SctMetaData cls that returns the needed count of blocks in heap when creating section (real mem space)" />
+    <MESSAGE value="Had bugs from previous mods. All good now. Had to modify the deletingSection method in IdelmaApp and the metaDataCompare also. Now sending sub-cmds when clicking 'config' to elaborate on what func to call when boards receive data (dict of funcs)" />
+    <option name="LAST_COMMIT_MESSAGE" value="Had bugs from previous mods. All good now. Had to modify the deletingSection method in IdelmaApp and the metaDataCompare also. Now sending sub-cmds when clicking 'config' to elaborate on what func to call when boards receive data (dict of funcs)" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -533,15 +546,5 @@
         </breakpoint>
       </default-breakpoints>
     </breakpoint-manager>
-    <watches-manager>
-      <configuration name="PythonConfigurationType">
-        <watch expression="self.board.sctsMetaDataList" language="Python" />
-        <watch expression="self.virtualBoard.sctsMetaDataList" language="Python" />
-        <watch expression="self.board.pxlsMgmtMetaData" language="Python" />
-        <watch expression="self.virtualBoard.pxlsMgmtMetaData" language="Python" />
-        <watch expression="self.board.sctsMgmtMetaData" language="Python" />
-        <watch expression="self.virtualBoard.sctsMgmtMetaData" language="Python" />
-      </configuration>
-    </watches-manager>
   </component>
 </project>

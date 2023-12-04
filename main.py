@@ -10,17 +10,26 @@ def bootApp():
     """-----     debug    -----"""
     app.fetchBrdMetaDatasCmd()
 
-    app.sectionCreation(SctMetaData(0, 14, 76, 1), NonSerSctMetaData('First'))
-    app.configBrdBttnStateTrig()
+    # app.sectionCreation(SctMetaData(0, 3, 76, 1), NonSerSctMetaData('First'))
+    # app.configBrdBttnStateTrig()
+    #
+    # app.sectionCreation(SctMetaData(1, 6, 168, 0), NonSerSctMetaData('Section 1'))
+    # app.configBrdBttnStateTrig()
+    #
+    # app.sectionCreation(SctMetaData(2, 2, 29, 0), NonSerSctMetaData('Name'))
+    # app.configBrdBttnStateTrig()
+    #
+    # app.sectionCreation(SctMetaData(3, 5, 216, 1), NonSerSctMetaData('Section 3'))
+    # app.configBrdBttnStateTrig()
+    #
+    # app.sectionCreation(SctMetaData(4, 6, 125, 0), NonSerSctMetaData('Subsequent'))
+    # app.configBrdBttnStateTrig()
 
-    app.sectionCreation(SctMetaData(1, 23, 168, 0), NonSerSctMetaData('Section 1'))
-    app.configBrdBttnStateTrig()
-
-    app.sectionCreation(SctMetaData(2, 6, 29, 0), NonSerSctMetaData('Name'))
-    app.configBrdBttnStateTrig()
-
-    app.sectionCreation(SctMetaData(3, 35, 216, 1), NonSerSctMetaData('Section 3'))
-    app.configBrdBttnStateTrig()
+    # app.sectionCreation(SctMetaData(5, 1, 193, 0), NonSerSctMetaData('Tempus Fugit'))
+    # app.configBrdBttnStateTrig()
+    #
+    # app.sectionCreation(SctMetaData(6, 4, 67, 1), NonSerSctMetaData('Final'))
+    # app.configBrdBttnStateTrig()
     """-----     debug    -----"""
 
     sys.exit(app.exec_())

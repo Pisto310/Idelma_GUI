@@ -1,4 +1,4 @@
-from BoardInfosQObject import BoardInfosQObject
+from BoardMetaDatasQObject import BoardMetaDatasQObject
 from BrdMgmtMetaData import BrdMgmtMetaData
 
 from PyQt5.QtWidgets import (QApplication, QMainWindow, QWidget, QLabel, QGridLayout, QPushButton, QVBoxLayout,
@@ -164,7 +164,7 @@ class IdelmaGui(QMainWindow):
     def setBrdInfosZone(self, sub_layout: QVBoxLayout, sub_layout_name: str, info_id_label: QLabel,
                         info_id_label_name: str, info_val_label: QLabel, info_val_label_name: str):
         """
-        Set-up each zone of the board information
+        Set-up each zone of the mcu information
 
         Parameters:
             sub_layout (QVBoxLayout): parent layout for the QLabels to be inserted
@@ -190,7 +190,7 @@ class IdelmaGui(QMainWindow):
         # Adding the label to the sub-layout
         sub_layout.addWidget(info_id_label)
 
-        # Prepping the label showing the info coming from the board
+        # Prepping the label showing the info coming from the mcu
         info_val_label.setParent(self.brdInfosVerticalLayoutWidget)
         info_val_label.setAlignment(Qt.AlignCenter)
         info_val_label.setObjectName(info_val_label_name)
@@ -235,11 +235,15 @@ class IdelmaGui(QMainWindow):
     def updtFwVerLabel(self, text: str):
         self.fwVerLabel.setText(text)
 
-    def updtSctsInfo(self, mutable_brd_info_inst: BrdMgmtMetaData):
-        self.sctsLabel.setText(str(mutable_brd_info_inst.remaining))
+    def updtSctsInfo(self, text: str):
+        self.sctsLabel.setText(text)
+    # def updtSctsInfo(self, mutable_brd_info_inst: BrdMgmtMetaData):
+    #     self.sctsLabel.setText(str(mutable_brd_info_inst.remaining))
 
-    def updtPxlsInfo(self, mutable_brd_info_inst: BrdMgmtMetaData):
-        self.pxlsLabel.setText(str(mutable_brd_info_inst.remaining))
+    def updtPxlsInfo(self, text: str):
+        self.pxlsLabel.setText(text)
+    # def updtPxlsInfo(self, mutable_brd_info_inst: BrdMgmtMetaData):
+    #     self.pxlsLabel.setText(str(mutable_brd_info_inst.remaining))
 
     @staticmethod
     def setVerticalLayout(widget: QWidget, size_tuple: tuple, widget_name: str):

@@ -11,12 +11,12 @@ from IdelmaSctDelDialog import IdelmaSctDelDialog
 from IdelmaEditSctDialog import IdelmaEditSctDialog
 from IdelmaDuplicateNameDialog import IdelmaDuplicateNameDialog
 
-from BoardInfos import BoardInfos
-from BoardInfosQObject import BoardInfosQObject
+from BoardMetaDatas import BoardMetaDatas
+from BoardMetaDatasQObject import BoardMetaDatasQObject
 from BrdMgmtMetaData import BrdMgmtMetaData
 from NonSerSctMetaData import NonSerSctMetaData
 from NonSerSctMetaDataQListWidgetItem import NonSerSctMetaDataQListWidgetItem
-from ArduinoEmulator import ArduinoEmulator
+from ArduinoSerialEmulator import ArduinoSerialEmulator
 from SctMetaData import SctMetaData
 
 from ListWidgetItemUserTypes import ListWidgetItemUserType
@@ -33,15 +33,15 @@ class IdelmaApp(QApplication):
 
         # Opening a serial port
         self.serialPort = None
-        self.arduinoEmu = None
+        self.arduinoSerEmu = None
         self.openSerialPort()
 
         # Instantiating Back-end objects
-        self.board = BoardInfosQObject()
+        self.mcu = BoardMetaDatasQObject()
         self.ser = SerialHandlerQObject(self.serialPort)
 
-        # Declaring a virtual arduino board for all changes not pushed to the actual MCU
-        self.virtualBoard = BoardInfos()
+        # Declaring another virtual arduino acting as a standard for comparison of unpushed changes
+        self.mcuModsRef = BoardMetaDatas()
 
         # Instantiating and Declaring UI objects
         self.ui = IdelmaGui()
@@ -72,21 +72,20 @@ class IdelmaApp(QApplication):
             master, slave = pty.openpty()
             virtualPort = os.ttyname(slave)
             self.serialPort = virtualPort
-            self.arduinoEmu = ArduinoEmulator(master)
+            self.arduinoSerEmu = ArduinoSerialEmulator(master)
 
     def assigningSlots(self):
         # Serial handler signals
-        if self.arduinoEmu is not None:
-            self.ser.connectNotifySignal(self.arduinoEmu.processSerialMssg)
+        if self.arduinoSerEmu is not None:
+            self.ser.connectNotifySignal(self.arduinoSerEmu.processSerialMssg)
 
-        # Board infos signals
-        self.board.connectSnSignal(self.ui.updtSnNumLabel)
-        self.board.connectFwVerSignal(self.ui.updtFwVerLabel)
-        self.board.connectSctsMgmtSignal(self.ui.updtSctsInfo)
-        self.board.connectPxlsMgmtSignal(self.ui.updtPxlsInfo)
-        # self.board.connectSctsInfoTupleSig(self.setupFromSave)
+        # Board metadatas signals
+        self.mcu.connectSnSignal(self.ui.updtSnNumLabel)
+        self.mcu.connectFwVerSignal(self.ui.updtFwVerLabel)
+        self.mcu.connectSctsMgmtSignal(self.ui.updtSctsInfo)
+        self.mcu.connectPxlsMgmtSignal(self.ui.updtPxlsInfo)
 
-        # Fetch board infos button
+        # Fetch mcu infos button
         self.ui.fetchInfosButton.clicked.connect(self.fetchBrdMetaDatasCmd)
 
         # ListWidget signals and buttons
@@ -105,20 +104,19 @@ class IdelmaApp(QApplication):
 
     def fetchBrdMetaDatasCmd(self):
         """
-        Fetch all the metadata contained in the MCU and assign it to the board obj
+        Fetch all the metadata contained in the MCU and assign it to the mcu obj
         """
+        # Board metadatas
+        self.ser.serRqst(self.ser.serialRqsts.get("serial_num"), self.mcu.serialNumUpdt)
+        self.ser.serRqst(self.ser.serialRqsts.get("fw_version"), self.mcu.fwVersionUpdt)
+        self.ser.serRqst(self.ser.serialRqsts.get("scts_mgmt_metadata"), self.mcu.sctsMgmtUpdt)
+        self.ser.serRqst(self.ser.serialRqsts.get("pxls_mgmt_metadata"), self.mcu.pxlsMgmtUpdt)
 
-        self.ser.serRqst(self.ser.serialRqsts.get("serial_num"), self.board.serialNumUpdt)
-        self.ser.serRqst(self.ser.serialRqsts.get("fw_version"), self.board.fwVersionUpdt)
-        self.ser.serRqst(self.ser.serialRqsts.get("scts_metadata"), self.board.sctsMgmtUpdt)
-        self.ser.serRqst(self.ser.serialRqsts.get("pxls_metadata"), self.board.pxlsMgmtUpdt)
+        # Other metadatas
+        self.ser.serRqst(self.ser.serialRqsts.get("scts_metadata"), self.mcu.sctsMetaDataListUpdt)
 
-        self.instantiateVrtlBrd()
-
-        # ---------------                   TEMPORARY                   ---------------
-        if self.board.sctsMgmtMetaData.assigned:
-            self.ser.serRqst(self.ser.serialRqsts.get("scts_array"), self.board.setSctInfosTuple)
-        # ---------------                   TEMPORARY                   ---------------
+        self.updtMcuModsRef()
+        self.setMcuSavedConfig()
 
         self.ui.fetchInfosButton.setEnabled(False)
         self.ui.sctAddButton.setEnabled(True)
@@ -127,7 +125,7 @@ class IdelmaApp(QApplication):
         """
         Passes all the necessary info (metadata of each sections) to the serial Handler
         """
-        self.ser.serRqst(self.ser.serialRqsts.get("config_board"), self.board.configBrd,
+        self.ser.serRqst(self.ser.serialRqsts.get("config_board"), self.mcu.configBrd,
                          *self.metaDataCompare())
 
         self.configBrdBttnStateTrig()
@@ -139,43 +137,59 @@ class IdelmaApp(QApplication):
         """
         Save the last sent configuration in the MCU's EEPROM memory
         """
-        self.ser.serRqst(self.ser.serialRqsts.get("save_settings"), self.board.ackConfirmed)
+        self.ser.serRqst(self.ser.serialRqsts.get("save_settings"), self.mcu.ackConfirmed)
 
         self.ui.saveButton.setEnabled(False)
 
-    def instantiateVrtlBrd(self):
+    def updtMcuModsRef(self):
         """
-        Instantiates a BoardInfosQObject object and fills
-        all its attr with the ones recently fetched
-        from the actual MCU, thus creating a virtual brd
+        Update the attr. of the virtual MCU used as mods reference
         """
-        self.virtualBoard.serialNum = self.board.serialNum
-        self.virtualBoard.fwVersion = self.board.fwVersion
-        self.virtualBoard.sctsMgmtMetaData = BrdMgmtMetaData(self.board.sctsMgmtMetaData.capacity,
-                                                             self.board.sctsMgmtMetaData.capacity,
-                                                             0)
-        self.virtualBoard.pxlsMgmtMetaData = BrdMgmtMetaData(self.board.pxlsMgmtMetaData.capacity,
-                                                             self.board.pxlsMgmtMetaData.capacity,
-                                                             0)
+        self.mcuModsRef.serialNum = self.mcu.serialNum
+        self.mcuModsRef.fwVersion = self.mcu.fwVersion
+        self.mcuModsRef.sctsMgmtMetaData = BrdMgmtMetaData(self.mcu.sctsMgmtMetaData.capacity,
+                                                           self.mcu.sctsMgmtMetaData.remaining,
+                                                           self.mcu.sctsMgmtMetaData.assigned)
+        self.mcuModsRef.pxlsMgmtMetaData = BrdMgmtMetaData(self.mcu.pxlsMgmtMetaData.capacity,
+                                                           self.mcu.pxlsMgmtMetaData.remaining,
+                                                           self.mcu.pxlsMgmtMetaData.assigned)
+
+    def setMcuSavedConfig(self):
+        """
+        Set the saved config of the physical MCU in the app
+        by updating all necessary objs., objs's attr. & widgets
+        """
+        self.setAppSctsMetaData()
+
+    def setAppSctsMetaData(self):
+        """
+        Update all that is related to the sections metadata
+        in the app and its dependencies
+        (sctsMetaDataList of mcuModsRef & QListWidget)
+        """
+        self.mcuModsRef.sctsMetaDataList = self.mcu.sctsMetaDataList.copy()
+        for idx in range(0, self.mcuModsRef.sctsMgmtMetaData.assigned):
+            NonSerSctMetaDataQListWidgetItem(NonSerSctMetaData.instWithDefaultName(idx).sctName,
+                                             self.ui.sectionsList, self.NonSerSctMetaDataItemType)
 
     def resourcesAvailable(self):
         """
         Checks if there are remaining resources (sections & pixels)
         left for user assignation
         """
-        if self.virtualBoard.sctsMgmtMetaData.remaining and self.virtualBoard.pxlsMgmtMetaData.remaining:
+        if self.mcuModsRef.sctsMgmtMetaData.remaining and self.mcuModsRef.pxlsMgmtMetaData.remaining:
             return True
         else:
             return False
 
     def configBrdBttnStateTrig(self):
         """
-        Compares virtual board with arduino to determine if
-        necessary to enable or disable the 'config. board' bttn
+        Compares virtual mcu with arduino to determine if
+        necessary to enable or disable the 'config. mcu' bttn
         """
-        if self.virtualBoard != self.board and not self.ui.configButton.isEnabled():
+        if self.mcuModsRef != self.mcu and not self.ui.configButton.isEnabled():
             self.ui.configButton.setEnabled(True)
-        elif self.virtualBoard == self.board and self.ui.configButton.isEnabled():
+        elif self.mcuModsRef == self.mcu and self.ui.configButton.isEnabled():
             self.ui.configButton.setEnabled(False)
 
     def duplicateNameHandler(self, sct_metadata: SctMetaData, list_widget_item: NonSerSctMetaData):
@@ -218,7 +232,7 @@ class IdelmaApp(QApplication):
             A boolean indicating if a section with the same name already exists (True) or not (False)
         """
         list_widget_idx = 0
-        while list_widget_idx < self.virtualBoard.sctsMgmtMetaData.assigned:
+        while list_widget_idx < self.mcuModsRef.sctsMgmtMetaData.assigned:
             if list_widget_idx != check_sct_idx and \
                     self.ui.sectionsList.item(list_widget_idx).sctName == check_sct_name:
                 self.ui.sectionsList.setCurrentRow(list_widget_idx)
@@ -228,22 +242,22 @@ class IdelmaApp(QApplication):
 
     def metaDataCompare(self):
         """
-        Compares the metadata of board obj and virtualBoard obj to choose action accordingly
+        Compares the metadata of mcu obj and mcuModsRef obj to choose action accordingly
         """
         container = []
-        for idx, sctMetaData_obj in enumerate(self.virtualBoard.sctsMetaDataList[::-1]):
+        for idx, sctMetaData_obj in enumerate(self.mcuModsRef.sctsMetaDataList[::-1]):
             try:
-                if sctMetaData_obj != self.board.sctsMetaDataList[sctMetaData_obj.sctIdx]:
+                if sctMetaData_obj != self.mcu.sctsMetaDataList[sctMetaData_obj.sctIdx]:
                     if not sctMetaData_obj.pixelCount:
-                        container.append((self.board.configBrdSubCmdsKeys.index('delete_sct'),
-                                          self.virtualBoard.sctMetaDataTupleFormat(sctMetaData_obj.sctIdx)))
-                        self.virtualBoard.sctsMetaDataList.remove(sctMetaData_obj)
+                        container.append((self.mcu.configBrdSubCmdsKeys.index('delete_sct'),
+                                          self.mcuModsRef.sctMetaDataTupleFormat(sctMetaData_obj.sctIdx)))
+                        self.mcuModsRef.sctsMetaDataList.remove(sctMetaData_obj)
                     else:
-                        container.append((self.board.configBrdSubCmdsKeys.index('edit_sct'),
-                                          self.virtualBoard.sctMetaDataTupleFormat(sctMetaData_obj.sctIdx)))
+                        container.append((self.mcu.configBrdSubCmdsKeys.index('edit_sct'),
+                                          self.mcuModsRef.sctMetaDataTupleFormat(sctMetaData_obj.sctIdx)))
             except IndexError:
-                container.append((self.board.configBrdSubCmdsKeys.index('create_sct'),
-                                  self.virtualBoard.sctMetaDataTupleFormat(sctMetaData_obj.sctIdx)))
+                container.append((self.mcu.configBrdSubCmdsKeys.index('create_sct'),
+                                  self.mcuModsRef.sctMetaDataTupleFormat(sctMetaData_obj.sctIdx)))
         return container[::-1]
 
     def newSectionDialog(self):
@@ -251,8 +265,8 @@ class IdelmaApp(QApplication):
         Open the 'Section Configuration' dialog for user to create
         a new section
         """
-        addSctDialog = IdelmaNewSctDialog(self.virtualBoard.sctsMgmtMetaData.assigned,
-                                          self.virtualBoard.pxlsMgmtMetaData.remaining)
+        addSctDialog = IdelmaNewSctDialog(self.mcuModsRef.sctsMgmtMetaData.assigned,
+                                          self.mcuModsRef.pxlsMgmtMetaData.remaining)
         addSctDialog.connectAccepted(self.duplicateNameHandler)
         addSctDialog.exec_()
 
@@ -262,9 +276,9 @@ class IdelmaApp(QApplication):
         infos of the selected section to be edited
         """
         edit_sct_idx = self.ui.sectionsList.currentRow()
-        editSctDialog = IdelmaEditSctDialog(self.virtualBoard.sctsMetaDataList[edit_sct_idx],
+        editSctDialog = IdelmaEditSctDialog(self.mcuModsRef.sctsMetaDataList[edit_sct_idx],
                                             self.ui.sectionsList.item(edit_sct_idx),
-                                            self.virtualBoard.pxlsMgmtMetaData.remaining)
+                                            self.mcuModsRef.pxlsMgmtMetaData.remaining)
         editSctDialog.connectAccepted(self.duplicateNameHandler)
         editSctDialog.exec_()
 
@@ -298,7 +312,7 @@ class IdelmaApp(QApplication):
             list_widget_item (NonSerSctMetaData): Contains all non-serial info related to section
         """
         NonSerSctMetaDataQListWidgetItem(list_widget_item.sctName, self.ui.sectionsList, self.NonSerSctMetaDataItemType)
-        self.virtualBoard.addingSection(sct_metadata)
+        self.mcuModsRef.addingSection(sct_metadata)
 
         # Buttons check
         if not self.resourcesAvailable():
@@ -314,8 +328,8 @@ class IdelmaApp(QApplication):
             edit_sct_metadata (SctMetaData): SctMetaData class object w/ infos of the previously accepted edit dialog
             edit_list_widget_item (NonSerSctMetaData): All non-serial info related to edited section
         """
-        if edit_sct_metadata != self.virtualBoard.sctsMetaDataList[edit_sct_metadata.sctIdx]:
-            self.virtualBoard.editingSection(edit_sct_metadata)
+        if edit_sct_metadata != self.mcuModsRef.sctsMetaDataList[edit_sct_metadata.sctIdx]:
+            self.mcuModsRef.editingSection(edit_sct_metadata)
         if edit_list_widget_item != self.ui.sectionsList.currentItem():
             self.ui.sectionsList.takeItem(edit_sct_metadata.sctIdx)
             self.ui.sectionsList.insertItem(edit_sct_metadata.sctIdx,
@@ -343,24 +357,24 @@ class IdelmaApp(QApplication):
             self.ui.sctDeleteButton.clicked.disconnect()
             self.ui.sctDeleteButton.clicked.connect(self.sectionDeletion)
 
-        sct_idx_iter = self.virtualBoard.sctsMetaDataList[self.ui.sectionsList.currentRow()].sctIdx
-        self.virtualBoard.deletingSection(self.virtualBoard.sctsMetaDataList[sct_idx_iter])
+        sct_idx_iter = self.mcuModsRef.sctsMetaDataList[self.ui.sectionsList.currentRow()].sctIdx
+        self.mcuModsRef.deletingSection(self.mcuModsRef.sctsMetaDataList[sct_idx_iter])
 
-        while sct_idx_iter < self.virtualBoard.sctsMgmtMetaData.assigned:
+        while sct_idx_iter < self.mcuModsRef.sctsMgmtMetaData.assigned:
             if self.ui.sectionsList.item(sct_idx_iter + 1).defaultNameCheck(sct_idx_iter + 1):
                 self.ui.sectionsList.item(sct_idx_iter).defaultNameSet(sct_idx_iter)
             else:
                 self.ui.sectionsList.item(sct_idx_iter).sctName = \
                     self.ui.sectionsList.item(sct_idx_iter + 1).sctName
             self.ui.sectionsList.item(sct_idx_iter).setText()
-            self.virtualBoard.shiftSection(sct_idx_iter)
+            self.mcuModsRef.shiftSection(sct_idx_iter)
             sct_idx_iter += 1
         self.ui.sectionsList.takeItem(sct_idx_iter)
 
-        if len(self.virtualBoard.sctsMetaDataList) == len(self.board.sctsMetaDataList):
-            self.virtualBoard.clearSection(sct_idx_iter)
+        if len(self.mcuModsRef.sctsMetaDataList) == len(self.mcu.sctsMetaDataList):
+            self.mcuModsRef.clearSection(sct_idx_iter)
         else:
-            self.virtualBoard.sctsMetaDataList.pop(sct_idx_iter)
+            self.mcuModsRef.sctsMetaDataList.pop(sct_idx_iter)
 
         # Buttons check
         if self.resourcesAvailable() and not self.ui.sctAddButton.isEnabled():
@@ -374,23 +388,13 @@ class IdelmaApp(QApplication):
         """
         Resets the EEPROM memory of the arduino (debug purposes)
         """
-        self.ser.serRqst(self.ser.serialRqsts.get("reset_eeprom"), self.board.ackConfirmed)
+        self.ser.serRqst(self.ser.serialRqsts.get("reset_eeprom"), self.mcu.ackConfirmed)
         print('eeprom reset')
 
     def allOff(self):
         """
         Turn all pixels OFF
         """
-        self.ser.serRqst(self.ser.serialRqsts.get("all_pixels_off"), self.board.ackConfirmed)
+        self.ser.serRqst(self.ser.serialRqsts.get("all_pixels_off"), self.mcu.ackConfirmed)
         print('All OFF')
     # // ** ** ** ** ** ** ** ** ** ** ** ** ** **  DEBUG  ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** //
-
-    # def setupFromSave(self, list_of_tuple: list):
-        # for val in list_of_tuple:
-        #     self.sectionCreation(sct_idx=val[NonSerSctMetaData.infoTupleIndexes.get("sctID_index")],
-        #                          pixel_count=val[NonSerSctMetaData.infoTupleIndexes.get("pixelCount_index")],
-        #                          brightness=val[NonSerSctMetaData.infoTupleIndexes.get("brightness_index")],
-        #                          single_pxl_ctrl=val[NonSerSctMetaData.infoTupleIndexes.get("singlePxlCtrl_index")],
-        #                          section_name=("Section " + str(val[NonSerSctMetaData.infoTupleIndexes.get("sctID_index")])),
-        #                          set_default_name=True)
-        # pass

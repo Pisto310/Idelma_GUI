@@ -1,19 +1,18 @@
-from BoardInfos import BoardInfos
+from BoardMetaDatas import BoardMetaDatas
 from BrdMgmtMetaData import BrdMgmtMetaData
 from SctMetaData import SctMetaData
 
 from PyQt5.QtCore import (QObject, pyqtSignal)
 
 
-class BoardInfosQObject(QObject, BoardInfos):
+class BoardMetaDatasQObject(QObject, BoardMetaDatas):
     """
     TBD
     """
     snUpdted = pyqtSignal(str, name='sn_updated')
     fwVerUpdted = pyqtSignal(str, name='fw_ver_updated')
-    sctsUpdted = pyqtSignal(BrdMgmtMetaData, name='sections_info_updated')
-    pxlsUpdted = pyqtSignal(BrdMgmtMetaData, name='pixels_info_updated')
-    sctsInfoTupleSig = pyqtSignal(list, name="sections_info_tuple_from_MCU")
+    sctsUpdted = pyqtSignal(str, name='sections_info_updated')
+    pxlsUpdted = pyqtSignal(str, name='pixels_info_updated')
 
     def __init__(self):
         super().__init__()
@@ -40,9 +39,6 @@ class BoardInfosQObject(QObject, BoardInfos):
     def connectPxlsMgmtSignal(self, callback):
         self.pxlsUpdted.connect(callback)
 
-    def connectSctsInfoTupleSig(self, callback):
-        self.sctsInfoTupleSig.connect(callback)
-
     def snUpdtEmit(self, *args):
         self.snUpdted.emit(*args)
 
@@ -54,6 +50,3 @@ class BoardInfosQObject(QObject, BoardInfos):
 
     def pxlsMgmtUpdtEmit(self, *args):
         self.pxlsUpdted.emit(*args)
-
-    def sctsInfoTupleEmit(self, *args):
-        self.sctsInfoTupleSig.emit(*args)
