@@ -198,6 +198,9 @@ class BoardMetaDatas:
             return container
         return astuple(self.sctsMetaDataList[sct_idx])
 
+    def readTocStatusIndic(self, parsed_ser_mssg: list):
+        pass
+
     def ackConfirmed(self, parsed_ser_mssg: list):
         """
         Reads parsed serial message to confirm that it is solely the expected ACK char

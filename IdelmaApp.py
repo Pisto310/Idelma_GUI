@@ -4,6 +4,7 @@ import serial.serialutil
 from serial.tools.list_ports_osx import comports
 import os
 import pty
+import copy
 
 from IdelmaGui import IdelmaGui
 from IdelmaNewSctDialog import IdelmaNewSctDialog
@@ -167,7 +168,7 @@ class IdelmaApp(QApplication):
         in the app and its dependencies
         (sctsMetaDataList of mcuModsRef & QListWidget)
         """
-        self.mcuModsRef.sctsMetaDataList = self.mcu.sctsMetaDataList.copy()
+        self.mcuModsRef.sctsMetaDataList = copy.deepcopy(self.mcu.sctsMetaDataList)
         for idx in range(0, self.mcuModsRef.sctsMgmtMetaData.assigned):
             NonSerSctMetaDataQListWidgetItem(NonSerSctMetaData.instWithDefaultName(idx).sctName,
                                              self.ui.sectionsList, self.NonSerSctMetaDataItemType)

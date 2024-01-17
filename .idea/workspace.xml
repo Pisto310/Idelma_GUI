@@ -4,17 +4,14 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="3153b060-3ee7-475e-91c1-ba171824b147" name="Changes" comment="Had bugs from previous mods. All good now. Had to modify the deletingSection method in IdelmaApp and the metaDataCompare also. Now sending sub-cmds when clicking 'config' to elaborate on what func to call when boards receive data (dict of funcs)">
+    <list default="true" id="3153b060-3ee7-475e-91c1-ba171824b147" name="Changes" comment="Loading of a previously saved config from the MCU to the App has been achieved. Did a few renaming here and there. Thinking about modifying the way I update the virtual MCU for mod comparison to be done simultaneously with the app representation of the MCU (TBD)">
+      <change afterPath="$PROJECT_DIR$/IdelmaMainWin.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ArduinoEmulator.py" beforeDir="false" afterPath="$PROJECT_DIR$/ArduinoSerialEmulator.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/BoardInfos.py" beforeDir="false" afterPath="$PROJECT_DIR$/BoardMetaDatas.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/BoardInfosQObject.py" beforeDir="false" afterPath="$PROJECT_DIR$/BoardMetaDatasQObject.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/BrdMgmtMetaData.py" beforeDir="false" afterPath="$PROJECT_DIR$/BrdMgmtMetaData.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ArduinoSerialEmulator.py" beforeDir="false" afterPath="$PROJECT_DIR$/ArduinoSerialEmulator.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/BoardMetaDatas.py" beforeDir="false" afterPath="$PROJECT_DIR$/BoardMetaDatas.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/IdelmaApp.py" beforeDir="false" afterPath="$PROJECT_DIR$/IdelmaApp.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/IdelmaGui.py" beforeDir="false" afterPath="$PROJECT_DIR$/IdelmaGui.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/QBrdInfoLabel.py" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/SerialHandler.py" beforeDir="false" afterPath="$PROJECT_DIR$/SerialHandler.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/main.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -102,7 +99,7 @@
       <recent name="$PROJECT_DIR$" />
     </key>
   </component>
-  <component name="RunManager" selected="Python.main">
+  <component name="RunManager" selected="Python.IdelmaMainWin">
     <configuration name="ArduinoSerialEmulator" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="colorPicker" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -124,7 +121,7 @@
       <option name="INPUT_FILE" value="" />
       <method v="2" />
     </configuration>
-    <configuration name="IdelmaNewSctDialog" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+    <configuration name="IdelmaMainWin" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="colorPicker" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
@@ -136,49 +133,7 @@
       <option name="IS_MODULE_SDK" value="true" />
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/IdelmaNewSctDialog.py" />
-      <option name="PARAMETERS" value="" />
-      <option name="SHOW_COMMAND_LINE" value="false" />
-      <option name="EMULATE_TERMINAL" value="false" />
-      <option name="MODULE_MODE" value="false" />
-      <option name="REDIRECT_INPUT" value="false" />
-      <option name="INPUT_FILE" value="" />
-      <method v="2" />
-    </configuration>
-    <configuration name="IdelmaSctConfigDialog" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
-      <module name="colorPicker" />
-      <option name="INTERPRETER_OPTIONS" value="" />
-      <option name="PARENT_ENVS" value="true" />
-      <envs>
-        <env name="PYTHONUNBUFFERED" value="1" />
-      </envs>
-      <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
-      <option name="IS_MODULE_SDK" value="true" />
-      <option name="ADD_CONTENT_ROOTS" value="true" />
-      <option name="ADD_SOURCE_ROOTS" value="true" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/IdelmaSctConfigDialog.py" />
-      <option name="PARAMETERS" value="" />
-      <option name="SHOW_COMMAND_LINE" value="false" />
-      <option name="EMULATE_TERMINAL" value="false" />
-      <option name="MODULE_MODE" value="false" />
-      <option name="REDIRECT_INPUT" value="false" />
-      <option name="INPUT_FILE" value="" />
-      <method v="2" />
-    </configuration>
-    <configuration name="IdelmaSctDialog" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
-      <module name="colorPicker" />
-      <option name="INTERPRETER_OPTIONS" value="" />
-      <option name="PARENT_ENVS" value="true" />
-      <envs>
-        <env name="PYTHONUNBUFFERED" value="1" />
-      </envs>
-      <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
-      <option name="IS_MODULE_SDK" value="true" />
-      <option name="ADD_CONTENT_ROOTS" value="true" />
-      <option name="ADD_SOURCE_ROOTS" value="true" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/IdelmaSctDialog.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/IdelmaMainWin.py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
@@ -208,13 +163,55 @@
       <option name="INPUT_FILE" value="" />
       <method v="2" />
     </configuration>
+    <configuration name="mainWinIdelma" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+      <module name="colorPicker" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/mainWinIdelma.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
+    <configuration name="mainWinIdelma_clone" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+      <module name="colorPicker" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/mainWinIdelma_clone.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
     <recent_temporary>
       <list>
+        <item itemvalue="Python.IdelmaMainWin" />
         <item itemvalue="Python.main" />
+        <item itemvalue="Python.mainWinIdelma_clone" />
+        <item itemvalue="Python.mainWinIdelma" />
         <item itemvalue="Python.ArduinoSerialEmulator" />
-        <item itemvalue="Python.IdelmaNewSctDialog" />
-        <item itemvalue="Python.IdelmaSctConfigDialog" />
-        <item itemvalue="Python.IdelmaSctDialog" />
       </list>
     </recent_temporary>
   </component>
@@ -416,7 +413,14 @@
       <option name="project" value="LOCAL" />
       <updated>1699765487063</updated>
     </task>
-    <option name="localTasksCounter" value="28" />
+    <task id="LOCAL-00028" summary="Loading of a previously saved config from the MCU to the App has been achieved. Did a few renaming here and there. Thinking about modifying the way I update the virtual MCU for mod comparison to be done simultaneously with the app representation of the MCU (TBD)">
+      <created>1701658038040</created>
+      <option name="number" value="00028" />
+      <option name="presentableId" value="LOCAL-00028" />
+      <option name="project" value="LOCAL" />
+      <updated>1701658038040</updated>
+    </task>
+    <option name="localTasksCounter" value="29" />
     <servers>
       <YouTrack url="https://idelma.youtrack.cloud">
         <option name="defaultSearch" value="" />
@@ -509,7 +513,6 @@
     <option name="oldMeFiltersMigrated" value="true" />
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="Started work on create section command" />
     <MESSAGE value="Set-up section command implemented, but still not clear if board should send response" />
     <MESSAGE value="Added a good chunk of GUI for basic serial functions already coded" />
     <MESSAGE value="Changed the logic of how the board infos are fetched to make it more modular. Created a basic class fore storing the sections and pixels info values instead of a dict" />
@@ -534,7 +537,8 @@
     <MESSAGE value="Lots of mods:&#10;- Var/Class renaming&#10;- Added SctMetaData dataclass&#10;- Created a parent SctConfig dialog for generating new section &amp; section edit dialog&#10;- Section Config dialog now returns SctMetaData obj and NonSerSctMetaData obj instead of individual var/args&#10;- Had to rework logic in IdelmaApp of section creation, deletion and editing&#10;- No need to have a sections property list. All actions are relevant on QListWidget SectionsList" />
     <MESSAGE value="Corrected a few bugs with the configuring in Board class; Added a few func in Board class to ease with section creation, deletion and editing; New method in SctMetaData cls that returns the needed count of blocks in heap when creating section (real mem space)" />
     <MESSAGE value="Had bugs from previous mods. All good now. Had to modify the deletingSection method in IdelmaApp and the metaDataCompare also. Now sending sub-cmds when clicking 'config' to elaborate on what func to call when boards receive data (dict of funcs)" />
-    <option name="LAST_COMMIT_MESSAGE" value="Had bugs from previous mods. All good now. Had to modify the deletingSection method in IdelmaApp and the metaDataCompare also. Now sending sub-cmds when clicking 'config' to elaborate on what func to call when boards receive data (dict of funcs)" />
+    <MESSAGE value="Loading of a previously saved config from the MCU to the App has been achieved. Did a few renaming here and there. Thinking about modifying the way I update the virtual MCU for mod comparison to be done simultaneously with the app representation of the MCU (TBD)" />
+    <option name="LAST_COMMIT_MESSAGE" value="Loading of a previously saved config from the MCU to the App has been achieved. Did a few renaming here and there. Thinking about modifying the way I update the virtual MCU for mod comparison to be done simultaneously with the app representation of the MCU (TBD)" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>

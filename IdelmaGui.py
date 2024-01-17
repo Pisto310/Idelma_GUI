@@ -76,10 +76,10 @@ class IdelmaGui(QMainWindow):
 
         self.setListWidget()
 
-        self.setVerticalLayout(self.brdInfosVerticalLayoutWidget, (270, 10, 191, 311), "brdInfosVerticalLayoutWidget")
-        self.setVerticalLayout(self.progBttnsVerticalLayoutWidget, (290, 380, 151, 91), "progBttnsVerticalLayoutWidget")
-        self.setBoxLayout(self.brdInfosBoxLayout, (0, 0, 0, 0), "brdInfosBoxLayout")
-        self.setBoxLayout(self.progBttnsBoxLayout, (0, 0, 0, 0), "progBttnsBoxLayout")
+        self.setVerticalLayout(self.brdInfosVerticalLayoutWidget, (270, 10, 191, 311), "brdInfosVLayoutWidget")
+        self.setVerticalLayout(self.progBttnsVerticalLayoutWidget, (290, 380, 151, 91), "progBttnsVLayoutWidget")
+        self.setBoxLayout(self.brdInfosBoxLayout, (0, 0, 0, 0), "brdInfosVBoxLayout")
+        self.setBoxLayout(self.progBttnsBoxLayout, (0, 0, 0, 0), "progBttnsVBoxLayout")
 
         self.setBrdInfosZone(self.snNumberLayout, "snNumberLayout", self.snIdLabel, "snIdLabel",
                              self.snNumberLabel, "snNumberLabel")
@@ -91,7 +91,7 @@ class IdelmaGui(QMainWindow):
                              self.pxlsLabel, "pxlsLabel")
 
         self.setLineWidget(self.vertiLine, QFrame.VLine, QFrame.Sunken, (250, 10, 20, 481), "vertiLine")
-        self.setLineWidget(self.horizLine, QFrame.HLine, QFrame.Sunken, (266, 350, 201, 20), "horizLine")
+        self.setLineWidget(self.horizLine, QFrame.HLine, QFrame.Sunken, (266, 350, 201, 20), "lineInfo2Config")
 
         self.centralWidgetButton(self.sctEditButton, (79, 456, 177, 42), "sctEditButton", 18, 50)
         self.centralWidgetButton(self.sctDeleteButton, (42, 456, 50, 42), "sctDeleteButton", 22, 75)

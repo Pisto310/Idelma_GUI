@@ -36,6 +36,7 @@ class ArduinoSerialEmulator:
 
         self.acknowledge = 6
         self.lineFeedChar = 10
+        self.notAck = 21
         self.spaceChar = 32
 
         self.cmdsDict = {
@@ -43,6 +44,7 @@ class ArduinoSerialEmulator:
             "2":  self.fwVersionSend,
             "3":  self.sctsMetaDataSend,
             "4":  self.pxlsMetaDataSend,
+            "5":  self.sendNak,
 
             "10": self.configBrd,
 
@@ -124,7 +126,14 @@ class ArduinoSerialEmulator:
         """
         Method that returns an "ACK" character once mssg has been processed
         """
-        self.txBuffer.mssgLen = self.txDataParsing(self.txBuffer.buffer, bytearray([6]))
+        self.txBuffer.mssgLen = self.txDataParsing(self.txBuffer.buffer, bytearray([self.acknowledge]))
+        self.serialWrite()
+
+    def sendNak(self):
+        """
+        Method that returns an "ACK" character once mssg has been processed
+        """
+        self.txBuffer.mssgLen = self.txDataParsing(self.txBuffer.buffer, bytearray([self.notAck]))
         self.serialWrite()
 
     def rxDataParsing(self):
