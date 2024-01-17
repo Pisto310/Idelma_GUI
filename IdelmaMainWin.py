@@ -191,13 +191,6 @@ class IdelmaMainWin(QMainWindow):
         calling other 'set methods', adding widgets, layouts and tabs
         and managing size policies among many things
         """
-        self.setGeometries()
-        self.setMargins()
-        self.setStretches()
-        self.setFonts()
-        self.setFramesAndLines()
-        self.setTab()
-
         self.resize(self.winSize_x, self.winSize_y)
 
         self.mainHLayout.addWidget(self.mainTab)
@@ -244,6 +237,13 @@ class IdelmaMainWin(QMainWindow):
         self.colorPickerHLayout.addWidget(self.colorPicker)
 
         self.setCentralWidget(self.centralWidget)
+
+        self.setGeometries()
+        self.setMargins()
+        self.setStretches()
+        self.setFonts()
+        self.setFramesAndLines()
+        self.setTab()
 
         self.menuBar.setNativeMenuBar(True)
         self.menuDebug.addAction(self.actionReset_EEPROM)

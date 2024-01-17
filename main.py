@@ -8,7 +8,7 @@ def bootApp():
     app = IdelmaApp(sys.argv)
 
     """-----     debug    -----"""
-    app.fetchBrdMetaDatasCmd()
+    # app.fetchBrdMetaDatasCmd()
 
     # app.sectionCreation(SctMetaData(0, 3, 76, 1), NonSerSctMetaData('First'))
     # app.configBrdBttnStateTrig()
