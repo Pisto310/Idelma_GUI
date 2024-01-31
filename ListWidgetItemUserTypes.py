@@ -14,7 +14,10 @@ class ListWidgetItemUserType:
         """
         Method used to create a new UserType
         """
+
+        # Check if user type exists?
+
         cls.typeIndex += 1
         itemType = QListWidgetItem.ItemType(cls.typeIndex)
-        cls.typeDict.update({user_string: itemType})
+        cls.typeDict.update({itemType: user_string})
         return itemType

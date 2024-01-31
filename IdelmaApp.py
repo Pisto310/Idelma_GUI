@@ -47,8 +47,8 @@ class IdelmaApp(QApplication):
         # Instantiating and Declaring UI objects
         self.ui = IdelmaGui()
 
-        # Creating an ItemType for QListWidgetItems that are non-serial sections metadatas
-        self.NonSerSctMetaDataItemType = ListWidgetItemUserType.newUserType('Section Properties Type')
+        # Creating custom Item Types for display widgets items
+        # self.NonSerSctMetaDataItemType = ListWidgetItemUserType.newUserType('Section Properties Type')
 
         # Connecting signals
         self.assigningSlots()
@@ -198,7 +198,7 @@ class IdelmaApp(QApplication):
         Handle the action to take if a section to be created has been given a name that already exists
 
         Parameters:
-            sct_metadata (SctMetaData): SctMetaData class object containing infos of previously dialog
+            sct_metadata (SctMetaData): SctMetaData class object containing infos of previously accepted dialog
             list_widget_item (NonSerSctMetaData): Contains all non-serial info related to section
         """
         if not list_widget_item.defaultNameCheck(sct_metadata.sctIdx) \
@@ -304,15 +304,18 @@ class IdelmaApp(QApplication):
         nameDuplicateDialog.exec_()
         return nameDuplicateDialog.result()
 
-    def sectionCreation(self, sct_metadata: SctMetaData, list_widget_item: NonSerSctMetaData):
+    def sectionCreation(self, sct_metadata: SctMetaData, list_widget_item: NonSerSctMetaDataQListWidgetItem):
         """
         Handle the creation of a new section by updating applicable attributes and objects
+        Displays the section's name in the ListWidget and ComboBox widgets
 
         Parameters:
             sct_metadata (SctMetaData): SctMetaData class object containing info of previously accepted newSectionDialog
-            list_widget_item (NonSerSctMetaData): Contains all non-serial info related to section
+            list_widget_item (NonSerSctMetaDataQListWidgetItem): Contains all non-serial info related to section
         """
-        NonSerSctMetaDataQListWidgetItem(list_widget_item.sctName, self.ui.sectionsList, self.NonSerSctMetaDataItemType)
+        self.ui.sectionsList.addItem(list_widget_item)
+        self.ui.sectionsList.item(sct_metadata.sctIdx).setText()
+        self.ui.sctSelectComboBox.addItem(list_widget_item.sctName)
         self.mcuModsRef.addingSection(sct_metadata)
 
         # Buttons check
@@ -321,21 +324,22 @@ class IdelmaApp(QApplication):
 
         self.configBrdBttnStateTrig()
 
-    def sectionEdit(self, edit_sct_metadata: SctMetaData, edit_list_widget_item: NonSerSctMetaData):
+    def sectionEdit(self, edit_sct_metadata: SctMetaData, edit_list_widget_item: NonSerSctMetaDataQListWidgetItem):
         """
         Update the attributes of an edited section (if changes were made by the user)
+        Also update the name in ListWidget and ComboBox widget
 
         Parameters:
             edit_sct_metadata (SctMetaData): SctMetaData class object w/ infos of the previously accepted edit dialog
-            edit_list_widget_item (NonSerSctMetaData): All non-serial info related to edited section
+            edit_list_widget_item (NonSerSctMetaDataQListWidgetItem): All non-serial info related to edited section
         """
         if edit_sct_metadata != self.mcuModsRef.sctsMetaDataList[edit_sct_metadata.sctIdx]:
             self.mcuModsRef.editingSection(edit_sct_metadata)
         if edit_list_widget_item != self.ui.sectionsList.currentItem():
             self.ui.sectionsList.takeItem(edit_sct_metadata.sctIdx)
             self.ui.sectionsList.insertItem(edit_sct_metadata.sctIdx,
-                                            NonSerSctMetaDataQListWidgetItem(edit_list_widget_item.sctName, None,
-                                                                             self.NonSerSctMetaDataItemType))
+                                            NonSerSctMetaDataQListWidgetItem(edit_list_widget_item.sctName))
+            self.ui.sctSelectComboBox.setItemText(edit_sct_metadata.sctIdx, edit_list_widget_item.sctName)
 
         # Buttons check
         if self.resourcesAvailable() and not self.ui.sctAddButton.isEnabled():
@@ -347,9 +351,9 @@ class IdelmaApp(QApplication):
 
     def sectionDeletion(self, dialog_check_state: bool = False):
         """
-        Delete a user-chosen section after warning dialog has been accepted.
-        Basically, every scts attr. coming after the deleted one are shifted.
-        In practice, nothing is really deleted, only attributes are changed.
+        Delete a user-chosen section after warning dialog has been accepted
+        Basically, every scts attr. coming after the deleted one are shifted
+        In practice, only the last sct is deleted, all others have their attr. modded
 
         Parameters:
             dialog_check_state (bool): State of the checkbox of the Warning Dialog
@@ -368,9 +372,11 @@ class IdelmaApp(QApplication):
                 self.ui.sectionsList.item(sct_idx_iter).sctName = \
                     self.ui.sectionsList.item(sct_idx_iter + 1).sctName
             self.ui.sectionsList.item(sct_idx_iter).setText()
+            self.ui.sctSelectComboBox.setItemText(sct_idx_iter, self.ui.sectionsList.item(sct_idx_iter).sctName)
             self.mcuModsRef.shiftSection(sct_idx_iter)
             sct_idx_iter += 1
         self.ui.sectionsList.takeItem(sct_idx_iter)
+        self.ui.sctSelectComboBox.removeItem(sct_idx_iter)
 
         if len(self.mcuModsRef.sctsMetaDataList) == len(self.mcu.sctsMetaDataList):
             self.mcuModsRef.clearSection(sct_idx_iter)

@@ -9,9 +9,9 @@ from PyQt5.QtCore import (pyqtSignal)
 
 class IdelmaEditSctDialog(IdelmaSctConfigDialog):
 
-    accepted = pyqtSignal(SctMetaData, NonSerSctMetaData, name='dialog_modified_user_inputs')
+    accepted = pyqtSignal(SctMetaData, NonSerSctMetaDataQListWidgetItem, name='dialog_modified_user_inputs')
 
-    def __init__(self, sct_metadata: SctMetaData, list_widget_item: NonSerSctMetaData,
+    def __init__(self, sct_metadata: SctMetaData, list_widget_item: NonSerSctMetaDataQListWidgetItem,
                  pxls_remaining: int):
         """
         Dialog that pops-up when user asks to create a new section
@@ -22,8 +22,8 @@ class IdelmaEditSctDialog(IdelmaSctConfigDialog):
             pxls_remaining (int): Remaining pixels available for assignment
 
         Return (a pyqt signal containing the following variables):
-            SctSerialData_obj (SctMetaData);
-            sct_name (str);
+            SctSerialData_obj (SctMetaData)
+            NonSerSctMetaDataQListWidgetItem_obj (NonSerSctMetaDataQListWidgetItem)
         """
         self.maxPxls = pxls_remaining
         self.sctMetaData = sct_metadata
@@ -58,13 +58,15 @@ class IdelmaEditSctDialog(IdelmaSctConfigDialog):
     def accept(self):
         super().accept()
         if self.sctNameLineEdit.text() == "":
-            edited_listWidgetItem = NonSerSctMetaData(self.listWidgetItem.sctName)
+            edited_listWidgetItem = NonSerSctMetaDataQListWidgetItem(self.listWidgetItem.sctName)
+            # Or use default name?
         else:
-            edited_listWidgetItem = NonSerSctMetaData(self.sctNameLineEdit.text())
+            edited_listWidgetItem = NonSerSctMetaDataQListWidgetItem(self.sctNameLineEdit.text())
         edited_sctMetaData = SctMetaData(self.sctMetaData.sctIdx,
                                          self.pxlsSpinBox.value(),
                                          self.brightnessSlider.value(),
                                          int(self.singlePxlCheckBox.isChecked()))
+        edited_listWidgetItem.updtPxlsMetaDataList(edited_sctMetaData.pxlHeapBlocksCount())
 
         self.accepted.emit(edited_sctMetaData, edited_listWidgetItem)
 

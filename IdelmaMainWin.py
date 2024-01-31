@@ -1,6 +1,6 @@
 from PyQt5.QtWidgets import (QApplication, QMainWindow, QWidget, QLabel, QFormLayout, QPushButton, QVBoxLayout,
                              QHBoxLayout, QListWidget, QFrame, QMenuBar, QMenu, QAction, QStatusBar, QTabWidget,
-                             QBoxLayout, QColorDialog, QComboBox, QSizePolicy, QTableView, QGridLayout, QToolBar)
+                             QBoxLayout, QColorDialog, QComboBox, QSizePolicy, QTableWidget, QGridLayout, QToolBar)
 from PyQt5.QtCore import (Qt, QSize, QRect, QLocale, QMetaObject, QCoreApplication, QEvent, QObject)
 from PyQt5.QtGui import (QFont)
 
@@ -70,7 +70,7 @@ class IdelmaMainWin(QMainWindow):
         self.sctSelectLabel = QLabel(self.mapTabVLayoutWdgt)
         self.sctSelectComboBox = QComboBox(self.mapTabVLayoutWdgt)
         self.lineHSelectToMap = QFrame(self.mapTabVLayoutWdgt)
-        self.pxlsMapTable = QTableView(self.mapTabVLayoutWdgt)
+        self.pxlsMapTable = QTableWidget(self.mapTabVLayoutWdgt)
 
         self.colorPickerHLayout = QHBoxLayout(self.colorPickerWdgt)
         self.colorPicker = QColorDialog()

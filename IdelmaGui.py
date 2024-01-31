@@ -1,4 +1,5 @@
 from IdelmaMainWin import IdelmaMainWin
+from PxlMetaDataQTableWidgetItem import PxlMetaDataQTableWidgetItem
 
 
 class IdelmaGui(IdelmaMainWin):
@@ -8,10 +9,15 @@ class IdelmaGui(IdelmaMainWin):
     def __init__(self):
         super().__init__()
 
-        self.configButton.setEnabled(False)
-        self.saveButton.setEnabled(False)
-
+        self.setTableWidget()
+        self.disableBrdProgBttns()
         self.disableListWidgetBttns()
+
+    def setTableWidget(self):
+        self.pxlsMapTable.setColumnCount(len(PxlMetaDataQTableWidgetItem.columnLabels))
+        self.pxlsMapTable.setHorizontalHeaderLabels(PxlMetaDataQTableWidgetItem.columnLabels)
+        # self.pxlsMapTable.setRowCount(5)
+        # self.pxlsMapTable.setVerticalHeaderLabels(['1', '1', '1', '1', '1'])
 
     def enableListWidgetBttns(self):
         self.sctDeleteButton.setEnabled(True)
@@ -20,6 +26,10 @@ class IdelmaGui(IdelmaMainWin):
     def disableListWidgetBttns(self):
         self.sctDeleteButton.setEnabled(False)
         self.sctEditButton.setEnabled(False)
+
+    def disableBrdProgBttns(self):
+        self.configButton.setEnabled(False)
+        self.saveButton.setEnabled(False)
 
     def updtSnNumLabel(self, text: str):
         self.snNumberLabel.setText(text)

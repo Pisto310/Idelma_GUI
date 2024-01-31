@@ -1,30 +1,31 @@
+from PxlMetaDataQTableWidgetItem import PxlMetaDataQTableWidgetItem
+
+from TableWidgetItemUserType import TableWidgetItemUserType
 
 
 class NonSerSctMetaData:
     """
-    Contains all properties relating to user-created section
+    Contains all non-serially transmitted properties
+    related to user-created section
     """
-
-    infoTupleIndexes = {'sctID_index': 0,
-                        'pixelCount_index': 1,
-                        'brightness_index': 2,
-                        'singlePxlCtrl_index': 3}
-
     def __init__(self, name: str):
         self._sctName = name
+        self.pxlMetaDataList = []
 
-    # def decrDefaultName(self):
-    #     if self.setDefaultName:
-    #         self.sctName = "Section " + str(self.extractNameInt() - 1)
-    #
-    # def extractNameInt(self):
-    #     container = ""
-    #     for index, val in enumerate(self.sctName[::-1]):
-    #         if val == " ":
-    #             break
-    #         else:
-    #             container += val
-    #     return int(container[::-1])
+    def updtPxlsMetaDataList(self, pxl_count: int):
+        """
+        Update the list attribute containing the Pixels MetaData
+        object when a section is either created or edited
+
+        Parameters:
+            pxl_count (int): Number of pixels (in terms of heap blocks)
+                             contained in the section
+        """
+        if pxl_count < len(self.pxlMetaDataList):
+            self.pxlMetaDataList = self.pxlMetaDataList[:pxl_count]
+        elif pxl_count > len(self.pxlMetaDataList):
+            for idx in range(len(self.pxlMetaDataList), pxl_count):
+                self.pxlMetaDataList.append(PxlMetaDataQTableWidgetItem(idx))
 
     def defaultNameCheck(self, sct_idx: int):
         """
@@ -80,12 +81,12 @@ class NonSerSctMetaData:
         else:
             raise TypeError("Value should be of type {}".format(user_t))
 
-    @staticmethod
-    # Simple func to check if value of variable is between set boundary
-    # To not stop prog execution, error handling should be done once func is called
-    def valueBoundCheck(val, low_bound, up_bound):
-        if low_bound <= val <= up_bound:
-            return True
-        else:
-            raise ValueError("Value is out of bound. Must be in [{}, {}] interval".format(low_bound, up_bound))
+    # @staticmethod
+    # # Simple func to check if value of variable is between set boundary
+    # # To not stop prog execution, error handling should be done once func is called
+    # def valueBoundCheck(val, low_bound, up_bound):
+    #     if low_bound <= val <= up_bound:
+    #         return True
+    #     else:
+    #         raise ValueError("Value is out of bound. Must be in [{}, {}] interval".format(low_bound, up_bound))
 
