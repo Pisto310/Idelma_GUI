@@ -8,28 +8,15 @@ def bootApp():
     app = IdelmaApp(sys.argv)
 
     """-----     debug    -----"""
-    app.fetchBrdMetaDatasCmd()
+    # app.fetchBrdMetaDatasCmd()
 
-    # app.sectionCreation(SctMetaData(0, 3, 76, 1), NonSerSctMetaDataQListWidgetItem('First'))
-    # app.configBrdBttnStateTrig()
-    #
-    # app.sectionCreation(SctMetaData(1, 6, 168, 0), NonSerSctMetaDataQListWidgetItem('Section 1'))
-    # app.configBrdBttnStateTrig()
-    #
-    # app.sectionCreation(SctMetaData(2, 2, 29, 0), NonSerSctMetaDataQListWidgetItem('Name'))
-    # app.configBrdBttnStateTrig()
-    #
-    # app.sectionCreation(SctMetaData(3, 5, 216, 1), NonSerSctMetaDataQListWidgetItem('Section 3'))
-    # app.configBrdBttnStateTrig()
-    #
-    # app.sectionCreation(SctMetaData(4, 6, 125, 0), NonSerSctMetaData('Subsequent'))
-    # app.configBrdBttnStateTrig()
-    #
-    # app.sectionCreation(SctMetaData(5, 1, 193, 0), NonSerSctMetaData('Tempus Fugit'))
-    # app.configBrdBttnStateTrig()
-    #
-    # app.sectionCreation(SctMetaData(6, 4, 67, 1), NonSerSctMetaData('Final'))
-    # app.configBrdBttnStateTrig()
+    # app.newSectionDialog(SctMetaData(0, 3, 76, 1), NonSerSctMetaDataQListWidgetItem('First'))
+    # app.newSectionDialog(SctMetaData(1, 6, 168, 0), NonSerSctMetaDataQListWidgetItem(''))
+    # app.newSectionDialog(SctMetaData(2, 2, 29, 0), NonSerSctMetaDataQListWidgetItem('Name'))
+    # app.newSectionDialog(SctMetaData(3, 5, 216, 1), NonSerSctMetaDataQListWidgetItem(''))
+    # app.newSectionDialog(SctMetaData(4, 6, 125, 0), NonSerSctMetaDataQListWidgetItem('Subsequent'))
+    # app.newSectionDialog(SctMetaData(5, 1, 193, 0), NonSerSctMetaDataQListWidgetItem('Tempus Fugit'))
+    # app.newSectionDialog(SctMetaData(6, 4, 67, 1), NonSerSctMetaDataQListWidgetItem('Final'))
     """-----     debug    -----"""
 
     sys.exit(app.exec_())

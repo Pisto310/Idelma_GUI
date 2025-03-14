@@ -4,19 +4,13 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="3153b060-3ee7-475e-91c1-ba171824b147" name="Changes" comment="New window style implemented in main app!">
-      <change afterPath="$PROJECT_DIR$/PxlMetaData.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/PxlMetaDataQTableWidgetItem.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/TableWidgetItemUserType.py" afterDir="false" />
+    <list default="true" id="3153b060-3ee7-475e-91c1-ba171824b147" name="Changes" comment="Added Pixels MetaData class to keep track of some pixel attributes as they may changed. They are to be displayed in the Table widget in the Mapping tab">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/IdelmaApp.py" beforeDir="false" afterPath="$PROJECT_DIR$/IdelmaApp.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/IdelmaEditSctDialog.py" beforeDir="false" afterPath="$PROJECT_DIR$/IdelmaEditSctDialog.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/IdelmaGui.py" beforeDir="false" afterPath="$PROJECT_DIR$/IdelmaGui.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/IdelmaMainWin.py" beforeDir="false" afterPath="$PROJECT_DIR$/IdelmaMainWin.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/IdelmaNewSctDialog.py" beforeDir="false" afterPath="$PROJECT_DIR$/IdelmaNewSctDialog.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ListWidgetItemUserTypes.py" beforeDir="false" afterPath="$PROJECT_DIR$/ListWidgetItemUserTypes.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/NonSerSctMetaData.py" beforeDir="false" afterPath="$PROJECT_DIR$/NonSerSctMetaData.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/NonSerSctMetaDataQListWidgetItem.py" beforeDir="false" afterPath="$PROJECT_DIR$/NonSerSctMetaDataQListWidgetItem.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/PxlMetaDataQTableWidgetItem.py" beforeDir="false" afterPath="$PROJECT_DIR$/PxlMetaDataQTableWidgetItem.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/main.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -440,7 +434,14 @@
       <option name="project" value="LOCAL" />
       <updated>1705532354967</updated>
     </task>
-    <option name="localTasksCounter" value="31" />
+    <task id="LOCAL-00031" summary="Added Pixels MetaData class to keep track of some pixel attributes as they may changed. They are to be displayed in the Table widget in the Mapping tab">
+      <created>1706665914616</created>
+      <option name="number" value="00031" />
+      <option name="presentableId" value="LOCAL-00031" />
+      <option name="project" value="LOCAL" />
+      <updated>1706665914616</updated>
+    </task>
+    <option name="localTasksCounter" value="32" />
     <servers>
       <YouTrack url="https://idelma.youtrack.cloud">
         <option name="defaultSearch" value="" />
@@ -533,7 +534,6 @@
     <option name="oldMeFiltersMigrated" value="true" />
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="Changed the logic of how the board infos are fetched to make it more modular. Created a basic class fore storing the sections and pixels info values instead of a dict" />
     <MESSAGE value="Revamped the whole Idelma window with QtDesigner. No functionalities done yet. Will add an action handler" />
     <MESSAGE value="UI can fetch board infos and update respective labels" />
     <MESSAGE value="UI can fetch board infos and update respective labels. Created some classes related to event handling, but not in use yet" />
@@ -558,17 +558,11 @@
     <MESSAGE value="Loading of a previously saved config from the MCU to the App has been achieved. Did a few renaming here and there. Thinking about modifying the way I update the virtual MCU for mod comparison to be done simultaneously with the app representation of the MCU (TBD)" />
     <MESSAGE value="Added a new IdelmaMainWin.py file to handle the UI shell and modified it at the same time. A few other minor changes also" />
     <MESSAGE value="New window style implemented in main app!" />
-    <option name="LAST_COMMIT_MESSAGE" value="New window style implemented in main app!" />
+    <MESSAGE value="Added Pixels MetaData class to keep track of some pixel attributes as they may changed. They are to be displayed in the Table widget in the Mapping tab" />
+    <option name="LAST_COMMIT_MESSAGE" value="Added Pixels MetaData class to keep track of some pixel attributes as they may changed. They are to be displayed in the Table widget in the Mapping tab" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
-      <breakpoints>
-        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/IdelmaApp.py</url>
-          <line>335</line>
-          <option name="timeStamp" value="14" />
-        </line-breakpoint>
-      </breakpoints>
       <default-breakpoints>
         <breakpoint type="python-exception">
           <properties notifyOnTerminate="true" exception="BaseException">
@@ -577,10 +571,5 @@
         </breakpoint>
       </default-breakpoints>
     </breakpoint-manager>
-    <watches-manager>
-      <configuration name="PythonConfigurationType">
-        <watch expression="self.ui.sectionsList.item(edit_sct_metadata.sctIdx)" language="Python" />
-      </configuration>
-    </watches-manager>
   </component>
 </project>

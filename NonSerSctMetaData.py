@@ -27,6 +27,13 @@ class NonSerSctMetaData:
             for idx in range(len(self.pxlMetaDataList), pxl_count):
                 self.pxlMetaDataList.append(PxlMetaDataQTableWidgetItem(idx))
 
+    def getPxlCnt(self):
+        """
+        Return the pixel count in the section based upon
+        the length of the pxlMetaDataList attr.
+        """
+        return len(self.pxlMetaDataList)
+
     def defaultNameCheck(self, sct_idx: int):
         """
         Check if the set name is the default one

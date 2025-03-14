@@ -20,8 +20,6 @@ from NonSerSctMetaDataQListWidgetItem import NonSerSctMetaDataQListWidgetItem
 from ArduinoSerialEmulator import ArduinoSerialEmulator
 from SctMetaData import SctMetaData
 
-from ListWidgetItemUserTypes import ListWidgetItemUserType
-
 from SerialHandlerQObject import SerialHandlerQObject
 
 
@@ -129,7 +127,7 @@ class IdelmaApp(QApplication):
         self.ser.serRqst(self.ser.serialRqsts.get("config_board"), self.mcu.configBrd,
                          *self.metaDataCompare())
 
-        self.configBrdBttnStateTrig()
+        self.z()
 
         if not self.ui.saveButton.isEnabled():
             self.ui.saveButton.setEnabled(True)
@@ -192,6 +190,14 @@ class IdelmaApp(QApplication):
             self.ui.configButton.setEnabled(True)
         elif self.mcuModsRef == self.mcu and self.ui.configButton.isEnabled():
             self.ui.configButton.setEnabled(False)
+
+    def setPxlsMapTableColumns(self, str_list: list):
+        """
+        Setting table widget
+        """
+        self.ui.pxlsMapTable.setColumnCount(len(str_list))
+        self.ui.pxlsMapTable.setVerticalHeaderLabels(str_list)
+        # self.ui.pxlsMapTable.setColumnWidth(col_idx, width_in_pixel)
 
     def duplicateNameHandler(self, sct_metadata: SctMetaData, list_widget_item: NonSerSctMetaData):
         """
@@ -261,15 +267,30 @@ class IdelmaApp(QApplication):
                                   self.mcuModsRef.sctMetaDataTupleFormat(sctMetaData_obj.sctIdx)))
         return container[::-1]
 
-    def newSectionDialog(self):
+    def newSectionDialog(self,
+                         debug_sct_metadata: SctMetaData = None,
+                         debug_non_serial: NonSerSctMetaDataQListWidgetItem = None):
         """
         Open the 'Section Configuration' dialog for user to create
-        a new section
+        a new section. Input parameters are used for debugging to skip
+        lenghty process of entering info each time when restarting app
+
+        Parameters:
+            debug_sct_metadata (SctMetaData): Used for debug purposes
+            debug_non_serial (NonSerSctMetaDataQListWidgetItem): Used for debug purposes
         """
         addSctDialog = IdelmaNewSctDialog(self.mcuModsRef.sctsMgmtMetaData.assigned,
                                           self.mcuModsRef.pxlsMgmtMetaData.remaining)
         addSctDialog.connectAccepted(self.duplicateNameHandler)
-        addSctDialog.exec_()
+
+        if debug_sct_metadata and debug_non_serial:
+            addSctDialog.sctNameLineEdit.insert(debug_non_serial.sctName)
+            addSctDialog.pxlsSpinBox.setValue(debug_sct_metadata.pixelCount)
+            addSctDialog.brightnessSlider.setSliderPosition(debug_sct_metadata.brightness)
+            addSctDialog.singlePxlCheckBox.setCheckState(debug_sct_metadata.singlePxlCtrl)
+            addSctDialog.accept()
+        else:
+            addSctDialog.exec_()
 
     def editSectionDialog(self):
         """

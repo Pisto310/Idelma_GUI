@@ -34,7 +34,7 @@ class NonSerSctMetaDataQListWidgetItem(NonSerSctMetaData, QListWidgetItem):
         font.setPointSize(14)
         self.setFont(font)
 
-    def type(self) -> dict:
+    def type(self) -> str:
         return ListWidgetItemUserType.typeDict[self.listWidgetItemType]
 
     def setText(self):

@@ -1,4 +1,5 @@
 from IdelmaMainWin import IdelmaMainWin
+
 from PxlMetaDataQTableWidgetItem import PxlMetaDataQTableWidgetItem
 
 
@@ -9,15 +10,8 @@ class IdelmaGui(IdelmaMainWin):
     def __init__(self):
         super().__init__()
 
-        self.setTableWidget()
         self.disableBrdProgBttns()
         self.disableListWidgetBttns()
-
-    def setTableWidget(self):
-        self.pxlsMapTable.setColumnCount(len(PxlMetaDataQTableWidgetItem.columnLabels))
-        self.pxlsMapTable.setHorizontalHeaderLabels(PxlMetaDataQTableWidgetItem.columnLabels)
-        # self.pxlsMapTable.setRowCount(5)
-        # self.pxlsMapTable.setVerticalHeaderLabels(['1', '1', '1', '1', '1'])
 
     def enableListWidgetBttns(self):
         self.sctDeleteButton.setEnabled(True)
